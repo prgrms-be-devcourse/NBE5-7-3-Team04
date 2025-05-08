@@ -11,7 +11,8 @@ public enum ErrorCode {
     // 인증 관련
 
     // 유저 관련
-    USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다.");
+    USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 유저입니다.");
     // 공연 관련
 
     // 예약 관련

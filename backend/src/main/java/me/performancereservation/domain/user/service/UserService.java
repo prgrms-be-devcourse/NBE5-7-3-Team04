@@ -33,8 +33,15 @@ public class UserService {
     }
 
     //id 기반 유저 조회
-
-
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_FOUND, ErrorType.SERVICE));
+    }
 
     //email 기반 유저 조회
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_FOUND, ErrorType.SERVICE));
+    }
+
 }
