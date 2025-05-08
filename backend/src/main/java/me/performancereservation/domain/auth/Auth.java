@@ -21,14 +21,11 @@ public class Auth {
 
     private String oauthId; // 써드파티 식별자
 
-    private String refreshToken; // 리프레시토큰
-
     @Builder
-    public Auth(Long id, Long userId, String provider, String oauthId, String refreshToken) {
+    public Auth(Long id, Long userId, String provider, String oauthId) {
         this.id = id;
         this.userId = userId;
         this.provider = provider;
         this.oauthId = oauthId;
-        this.refreshToken = refreshToken;
     }
 }
