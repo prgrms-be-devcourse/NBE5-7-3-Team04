@@ -6,12 +6,12 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     // 시스템
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
 
     // 인증 관련
 
     // 유저 관련
-
+    USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다.");
     // 공연 관련
 
     // 예약 관련
@@ -44,4 +44,5 @@ public enum ErrorCode {
     public AppException persistenceException(String detail) {
         return new AppException(this, detail, ErrorType.PERSISTENCE);
     }
+
 }
