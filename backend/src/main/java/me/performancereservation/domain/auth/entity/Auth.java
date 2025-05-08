@@ -1,4 +1,4 @@
-package me.performancereservation.domain.auth;
+package me.performancereservation.domain.auth.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
