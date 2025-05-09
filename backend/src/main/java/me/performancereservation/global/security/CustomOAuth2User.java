@@ -11,19 +11,19 @@ import java.util.Map;
 
 //인증된 사용자 정보를 Spring Security의 Principal로 감싸서 반환
 //User 엔티티 전체를 노출하지 않고 필요한 정보만 노출
-
 public class CustomOAuth2User implements OAuth2User {
 
     private final User user;
     private final Map<String, Object> attributes;
 
+    //소셜로그인 성공 시 db에서 찾은 유저 정보와 소셜에서 받은 정보를 받아옴
     public CustomOAuth2User(User user, Map<String, Object> attributes) {
         this.user = user;
         this.attributes = attributes;
     }
 
     @Override
-    public Map<String, Object> getAttributes() { //소셜에서 내려준 원본 정보 반환(필요시)
+    public Map<String, Object> getAttributes() { //소셜에서 내려준 원본 정보 반환
         return attributes;
     }
 
@@ -38,4 +38,7 @@ public class CustomOAuth2User implements OAuth2User {
         return user.getName(); // 고유 식별자 역할
     }
 
+    public User getUser() {
+        return user;
+    }
 }
