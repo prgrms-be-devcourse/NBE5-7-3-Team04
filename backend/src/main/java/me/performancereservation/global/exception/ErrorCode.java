@@ -11,9 +11,11 @@ public enum ErrorCode {
     // 인증 관련
 
     // 유저 관련
-    USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다."),
+    DUPLICATE_USER_EMAIL(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 유저입니다."),
-    AUTH_SOCIAL_DUPLICATED(HttpStatus.CONFLICT,"이미 연결된 소셜 로그인 플랫폼입니다.");
+    AUTH_SOCIAL_DUPLICATED(HttpStatus.CONFLICT,"이미 연결된 소셜 로그인 플랫폼입니다."),
+    INVALID_PROVIDER(HttpStatus.BAD_REQUEST,"지원하지 않는 소셜 플랫폼 입니다.");
+
     // 공연 관련
 
     // 예약 관련

@@ -21,7 +21,7 @@ public class UserService {
     @Transactional
     public User registerUser(String email, String name, String phoneNumber, Role role) {
         if(userRepository.existsByEmail(email)) {
-            throw new AppException(ErrorCode.USER_EMAIL_DUPLICATED, ErrorType.SERVICE); //중복 이메일은 예외 처리
+            throw new AppException(ErrorCode.DUPLICATE_USER_EMAIL, ErrorType.SERVICE); //중복 이메일은 예외 처리
         }
         User user = User.builder()
                 .email(email)
