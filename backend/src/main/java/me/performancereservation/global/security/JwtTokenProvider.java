@@ -5,6 +5,9 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.user.entitiy.User;
+import me.performancereservation.global.exception.AppException;
+import me.performancereservation.global.exception.ErrorCode;
+import me.performancereservation.global.exception.ErrorType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,7 +35,7 @@ public class JwtTokenProvider {
         this.accessExpiration = accessExpiration;
     }
 
-    //인증된 User 정보로 JWT 토큰을 발급.
+    //인증된 User 정보로 JWT 토큰을 발급
     public String createAccessToken(User user) {
         Date now = new Date();
         Date expire = new Date(now.getTime() + accessExpiration);
@@ -71,11 +74,14 @@ public class JwtTokenProvider {
     // JWT 토큰의 유효성 검증
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+                Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
-            return false;
+            throw new AppException(ErrorCode.INVALID_JWT_TOKEN,ErrorType.DOMAIN);
+            //로그만 받을지, 유효성 검사 후 메시지 출력하는 함수를 따로 만들지,
+            //parseClaimsJws 내부에서 자동으로 이루어지는 유효성 검사를 모두 밖으로 분리해서 try-catch문으로 하나씩 작성할지 고민이 되네요
+            //어떤 방식이 좋을지 리뷰부탁드립니다.
         }
     }
 
