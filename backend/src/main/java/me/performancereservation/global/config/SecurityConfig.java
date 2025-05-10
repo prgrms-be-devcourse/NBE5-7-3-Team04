@@ -1,10 +1,7 @@
 package me.performancereservation.global.config;
 
 import lombok.RequiredArgsConstructor;
-import me.performancereservation.global.security.CustomOAuth2UserService;
-import me.performancereservation.global.security.JwtAuthenticationFilter;
-import me.performancereservation.global.security.JwtExceptionHandlerFilter;
-import me.performancereservation.global.security.JwtTokenProvider;
+import me.performancereservation.global.security.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +20,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     //비밀번호 암호화용 PasswordEncoder 빈 등록 : 소셜로그인만 써도 확장성/관례상 등록해주기!!
     @Bean
@@ -46,17 +44,17 @@ public class SecurityConfig {
                         // .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") //어드민(세션) 구현 예정
                         .anyRequest().permitAll() //테스트용으로 일단 전부 허용, 이후 수정하겠습니다!!
                         //.anyRequest().authenticated()
-                );
-        http
+                )
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
+                        .successHandler(oAuth2SuccessHandler)
                 )
                 //JWT 인증 필터는 UsernamePasswordAuthenticationFilter 앞에
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 //예외처리 필터는 JWT 인증 필터 앞에
-                .addFilterBefore(new JwtExceptionHandlerFilter(), JwtAuthenticationFilter.class);
+                .addFilterBefore(new JwtExceptionHandlerFilter(), JwtAuthenticationFilter.class)
         ;
 
         return http.build();
