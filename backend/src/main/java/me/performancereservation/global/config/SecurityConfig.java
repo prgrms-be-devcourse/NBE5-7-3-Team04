@@ -2,6 +2,9 @@ package me.performancereservation.global.config;
 
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.global.security.CustomOAuth2UserService;
+import me.performancereservation.global.security.JwtAuthenticationFilter;
+import me.performancereservation.global.security.JwtExceptionHandlerFilter;
+import me.performancereservation.global.security.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -18,6 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     //비밀번호 암호화용 PasswordEncoder 빈 등록 : 소셜로그인만 써도 확장성/관례상 등록해주기!!
     @Bean
@@ -31,6 +36,7 @@ public class SecurityConfig {
                 // token 사용 -> csrf 필요 없음
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable) //폼로그인 끄기
                 .cors(cors ->{})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
                 .authorizeHttpRequests(auth -> auth
@@ -41,6 +47,18 @@ public class SecurityConfig {
                         .anyRequest().permitAll() //테스트용으로 일단 전부 허용, 이후 수정하겠습니다!!
                         //.anyRequest().authenticated()
                 );
+        http
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                )
+                //JWT 인증 필터는 UsernamePasswordAuthenticationFilter 앞에
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                //예외처리 필터는 JWT 인증 필터 앞에
+                .addFilterBefore(new JwtExceptionHandlerFilter(), JwtAuthenticationFilter.class);
+        ;
+
         return http.build();
     }
 
