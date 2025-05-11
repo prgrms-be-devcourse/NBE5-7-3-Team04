@@ -33,25 +33,27 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             throws IOException, ServletException {
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-
         User user = oAuth2User.getUser();
 
-        boolean isExist = Boolean.TRUE.equals(oAuth2User.getAttribute("exist"));
+        String jwt = jwtTokenProvider.createAccessToken(user);
 
+        //테스트를 위해 토큰을 json 방식으로 반환, 나중에 리다이렉션 방식으로 재수정 예정.
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json; charset=utf-8");
+        response.getWriter().write("{\"accessToken\": \"" + jwt + "\"}");
 
-        if (isExist) { //회원이면 로그인 하고 콜백 페이지로
-            String accessToken = jwtTokenProvider.createAccessToken(user);
-
-            String redirectUrl = UriComponentsBuilder.fromUriString(callbackUrl)
-                    .queryParam("accessToken", accessToken)
-                            .toUriString();
-
-            response.sendRedirect(redirectUrl);
-        } else { //아니면 회원가입 유도
-            String redirectUrl = UriComponentsBuilder.fromUriString(signupUrl)
-                    .toUriString();
-            response.sendRedirect(redirectUrl);
-
-        }
+//        boolean isExist = Boolean.TRUE.equals(oAuth2User.getAttribute("exist"));
+//
+//        if (isExist) { //회원이면 로그인 하고 콜백 페이지로
+//            String accessToken = jwtTokenProvider.createAccessToken(user);
+//            String redirectUrl = UriComponentsBuilder.fromUriString(callbackUrl)
+//                    .queryParam("accessToken", accessToken)
+//                            .toUriString();
+//            response.sendRedirect(redirectUrl);
+//        } else { //아니면 회원가입 유도
+//            String redirectUrl = UriComponentsBuilder.fromUriString(signupUrl)
+//                    .toUriString();
+//            response.sendRedirect(redirectUrl);
+//        }
     }
 }

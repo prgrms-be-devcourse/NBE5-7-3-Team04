@@ -20,14 +20,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    //http://localhost:8080/oauth2/authorization/google 로그인 테스트
 
     @GetMapping("/me")
     public ResponseEntity<UserMeResponse> getMyInfo(Authentication authentication) {
         if (authentication == null || authentication.getPrincipal() == null) {
             throw new AppException(ErrorCode.UNAUTHORIZED, ErrorType.DOMAIN);
         }
-        CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
-        User user = principal.getUser();
+        Long userId = (Long) authentication.getPrincipal();
+        User user = userService.getUserById(userId);
+//        CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+//        User user = principal.getUser();
         return ResponseEntity.ok(new UserMeResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
     }
 }

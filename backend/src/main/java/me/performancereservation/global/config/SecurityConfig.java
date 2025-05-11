@@ -30,6 +30,7 @@ public class SecurityConfig {
     }
 
     //SecurityFilterChain : 인증/인가, OAuth2, JWT, CORS, CSRF 등 모든 정책을 한 곳에서 관리
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // token 사용 -> csrf 필요 없음
@@ -48,8 +49,6 @@ public class SecurityConfig {
                         //.anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorize")) // 우리가 쓰는 진입점으로 고정
-                        .redirectionEndpoint(redirect -> redirect.baseUri("/login/oauth2/code/*"))
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
