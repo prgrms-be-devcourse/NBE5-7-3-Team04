@@ -16,10 +16,10 @@ public class RefundTestUtils {
     public static void logRefundRequest(RefundRequest request, String prefix) {
         log.info("{}: reservationId={}, userId={}, account={}, bank={}",
                 prefix,
-                request.getReservationId(),
-                request.getUserId(),
-                request.getAccount(),
-                request.getBank());
+                request.reservationId(),
+                request.userId(),
+                request.account(),
+                request.bank());
     }
 
     public static void logRefundEntity(Refund refund, String prefix) {
@@ -38,46 +38,46 @@ public class RefundTestUtils {
     public static void logRefundResponse(RefundResponse response, String prefix) {
         log.info("{}: refundId={}, reservationId={}, account={}, bank={}, status={}",
                 prefix,
-                response.getRefundId(),
-                response.getReservationId(),
-                response.getAccount(),
-                response.getBank(),
-                response.getStatus());
+                response.refundId(),
+                response.reservationId(),
+                response.account(),
+                response.bank(),
+                response.status());
     }
 
     public static void logRefundDetailResponse(RefundDetailResponse response, String message) {
         log.info("=== {} ===", message);
-        log.info("환불 ID: {}", response.getRefundId());
-        log.info("예약 ID: {}", response.getReservationId());
-        log.info("계좌번호: {}", response.getAccount());
-        log.info("은행: {}", response.getBank());
-        log.info("환불 상태: {}", response.getRefundStatus());
-        log.info("예약 수량: {}", response.getQuantity());
-        log.info("공연 시작 시간: {}", response.getStartTime());
-        log.info("공연 제목: {}", response.getTitle());
-        log.info("공연 장소: {}", response.getVenue());
-        log.info("공연 가격: {}", response.getPrice());
-        log.info("공연 분류: {}", response.getCategory());
-        log.info("공연 일시: {}", response.getPerformance_date());
-        log.info("공연 설명: {}", response.getDescription());
+        log.info("환불 ID: {}", response.refundId());
+        log.info("예약 ID: {}", response.reservationId());
+        log.info("계좌번호: {}", response.account());
+        log.info("은행: {}", response.bank());
+        log.info("환불 상태: {}", response.refundStatus());
+        log.info("예약 수량: {}", response.quantity());
+        log.info("공연 시작 시간: {}", response.startTime());
+        log.info("공연 제목: {}", response.title());
+        log.info("공연 장소: {}", response.venue());
+        log.info("공연 가격: {}", response.price());
+        log.info("공연 분류: {}", response.category());
+        log.info("공연 일시: {}", response.performance_date());
+        log.info("공연 설명: {}", response.description());
         log.info("==================");
     }
 
     public static void assertRefundDetailResponse(RefundDetailResponse response, RefundRequest request, Reservation reservation, PerformanceSchedule schedule, Performance performance) {
-        Assertions.assertThat(response.getRefundId()).isNotNull();
-        Assertions.assertThat(response.getReservationId()).isEqualTo(request.getReservationId());
-        Assertions.assertThat(response.getUserId()).isEqualTo(request.getUserId());
-        Assertions.assertThat(response.getAccount()).isEqualTo(request.getAccount());
-        Assertions.assertThat(response.getBank()).isEqualTo(request.getBank());
-        Assertions.assertThat(response.getQuantity()).isEqualTo(reservation.getQuantity());
-        Assertions.assertThat(response.getStartTime().truncatedTo(ChronoUnit.SECONDS))
+        Assertions.assertThat(response.refundId()).isNotNull();
+        Assertions.assertThat(response.reservationId()).isEqualTo(request.reservationId());
+        Assertions.assertThat(response.userId()).isEqualTo(request.userId());
+        Assertions.assertThat(response.account()).isEqualTo(request.account());
+        Assertions.assertThat(response.bank()).isEqualTo(request.bank());
+        Assertions.assertThat(response.quantity()).isEqualTo(reservation.getQuantity());
+        Assertions.assertThat(response.startTime().truncatedTo(ChronoUnit.SECONDS))
                 .isEqualTo(schedule.getStartTime().truncatedTo(ChronoUnit.SECONDS));
-        Assertions.assertThat(response.getFileId()).isEqualTo(performance.getFileId());
-        Assertions.assertThat(response.getTitle()).isEqualTo(performance.getTitle());
-        Assertions.assertThat(response.getVenue()).isEqualTo(performance.getVenue());
-        Assertions.assertThat(response.getPrice()).isEqualTo(performance.getPrice());
-        Assertions.assertThat(response.getCategory()).isEqualTo(performance.getCategory());
-        Assertions.assertThat(response.getPerformance_date()).isEqualTo(performance.getPerformance_date());
-        Assertions.assertThat(response.getDescription()).isEqualTo(performance.getDescription());
+        Assertions.assertThat(response.fileId()).isEqualTo(performance.getFileId());
+        Assertions.assertThat(response.title()).isEqualTo(performance.getTitle());
+        Assertions.assertThat(response.venue()).isEqualTo(performance.getVenue());
+        Assertions.assertThat(response.price()).isEqualTo(performance.getPrice());
+        Assertions.assertThat(response.category()).isEqualTo(performance.getCategory().toString());
+        Assertions.assertThat(response.performance_date()).isEqualTo(performance.getPerformance_date());
+        Assertions.assertThat(response.description()).isEqualTo(performance.getDescription());
     }
 }

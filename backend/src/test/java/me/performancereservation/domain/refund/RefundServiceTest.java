@@ -9,6 +9,7 @@ import me.performancereservation.domain.performance.repository.PerformanceReposi
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.refund.dto.RefundRequest;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
+import me.performancereservation.domain.refund.dto.RefundResponse;
 import me.performancereservation.domain.refund.enums.RefundStatus;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
@@ -20,11 +21,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -95,12 +97,13 @@ class RefundServiceTest {
         log.info("첫 번째 예약 저장 완료: id={}", reservation.getId());
 
         // RefundRequest 생성
-        refundRequest = RefundRequest.builder()
-                .reservationId(reservation.getId())
-                .userId(1L)
-                .account("123-456-789")
-                .bank("신한은행")
-                .build();
+        refundRequest = new RefundRequest(
+                reservation.getId(),
+                1L,
+                "123-456-789",
+                "신한은행"
+        );
+        log.info("첫 번째 환불요청 : {}", refundRequest);
 
         refund = Refund.builder()
                 .id(1L)
@@ -121,19 +124,18 @@ class RefundServiceTest {
         RefundTestUtils.logRefundRequest(refundRequest, "저장할 환불 요청 정보");
 
         // when
-        Long savedId = refundService.save(refundRequest);
-        log.info("환불 저장 완료: savedId={}", savedId);
+        RefundResponse savedRefundResponse = refundService.save(refundRequest);
+        log.info("환불 저장 완료: savedId={}", savedRefundResponse.refundId());
 
         // then
-        Refund savedRefund = refundRepository.findById(savedId).orElseThrow();
+        Refund savedRefund = refundRepository.findById(savedRefundResponse.refundId()).orElseThrow();
         RefundTestUtils.logRefundEntity(savedRefund, "DB에서 조회한 환불 정보");
 
-        assertThat(savedId).isNotNull();
-        assertThat(savedRefund.getReservationId()).isEqualTo(refundRequest.getReservationId());
-        assertThat(savedRefund.getUserId()).isEqualTo(refundRequest.getUserId());
-        assertThat(savedRefund.getAccount()).isEqualTo(refundRequest.getAccount());
-        assertThat(savedRefund.getBank()).isEqualTo(refundRequest.getBank());
-        assertThat(savedRefund.getStatus()).isEqualTo(RefundStatus.PENDING);
+        assertThat(savedRefundResponse.refundId()).isNotNull();
+        assertThat(savedRefundResponse.reservationId()).isEqualTo(refundRequest.reservationId());
+        assertThat(savedRefundResponse.account()).isEqualTo(refundRequest.account());
+        assertThat(savedRefundResponse.bank()).isEqualTo(refundRequest.bank());
+        assertThat(savedRefundResponse.status()).isEqualTo(RefundStatus.PENDING);
         assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCEL_PENDING);
         log.info("PAYMENTS_CONFIRMED인 경우 PENDING, CANCEL_PENDING으로 환불 생성");
         log.info("환불 저장 테스트 완료");
@@ -150,21 +152,13 @@ class RefundServiceTest {
         RefundTestUtils.logRefundRequest(refundRequest, "저장할 환불 요청 정보");
 
         // when
-        Long savedId = refundService.save(refundRequest);
-        log.info("환불 저장 완료: savedId={}", savedId);
+        RefundResponse savedRefundResponse = refundService.save(refundRequest);
+        log.info("환불 저장 완료: response={}", savedRefundResponse);
 
         // then
-        Refund savedRefund = refundRepository.findById(savedId).orElseThrow();
-        RefundTestUtils.logRefundEntity(savedRefund, "DB에서 조회한 환불 정보");
-
-        assertThat(savedId).isNotNull();
-        assertThat(savedRefund.getReservationId()).isEqualTo(refundRequest.getReservationId());
-        assertThat(savedRefund.getUserId()).isEqualTo(refundRequest.getUserId());
-        assertThat(savedRefund.getAccount()).isEqualTo(refundRequest.getAccount());
-        assertThat(savedRefund.getBank()).isEqualTo(refundRequest.getBank());
-        assertThat(savedRefund.getStatus()).isEqualTo(RefundStatus.CONFIRMED);
+        assertThat(savedRefundResponse).isNull();
         assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCEL_CONFIRMED);
-        log.info("PAYMENTS_PENDING인 경우 바로 CONFIRMED, CANCEL_CONFIRMED로 설정");
+        log.info("PAYMENTS_PENDING인 경우 환불 생성 없이 예약만 CANCEL_CONFIRMED로 변경");
         log.info("PAYMENTS_PENDING 상태의 예약에 대한 환불 저장 테스트 완료");
     }
 
@@ -175,43 +169,43 @@ class RefundServiceTest {
         log.info("환불 상세 정보 조회 테스트 시작");
 
         // 첫 번째 환불 저장
-        Long savedId1 = refundService.save(refundRequest);
-        log.info("첫 번째 환불 저장 완료: savedId={}", savedId1);
+        RefundResponse saved1 = refundService.save(refundRequest);
+        log.info("첫 번째 환불 저장 완료: refundId={}", saved1.refundId());
 
         // 두 번째 예약 생성
         Reservation reservation2 = Reservation.builder()
                 .userId(2L)
                 .scheduleId(schedule.getId())
                 .quantity(1)
-                .status(ReservationStatus.CANCEL_PENDING)
+                .status(ReservationStatus.PAYMENTS_CONFIRMED)
                 .build();
         reservation2 = reservationRepository.save(reservation2);
         log.info("다른 유저id로 두 번째 예약 저장 완료: id={}", reservation2.getId());
 
         // 두 번째 환불 저장
-        RefundRequest refundRequest2 = RefundRequest.builder()
-                .reservationId(reservation2.getId())
-                .userId(2L)
-                .account("987-654-321")
-                .bank("국민은행")
-                .build();
-        Long savedId2 = refundService.save(refundRequest2);
-        log.info("두 번째 환불 저장 완료: savedId={}", savedId2);
+        RefundRequest refundRequest2 = new RefundRequest(
+            reservation2.getId(),
+            2L,
+            "987-654-321",
+            "국민은행"
+        );
+        RefundResponse saved2 = refundService.save(refundRequest2);
+        log.info("두 번째 환불 저장 완료: {}", saved2);
 
         // when
-        List<RefundDetailResponse> refundDetailResponses = refundService.findAllRefundsDetail();
-        log.info("환불 상세 정보 조회 완료: size={}", refundDetailResponses.size());
+        Page<RefundDetailResponse> refundDetailResponses = refundService.findAllRefundsDetail(PageRequest.of(0,10));
+        log.info("환불 상세 정보 조회 완료: size={}", refundDetailResponses.getTotalElements());
 
         // then
-        assertThat(refundDetailResponses).hasSize(2);
+        assertThat(refundDetailResponses.getTotalElements()).isEqualTo(2);
 
         // 첫 번째 환불 상세 정보 검증
-        RefundDetailResponse firstRefundDetail = refundDetailResponses.get(0);
+        RefundDetailResponse firstRefundDetail = refundDetailResponses.getContent().get(1);
         RefundTestUtils.logRefundDetailResponse(firstRefundDetail, "첫 번째 환불 상세 정보");
         RefundTestUtils.assertRefundDetailResponse(firstRefundDetail, refundRequest, reservation, schedule, performance);
 
         // 두 번째 환불 상세 정보 검증
-        RefundDetailResponse secondRefundDetail = refundDetailResponses.get(1);
+        RefundDetailResponse secondRefundDetail = refundDetailResponses.getContent().get(0);
         RefundTestUtils.logRefundDetailResponse(secondRefundDetail, "두 번째 환불 상세 정보");
         RefundTestUtils.assertRefundDetailResponse(secondRefundDetail, refundRequest2, reservation2, schedule, performance);
 
@@ -220,69 +214,75 @@ class RefundServiceTest {
 
     @Test
     @DisplayName("특정 사용자의 환불 상세 정보 조회 테스트")
-    void findAllRefundsDetailByUserIdTest() throws Exception {
+    void    findAllRefundsDetailByUserIdTest() throws Exception {
         // given
         log.info("특정 사용자의 환불 상세 정보 조회 테스트 시작");
         Long userId = 1L;
 
         // 첫 번째 환불 저장
-        Long savedId1 = refundService.save(refundRequest);
-        log.info("첫 번째 환불 저장 완료: savedId={}", savedId1);
+        RefundResponse saved1 = refundService.save(refundRequest);
+        log.info("userid {}의 첫 번째 환불 저장 완료: refundId={}", userId, saved1.refundId());
 
         // 두 번째 예약 생성 (같은 사용자)
         Reservation reservation2 = Reservation.builder()
                 .userId(userId)
                 .scheduleId(schedule.getId())
                 .quantity(1)
-                .status(ReservationStatus.CANCEL_PENDING)
+                .status(ReservationStatus.PAYMENTS_CONFIRMED)
                 .build();
         reservation2 = reservationRepository.save(reservation2);
         log.info("같은 사용자의 두 번째 예약 저장 완료: id={}", reservation2.getId());
 
         // 두 번째 환불 저장
-        RefundRequest refundRequest2 = RefundRequest.builder()
-                .reservationId(reservation2.getId())
-                .userId(userId)
-                .account("987-654-321")
-                .bank("국민은행")
-                .build();
-        Long savedId2 = refundService.save(refundRequest2);
-        log.info("두 번째 환불 저장 완료: savedId={}", savedId2);
+        RefundRequest refundRequest2 = new RefundRequest(
+            reservation2.getId(),
+            1L,
+            "987-654-321",
+            "국민은행"
+        );
+        RefundResponse saved2 = refundService.save(refundRequest2);
+        log.info("두 번째 환불 저장 완료: refundId={} userid{}", saved2.refundId(), saved2.userId());
+        log.info("saved2 = {}", saved2);
 
         // 다른 사용자의 예약 생성
         Reservation otherUserReservation = Reservation.builder()
                 .userId(2L)
                 .scheduleId(schedule.getId())
                 .quantity(3)
-                .status(ReservationStatus.CANCEL_PENDING)
+                .status(ReservationStatus.PAYMENTS_CONFIRMED)
                 .build();
         otherUserReservation = reservationRepository.save(otherUserReservation);
         log.info("다른 사용자의 예약 저장 완료: id={}", otherUserReservation.getId());
+        log.info("otherUserReservation = {}", otherUserReservation);
 
         // 다른 사용자의 환불 저장
-        RefundRequest otherUserRefundRequest = RefundRequest.builder()
-                .reservationId(otherUserReservation.getId())
-                .userId(2L)
-                .account("111-222-333")
-                .bank("우리은행")
-                .build();
-        Long otherUserSavedId = refundService.save(otherUserRefundRequest);
-        log.info("다른 사용자의 환불 저장 완료: savedId={}", otherUserSavedId);
+        RefundRequest otherUserRefundRequest = new RefundRequest(
+            otherUserReservation.getId(),
+            2L,
+            "111-222-333",
+            "우리은행"
+        );
+        RefundResponse otherUserSaved = refundService.save(otherUserRefundRequest);
+        log.info("다른 사용자의 환불 저장 완료: refundId={}", otherUserSaved.refundId());
+        log.info("otherUserSaved = {}", otherUserSaved);
 
         // when
-        List<RefundDetailResponse> userRefundDetails = refundService.findAllRefundsDetailByUserId(userId);
-        log.info("특정 사용자의 환불 상세 정보 조회 완료: size={}", userRefundDetails.size());
+        Page<RefundDetailResponse> userRefundDetails = refundService.findAllRefundsDetailByUserId(userId, PageRequest.of(0, 10));
+        log.info("user{}의 환불 상세 정보 조회 완료: size={}", userId, userRefundDetails.getTotalElements());
 
+        log.info("userRefundDetails.getTotalElements() = {}", userRefundDetails.getTotalElements());
+        log.info("userRefundDetails.getContent() = {}", userRefundDetails.getContent());
         // then
-        assertThat(userRefundDetails).hasSize(2);
+//        assertThat(userRefundDetails.getTotalElements()).isEqualTo(2);
+        assertThat(userRefundDetails.getContent()).hasSize(2);
 
         // 첫 번째 환불 상세 정보 검증
-        RefundDetailResponse firstRefundDetail = userRefundDetails.get(0);
+        RefundDetailResponse firstRefundDetail = userRefundDetails.getContent().get(0);
         RefundTestUtils.logRefundDetailResponse(firstRefundDetail, "첫 번째 환불 상세 정보");
         RefundTestUtils.assertRefundDetailResponse(firstRefundDetail, refundRequest, reservation, schedule, performance);
 
         // 두 번째 환불 상세 정보 검증
-        RefundDetailResponse secondRefundDetail = userRefundDetails.get(1);
+        RefundDetailResponse secondRefundDetail = userRefundDetails.getContent().get(1);
         RefundTestUtils.logRefundDetailResponse(secondRefundDetail, "두 번째 환불 상세 정보");
         RefundTestUtils.assertRefundDetailResponse(secondRefundDetail, refundRequest2, reservation2, schedule, performance);
 
@@ -296,8 +296,8 @@ class RefundServiceTest {
         log.info("환불 상태별 상세 정보 조회 테스트 시작");
 
         // 첫 번째 PENDING 상태의 환불 저장
-        Long savedId1 = refundService.save(refundRequest);
-        log.info("첫 번째 PENDING 상태 환불 저장 완료: savedId={}", savedId1);
+        RefundResponse saved1 = refundService.save(refundRequest);
+        log.info("첫 번째 PENDING 상태 환불 저장 완료: refundId={}", saved1.refundId());
 
         // 두 번째 예약 생성
         Reservation reservation2 = Reservation.builder()
@@ -309,7 +309,7 @@ class RefundServiceTest {
         reservation2 = reservationRepository.save(reservation2);
         log.info("두 번째 예약 저장 완료: id={}", reservation2.getId());
 
-        // 세 번째 예약 생성 (user 2, CONFIRMED 상태로 만들 예정)
+        // 세 번째 예약 생성 (user 2, PAYMENTS_PENDING 상태)
         Reservation reservation3 = Reservation.builder()
                 .userId(2L)
                 .scheduleId(schedule.getId())
@@ -320,57 +320,154 @@ class RefundServiceTest {
         log.info("세 번째 예약 저장 완료: id={}", reservation3.getId());
 
         // 두 번째 PENDING 상태의 환불 저장
-        RefundRequest refundRequest2 = RefundRequest.builder()
-                .reservationId(reservation2.getId())
-                .userId(2L)
-                .account("987-654-321")
-                .bank("국민은행")
-                .build();
-        Long savedId2 = refundService.save(refundRequest2);
-        log.info("두 번째 PENDING 상태 환불 저장 완료: savedId={}", savedId2);
+        RefundRequest refundRequest2 = new RefundRequest(
+            reservation2.getId(),
+            2L,
+            "987-654-321",
+            "국민은행"
+        );
+        RefundResponse saved2 = refundService.save(refundRequest2);
+        log.info("두 번째 PENDING 상태 환불 저장 완료: refundId={}", saved2.refundId());
 
-        // 첫 번째 CONFIRMED 상태의 환불 저장
-        // reservation3가 PAYMENTS_PENDING이기 때문에 저장할 때 바로 CONFIRMED로 바뀔 것
-        RefundRequest confirmedRequest = RefundRequest.builder()
-                .reservationId(reservation3.getId())
-                .userId(2L)
-                .account("111-222-333")
-                .bank("우리은행")
-                .build();
-        Long confirmedId = refundService.save(confirmedRequest);
-        log.info("CONFIRMED 상태 환불 저장 완료: savedId={}", confirmedId);
+        // PAYMENTS_PENDING 상태의 예약에 대한 환불 요청 (환불 생성되지 않음)
+        RefundRequest pendingRequest = new RefundRequest(
+            reservation3.getId(),
+            2L,
+            "111-222-333",
+            "우리은행"
+        );
+        RefundResponse pendingResponse = refundService.save(pendingRequest);
+        log.info("PAYMENTS_PENDING 상태 예약의 환불 요청 완료: response={}", pendingResponse);
 
         // when
-        List<RefundDetailResponse> pendingRefunds = refundService.findAllRefundsDetailByRefundStatus(RefundStatus.PENDING);
-        List<RefundDetailResponse> confirmedRefunds = refundService.findAllRefundsDetailByRefundStatus(RefundStatus.CONFIRMED);
+        Page<RefundDetailResponse> pendingRefunds = refundService.findAllRefundsDetailByRefundStatus(RefundStatus.PENDING, PageRequest.of(0, 10));
+        Page<RefundDetailResponse> confirmedRefunds = refundService.findAllRefundsDetailByRefundStatus(RefundStatus.CONFIRMED, PageRequest.of(0, 10));
 
-        log.info("PENDING 상태 환불 상세 정보 조회 완료: size={}", pendingRefunds.size());
-        log.info("CONFIRMED 상태 환불 상세 정보 조회 완료: size={}", confirmedRefunds.size());
+        log.info("PENDING 상태 환불 상세 정보 조회 완료: size={}", pendingRefunds.getTotalElements());
+        log.info("CONFIRMED 상태 환불 상세 정보 조회 완료: size={}", confirmedRefunds.getTotalElements());
 
         // then
         // PENDING 상태 환불 검증
-        assertThat(pendingRefunds).hasSize(2);
+        assertThat(pendingRefunds.getTotalElements()).isEqualTo(2);
 
         // 첫 번째 PENDING 환불 검증
-        RefundDetailResponse pendingRefund1 = pendingRefunds.get(0);
+        RefundDetailResponse pendingRefund1 = pendingRefunds.getContent().get(0);
         RefundTestUtils.logRefundDetailResponse(pendingRefund1, "첫 번째 PENDING 상태 환불 상세 정보");
         RefundTestUtils.assertRefundDetailResponse(pendingRefund1, refundRequest, reservation, schedule, performance);
 
         // 두 번째 PENDING 환불 검증
-        RefundDetailResponse pendingRefund2 = pendingRefunds.get(1);
+        RefundDetailResponse pendingRefund2 = pendingRefunds.getContent().get(1);
         RefundTestUtils.logRefundDetailResponse(pendingRefund2, "두 번째 PENDING 상태 환불 상세 정보");
         RefundTestUtils.assertRefundDetailResponse(pendingRefund2, refundRequest2, reservation2, schedule, performance);
 
-        // CONFIRMED 상태 환불 검증
-        assertThat(confirmedRefunds).hasSize(1);
-        RefundDetailResponse confirmedRefund = confirmedRefunds.get(0);
-        RefundTestUtils.logRefundDetailResponse(confirmedRefund, "CONFIRMED 상태 환불 상세 정보");
-        RefundTestUtils.assertRefundDetailResponse(confirmedRefund, confirmedRequest, reservation3, schedule, performance);
+        // CONFIRMED 상태 환불 검증 (PAYMENTS_PENDING은 환불이 생성되지 않으므로 0개)
+        assertThat(confirmedRefunds.getTotalElements()).isEqualTo(0);
 
         log.info("환불 상태별 상세 정보 조회 테스트 완료");
     }
 
+    @Test
+    @DisplayName("특정 환불 ID로 상세 정보 조회 테스트")
+    void findRefundsDetailByRefundIdTest() throws Exception {
+        // given
+        log.info("특정 환불 ID로 상세 정보 조회 테스트 시작");
+
+        // 환불 저장
+        RefundResponse savedRefund = refundService.save(refundRequest);
+        log.info("환불 저장 완료: refundId={}", savedRefund.refundId());
+
+        // when
+        RefundDetailResponse refundDetail = refundService.findRefundsDetailByRefundId(savedRefund.refundId());
+        log.info("환불 상세 정보 조회 완료");
+
+        // then
+        RefundTestUtils.logRefundDetailResponse(refundDetail, "조회된 환불 상세 정보");
+        RefundTestUtils.assertRefundDetailResponse(refundDetail, refundRequest, reservation, schedule, performance);
+        log.info("특정 환불 ID로 상세 정보 조회 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("환불 승인 테스트")
+    void confirmRefundTest() throws Exception {
+        // given
+        log.info("환불 승인 테스트 시작");
+
+        // 환불 저장
+        RefundResponse savedRefund = refundService.save(refundRequest);
+        log.info("환불 저장 완료: refundId={}", savedRefund.refundId());
+
+        // when
+        refundService.confirmRefund(savedRefund.refundId());
+        log.info("환불 승인 완료");
+
+        // then
+        Refund confirmedRefund = refundRepository.findById(savedRefund.refundId()).orElseThrow();
+        Reservation confirmedReservation = reservationRepository.findById(reservation.getId()).orElseThrow();
+
+        // 환불 상태가 CONFIRMED로 변경되었는지 확인
+        assertThat(confirmedRefund.getStatus()).isEqualTo(RefundStatus.CONFIRMED);
+        log.info("환불 상태가 CONFIRMED로 변경됨");
+
+        // 예약 상태가 CANCEL_CONFIRMED로 변경되었는지 확인
+        assertThat(confirmedReservation.getStatus()).isEqualTo(ReservationStatus.CANCEL_CONFIRMED);
+        log.info("예약 상태가 CANCEL_CONFIRMED로 변경됨");
+
+        log.info("환불 승인 테스트 완료");
+    }
+
     /*------------- 실패 테스트 ------------*/
+
+    @Test
+    @DisplayName("존재하지 않는 환불 ID로 승인 시도시 예외 발생")
+    void confirmRefundWithInvalidIdTest() {
+        // given
+        log.info("존재하지 않는 환불 ID로 승인 시도 테스트 시작");
+        Long invalidId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> refundService.confirmRefund(invalidId))
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.REFUND_NOT_FOUND);
+
+        log.info("존재하지 않는 환불 ID로 승인 시도 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("이미 승인된 환불을 다시 승인 시도시 예외 발생")
+    void confirmAlreadyConfirmedRefundTest() {
+        // given
+        log.info("이미 승인된 환불 재승인 시도 테스트 시작");
+
+        // 환불 저장
+        RefundResponse savedRefund = refundService.save(refundRequest);
+        log.info("환불 저장 완료: refundId={}", savedRefund.refundId());
+
+        // 첫 번째 승인
+        refundService.confirmRefund(savedRefund.refundId());
+        log.info("첫 번째 승인 완료");
+
+        // when & then
+        assertThatThrownBy(() -> refundService.confirmRefund(savedRefund.refundId()))
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_REFUND_STATUS);
+
+        log.info("이미 승인된 환불 재승인 시도 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 환불 ID로 상세 정보 조회 시 예외 발생")
+    void findRefundsDetailByInvalidRefundIdTest() {
+        // given
+        log.info("존재하지 않는 환불 ID 테스트 시작");
+        Long invalidRefundId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> refundService.findRefundsDetailByRefundId(invalidRefundId))
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.REFUND_NOT_FOUND);
+
+        log.info("존재하지 않는 환불 ID 테스트 완료");
+    }
 
     @Test
     @DisplayName("존재하지 않는 환불 ID로 상태 변경 시도시 예외 발생")
@@ -385,7 +482,7 @@ class RefundServiceTest {
             errorCode 필드의 내용이 아래와 같지 않으면 assert */
         assertThatThrownBy(() -> refundService.updateRefundStatus(invalidId, newStatus))
                 .isInstanceOf(AppException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NO_SUCH_REFUND_ERROR);
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.REFUND_NOT_FOUND);
 
         log.info("존재하지 않는 환불 ID 테스트 완료");
     }
@@ -397,21 +494,21 @@ class RefundServiceTest {
         log.info("중복 예약 ID 테스트 시작");
 
         // 첫 번째 환불 요청 저장
-        Long savedId = refundService.save(refundRequest);
-        log.info("첫 번째 환불 요청 저장 완료: savedId={}", savedId);
+        RefundResponse saved = refundService.save(refundRequest);
+        log.info("첫 번째 환불 요청 저장 완료: refundId={}", saved.refundId());
 
         // 같은 예약 ID로 두 번째 환불 요청 생성
-        RefundRequest duplicateRequest = RefundRequest.builder()
-                .reservationId(refundRequest.getReservationId()) // 동일한 예약 ID
-                .userId(2L) // 다른 사용자 ID
-                .account("987-654-321")
-                .bank("국민은행")
-                .build();
+        RefundRequest duplicateRequest = new RefundRequest(
+            refundRequest.reservationId(), // 동일한 예약 ID
+            2L, // 다른 사용자 ID
+            "987-654-321",
+            "국민은행"
+        );
 
         // when & then
         assertThatThrownBy(() -> refundService.save(duplicateRequest))
                 .isInstanceOf(AppException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATE_REFUND_ERROR);
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATE_REFUND);
 
         log.info("중복 예약 ID 테스트 완료");
     }

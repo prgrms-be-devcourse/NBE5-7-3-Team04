@@ -1,18 +1,12 @@
 package me.performancereservation.domain.refund.dto;
 
-import lombok.Builder;
-import lombok.Data;
+public record RefundRequest(
+    Long reservationId, // (FK) 환불을 요청하는 예약 id
 
-@Data
-@Builder
-public class RefundRequest {
+    Long userId, // (FK) 환불을 요청한 유저의 id
 
-    private Long reservationId; // (FK) 환불을 요청하는 예약 id
+    String account, // 환불 받을 계좌번호
 
-    private Long userId; // (FK) 환불을 요청한 유저의 id
-
-    private String account; // 환불 받을 계좌번호
-
-    private String bank; // 환불 받을 은행
-
+    String bank // 환불 받을 은행
+) {
 }

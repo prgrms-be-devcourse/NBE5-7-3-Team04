@@ -1,28 +1,29 @@
 package me.performancereservation.domain.refund.dto;
 
-import lombok.Builder;
-import lombok.Data;
 import me.performancereservation.domain.refund.Refund;
 import me.performancereservation.domain.refund.enums.RefundStatus;
 
-@Data
-@Builder
-public class RefundResponse {
-
-    // Refund에서 userId 외의 데이터 전달
-    private Long refundId;
-    private Long reservationId;
-    private String account;
-    private String bank;
-    private RefundStatus status;
-
-    public static RefundResponse fromRefund(Refund refund) {
-        return RefundResponse.builder()
-                .refundId(refund.getId())
-                .reservationId(refund.getReservationId())
-                .account(refund.getAccount())
-                .bank(refund.getBank())
-                .status(refund.getStatus())
-                .build();
+public record RefundResponse(
+    Long refundId, // 환불 id
+    Long reservationId, // 예약 id
+    Long userId, // 사용자 id
+    String account, // 계좌번호
+    String bank, // 환불 상태
+    RefundStatus status
+) {
+    /**
+     * Refund 엔티티로부터 RefundResponse를 생성하는 정적 팩토리 메서드
+     * @param refund Refund 엔티티
+     * @return RefundResponse 객체
+     */
+    public static RefundResponse fromEntity(Refund refund) {
+        return new RefundResponse(
+            refund.getId(),
+            refund.getReservationId(),
+            refund.getUserId(),
+            refund.getAccount(),
+            refund.getBank(),
+            refund.getStatus()
+        );
     }
 }

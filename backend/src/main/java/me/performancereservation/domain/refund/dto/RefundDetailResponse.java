@@ -1,64 +1,52 @@
 package me.performancereservation.domain.refund.dto;
 
-import lombok.Builder;
-import lombok.Data;
 import me.performancereservation.domain.performance.entities.Performance;
-import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.refund.Refund;
 import me.performancereservation.domain.refund.enums.RefundStatus;
 
 import java.time.LocalDateTime;
 
-@Data
-@Builder
-public class RefundDetailResponse {
+public record RefundDetailResponse(
+        // Refund에서 데이터 전달
+        Long refundId,
+        Long userId,
+        Long reservationId,
+        String account,
+        String bank,
+        RefundStatus refundStatus,
 
-    // Refund에서 데이터 전달
-    private Long refundId;
-    private Long userId;
-    private Long reservationId;
-    private String account;
-    private String bank;
-    private RefundStatus refundStatus;
+        // Reservation에서 가져오는 데이터
+        Integer quantity,
 
-    // Reservation에서 가져오는 데이터
-    private Integer quantity;
+        // PerformanceSchedule에서 가져오는 데이터
+        LocalDateTime startTime,
 
-    // PerformanceSchedule에서 가져오는 데이터
-    private LocalDateTime startTime;
-
-    // Performance에서 가져오는 데이터 (id, totalSeats 외 모두)
-    private Long fileId; // (FK) 파일 ID - 공연 썸네일 용도
-    private String title; // 제목
-    private String venue; // 공연 장소
-    private Integer price; // 가격
-    private PerformanceCategory category; // 공연 분류
-    private LocalDateTime performance_date; // 공연 일시
-    private String description; // 설명
-
-
+        // Performance에서 가져오는 데이터 (id, totalSeats 외 모두)
+        Long fileId, // (FK) 파일 ID - 공연 썸네일 용도
+        String title, // 제목
+        String venue, // 공연 장소
+        Integer price, // 가격
+        String category, // 공연 분류
+        LocalDateTime performance_date, // 공연 일시
+        String description // 설명
+) {
     public static RefundDetailResponse fromEntity(Refund refund, Integer reservationQuantity, LocalDateTime startTime, Performance performance) {
-        return RefundDetailResponse.builder()
-                .refundId(refund.getId())
-                .userId(refund.getUserId())
-                .reservationId(refund.getReservationId())
-                .account(refund.getAccount())
-                .bank(refund.getBank())
-                .refundStatus(refund.getStatus())
-
-                .quantity(reservationQuantity)
-
-                .startTime(startTime)
-
-                .fileId(performance.getFileId())
-                .title(performance.getTitle())
-                .venue(performance.getVenue())
-                .price(performance.getPrice())
-                .category(performance.getCategory())
-                .performance_date(performance.getPerformance_date())
-                .description(performance.getDescription())
-                .build();
+        return new RefundDetailResponse(
+                refund.getId(),
+                refund.getUserId(),
+                refund.getReservationId(),
+                refund.getAccount(),
+                refund.getBank(),
+                refund.getStatus(),
+                reservationQuantity,
+                startTime,
+                performance.getFileId(),
+                performance.getTitle(),
+                performance.getVenue(),
+                performance.getPrice(),
+                performance.getCategory().toString(),
+                performance.getPerformance_date(),
+                performance.getDescription()
+        );
     }
-
-
 }

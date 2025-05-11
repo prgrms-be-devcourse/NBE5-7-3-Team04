@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.refund.enums.RefundStatus;
+import me.performancereservation.global.exception.ErrorCode;
 
 @Entity
 @Getter
@@ -26,11 +27,12 @@ public class Refund extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private RefundStatus status; // 환불대기, 환불완료 상태 표시
 
-//    public void setStatus(RefundStatus status) {
-//        // 유효성검사 추가
-//
-//        this.status = status;
-//    }
+    public void confirm() {
+        if (this.status == RefundStatus.CONFIRMED) {
+            throw ErrorCode.INVALID_REFUND_STATUS.domainException("이미 환불이 완료된 상태입니다.");
+        }
+        this.status = RefundStatus.CONFIRMED;
+    }
 
     @Builder
     public Refund(Long id, Long reservationId, Long userId, String account, String bank, RefundStatus status) {
