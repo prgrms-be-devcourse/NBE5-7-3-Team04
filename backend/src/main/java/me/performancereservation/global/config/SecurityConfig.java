@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,11 +42,14 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**","swagger-ui/index.html#/","/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers("/api/v1/users/sign-in","/api/v1/users/sign-up").permitAll() //인증 없이 접근 허용(사이트 구경은 가능)
                         .requestMatchers("/api/v1/reservation/**").authenticated() //JWT 인증 필요 : 예약은 회원만..
+                        .requestMatchers( "/oauth2/**","/oauth2/authorize/**", "/login/oauth2/code/**").permitAll()
                         // .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") //어드민(세션) 구현 예정
                         .anyRequest().permitAll() //테스트용으로 일단 전부 허용, 이후 수정하겠습니다!!
                         //.anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
+                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorize")) // 우리가 쓰는 진입점으로 고정
+                        .redirectionEndpoint(redirect -> redirect.baseUri("/login/oauth2/code/*"))
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
@@ -60,4 +64,10 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public WebSecurityCustomizer ignoringCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**") // Swagger 관련 요청 무시
+                .requestMatchers("/error", "/favicon.ico"); // oauth 시 리다이렉션 되는 url 경로 무시
+    }
 }

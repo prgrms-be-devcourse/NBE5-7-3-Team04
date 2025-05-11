@@ -17,7 +17,8 @@ public enum ErrorCode {
     INVALID_PROVIDER(HttpStatus.BAD_REQUEST,"지원하지 않는 소셜 플랫폼 입니다."),
     INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않는 JWT 토큰입니다."),
     ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다." ),
-    TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST,"존재하지 않는 토큰입니다.");
+    TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST,"존재하지 않는 토큰입니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다.");
 
     // 공연 관련
 

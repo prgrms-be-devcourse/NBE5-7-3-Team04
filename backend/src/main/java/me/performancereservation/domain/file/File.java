@@ -14,6 +14,7 @@ public class File extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 파일 ID
 
+    @Column(name = "`key`")
     private String key; // Storage Key
 
     @Builder

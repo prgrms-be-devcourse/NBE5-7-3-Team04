@@ -1,0 +1,33 @@
+package me.performancereservation.domain.user.controller;
+
+import lombok.RequiredArgsConstructor;
+import me.performancereservation.domain.user.dto.UserMeResponse;
+import me.performancereservation.domain.user.entitiy.User;
+import me.performancereservation.domain.user.service.UserService;
+import me.performancereservation.global.exception.AppException;
+import me.performancereservation.global.exception.ErrorCode;
+import me.performancereservation.global.exception.ErrorType;
+import me.performancereservation.global.security.CustomOAuth2User;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/user")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+
+    @GetMapping("/me")
+    public ResponseEntity<UserMeResponse> getMyInfo(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, ErrorType.DOMAIN);
+        }
+        CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+        User user = principal.getUser();
+        return ResponseEntity.ok(new UserMeResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
+    }
+}
