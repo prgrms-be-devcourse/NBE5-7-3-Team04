@@ -7,7 +7,6 @@ import me.performancereservation.domain.user.service.UserService;
 import me.performancereservation.global.exception.AppException;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.exception.ErrorType;
-import me.performancereservation.global.security.CustomOAuth2User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,8 +28,6 @@ public class UserController {
         }
         Long userId = (Long) authentication.getPrincipal();
         User user = userService.getUserById(userId);
-//        CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
-//        User user = principal.getUser();
         return ResponseEntity.ok(new UserMeResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
     }
 }

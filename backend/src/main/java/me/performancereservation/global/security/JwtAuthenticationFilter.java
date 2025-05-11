@@ -22,7 +22,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
         String accessToken = jwtTokenProvider.resolveToken(request); //Authorization 헤더에서 Bearer 토큰 추출
+
         //토큰이 유효하면 SecurityContext에 인증 정보 저장
         if(accessToken !=null && jwtTokenProvider.validateToken(accessToken)) {
                 Authentication auth = jwtTokenProvider.getAuthentication(accessToken);
@@ -30,6 +32,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         //다음 필터로 요청 전달
         filterChain.doFilter(request, response);
-
     }
 }

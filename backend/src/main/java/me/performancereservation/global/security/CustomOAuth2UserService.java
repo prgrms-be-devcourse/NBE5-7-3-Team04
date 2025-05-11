@@ -12,9 +12,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
-
 //소셜 인증 성공 시 소셜 유저 정보를 우리 서비스의 User/Auth와 연결(회원가입/로그인)
 //소셜별로 내려주는 유저 정보 구조가 다르기 때문에 직접 커스텀 필요 -> 소셜 별 파싱 로직을 추상화하여 하나로 통일
 
