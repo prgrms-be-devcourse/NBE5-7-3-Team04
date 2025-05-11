@@ -25,6 +25,6 @@ public class NaverOAuth2UserInfo extends OAuth2UserInfo {
     public String getOauthId() {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
-        return (String) response.get("oauthId");
+        return (String) response.get("id");
     }
 }
