@@ -1,4 +1,4 @@
-package me.performancereservation.global.security;
+package me.performancereservation.global.security.oauth.user;
 
 import java.util.Map;
 

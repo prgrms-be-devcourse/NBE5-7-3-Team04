@@ -1,4 +1,4 @@
-package me.performancereservation.global.security;
+package me.performancereservation.global.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;

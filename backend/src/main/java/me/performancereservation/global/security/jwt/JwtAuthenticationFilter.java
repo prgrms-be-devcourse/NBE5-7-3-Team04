@@ -1,4 +1,4 @@
-package me.performancereservation.global.security;
+package me.performancereservation.global.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

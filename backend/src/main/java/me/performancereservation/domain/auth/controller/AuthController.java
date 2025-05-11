@@ -5,7 +5,7 @@ import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.Role;
 import me.performancereservation.domain.user.service.UserService;
 import me.performancereservation.global.exception.AppException;
-import me.performancereservation.global.security.JwtTokenProvider;
+import me.performancereservation.global.security.jwt.JwtTokenProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

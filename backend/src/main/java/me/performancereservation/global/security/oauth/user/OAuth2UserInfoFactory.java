@@ -1,4 +1,4 @@
-package me.performancereservation.global.security;
+package me.performancereservation.global.security.oauth.user;
 
 import me.performancereservation.global.exception.AppException;
 import me.performancereservation.global.exception.ErrorCode;

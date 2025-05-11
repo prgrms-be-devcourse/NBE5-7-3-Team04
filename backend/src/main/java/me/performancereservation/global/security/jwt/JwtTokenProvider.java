@@ -1,4 +1,4 @@
-package me.performancereservation.global.security;
+package me.performancereservation.global.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

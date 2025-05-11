@@ -1,4 +1,4 @@
-package me.performancereservation.global.security;
+package me.performancereservation.global.security.oauth.user;
 
 import me.performancereservation.domain.user.entitiy.User;
 import org.springframework.security.core.GrantedAuthority;

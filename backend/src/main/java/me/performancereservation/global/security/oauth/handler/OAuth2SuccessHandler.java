@@ -1,15 +1,16 @@
-package me.performancereservation.global.security;
+package me.performancereservation.global.security.oauth.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.user.entitiy.User;
+import me.performancereservation.global.security.jwt.JwtTokenProvider;
+import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 

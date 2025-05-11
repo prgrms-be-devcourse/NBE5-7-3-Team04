@@ -1,4 +1,4 @@
-package me.performancereservation.global.security;
+package me.performancereservation.global.security.oauth.service;
 
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.auth.entity.Auth;
@@ -6,6 +6,9 @@ import me.performancereservation.domain.auth.service.AuthService;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.Role;
 import me.performancereservation.domain.user.service.UserService;
+import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
+import me.performancereservation.global.security.oauth.user.OAuth2UserInfo;
+import me.performancereservation.global.security.oauth.user.OAuth2UserInfoFactory;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
