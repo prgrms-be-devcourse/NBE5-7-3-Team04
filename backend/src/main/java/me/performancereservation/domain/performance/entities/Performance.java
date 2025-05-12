@@ -64,7 +64,7 @@ public class Performance extends BaseEntity {
 
     public void cancel() {
         if(this.status == PerformanceStatus.CANCELLED) {
-            throw ErrorCode.ALREADY_CANCELED_SCHEDULE.domainException("이미 취소된 공연입니다.");
+            throw ErrorCode.PERFORMANCE_ALREADY_CANCELED.domainException("이미 취소된 공연입니다. id = " + this.id);
         }
         this.status = PerformanceStatus.CANCELLED;
     }

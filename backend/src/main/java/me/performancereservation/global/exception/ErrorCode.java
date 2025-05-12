@@ -26,7 +26,8 @@ public enum ErrorCode {
     PERFORMANCE_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연의 회차 정보를 찾을 수 없습니다."),
     PERFORMANCE_PENDING_APPROVAL(HttpStatus.BAD_REQUEST, "공연이 승인 대기 중입니다. 승인 후 회차 등록이 가능합니다."),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
-    ALREADY_CANCELED_SCHEDULE(HttpStatus.CONFLICT, "이미 취소된 공연입니다.");
+    PERFORMANCE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 공연입니다."),
+    SCHEDULE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 회차입니다.");
     // 예약 관련
 
     // 환불 관련

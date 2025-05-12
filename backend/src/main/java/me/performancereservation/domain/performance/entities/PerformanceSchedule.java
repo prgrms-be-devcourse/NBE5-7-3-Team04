@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.performancereservation.domain.common.BaseEntity;
+import me.performancereservation.global.exception.ErrorCode;
 
 import java.time.LocalDateTime;
 
@@ -38,9 +39,10 @@ public class PerformanceSchedule extends BaseEntity {
     }
 
     public void cancel() {
-        if (!this.canceled) {
-            this.canceled = true;
+        if (this.canceled) {
+            throw ErrorCode.SCHEDULE_ALREADY_CANCELED.domainException("이미 취소된 회차입니다. id = " + this.id);
         }
+        this.canceled = true;
     }
 
     public boolean hasPermission(Long performanceId) {
