@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.refund.RefundService;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
-import me.performancereservation.domain.refund.dto.RefundRequest;
-import me.performancereservation.domain.refund.dto.RefundResponse;
-import me.performancereservation.domain.refund.enums.RefundStatus;
+import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,24 +38,11 @@ public class RefundController {
                 .body(refundService.findAllRefundsDetailByUserId(userId, pageable));
     }
 
-    /// 특정 예약id 환불요청 -> 환불내역 생성
-    @PostMapping
-    public ResponseEntity<RefundDetailResponse> createNewRefund(@RequestBody RefundRequest refundRequest) {
-        log.info("환불 요청 생성: reservationId={}, userId={}", 
-                refundRequest.reservationId(), refundRequest.userId());
-
-        // refund request를 전달해서 save 시도.
-        RefundResponse saved = refundService.save(refundRequest);
-
-        // refund request의 예약이 결제대기 상태였다면 refund가 생성되지 않음
-        if (saved == null) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(null);
-        } else {
-            // refundResponse가 성공적으로 생성된 경우 쿼리를 조회해 상세한 환불정보를 본문에 반환.
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(refundService.findRefundsDetailByRefundId(saved.refundId()));
-        }
+    ///  계좌, 은행명, 입금자명을 dto로 받아서 설정
+    @PatchMapping
+    public ResponseEntity<Void> updateBankInfo(@RequestBody UpdateBankInfoRequest request) {
+        refundService.updateBankInfo(request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /*--- ADMIN 요청에 대응 ---*/
@@ -90,12 +75,13 @@ public class RefundController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/status")
+    ///  예: refunds/3?status=pending
+    @PatchMapping("/{id}")
     public ResponseEntity<Void> updateRefundStatus(
             @PathVariable Long id,
-            @RequestParam RefundStatus status) {
+            @RequestParam String status) {
         if (status == null) {
-            throw ErrorCode.INVALID_REFUND_STATUS.domainException("환불 상태가 null입니다.");
+            throw ErrorCode.INVALID_REFUND_STATUS.domainException("변경할 환불 상태를 입력하지 않았습니다.");
         }
         refundService.updateRefundStatus(id, status);
         return ResponseEntity.ok().build();

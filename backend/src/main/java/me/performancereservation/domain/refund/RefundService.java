@@ -3,13 +3,12 @@ package me.performancereservation.domain.refund;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
-import me.performancereservation.domain.refund.dto.RefundRequest;
 import me.performancereservation.domain.refund.dto.RefundResponse;
+import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
 import me.performancereservation.domain.refund.enums.RefundStatus;
 import me.performancereservation.domain.refund.mapper.RefundDetailMapper;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
-import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,51 +27,30 @@ public class RefundService {
     private final ReservationRepository reservationRepository;
     private final RefundDetailMapper refundDetailMapper;
 
-    /** refundRequest를 받고 Refund를 생성하여 저장
+    /** 사용자가 단일 예약에 대해 환불 생성할 때 이용.
+     * 예약id를 받고 Refund를 생성하여 저장
      *
-     * @param refundRequest
-     * @return null if 예약상태 == PAYMENTS_PENDING. 예약상태만 CANCEL_CONFIRMED로 설정.
-     * RETURNS refundId가 담긴 RefundResponse if 예약상태 == PAYMENTS_CONFIRMED
+     * @param reservation 환불을 생성할 예약. 예약서비스에서 인자를 넣어 호출한다
      */
-    public RefundResponse save(RefundRequest refundRequest) {
+    public void save(Reservation reservation) {
+
+        Long reservationId = reservation.getId();
+        Long userId = reservation.getUserId();
+
         // 이미 같은 예약ID인 Refund가 존재한다면 예외 던짐 (이미 환불신청된 이력 있음)
-        if (refundRepository.findRefundByReservationId(refundRequest.reservationId()).isPresent()) {
-            throw ErrorCode.DUPLICATE_REFUND.domainException("이미 환불 신청된 예약입니다. reservationId: " + refundRequest.reservationId());
+        if (refundRepository.findRefundByReservationId(reservationId).isPresent()) {
+            throw ErrorCode.DUPLICATE_REFUND.domainException("이미 환불 신청된 예약입니다. reservationId: " + reservationId);
         }
 
-        // 예약 상태 확인 위해 repo에서 예약 조회
-        Reservation reservation = reservationRepository.findById(refundRequest.reservationId())
-                .orElseThrow(); // 나중에 RESERVATION_NOT_FOUND 예약 에러 추가
-
-        // PAYMENTS_PENDING 상태인 경우 바로 CONFIRMED로 설정. 환불생성 x
-        if (reservation.getStatus() == ReservationStatus.PAYMENTS_PENDING) {
-
-            // 예약 상태를 CANCEL_CONFIRMED로 변경
-            reservation.setStatus(ReservationStatus.CANCEL_CONFIRMED);
-            return null;
-        }
-
-        // 결제대기/결제승인 상태가 아닌 다른 상태였다면 잘못된 요청
-        if (reservation.getStatus() != ReservationStatus.PAYMENTS_CONFIRMED) {
-            throw ErrorCode.INVALID_REFUND_STATUS.domainException("잘못된 예약 상태입니다. status: " + reservation.getStatus());
-        }
-
-        // PAYMENTS_CONFIRMED 상태
+        // PENDING 상태로 환불 생성 후 저장
         Refund newRefund = Refund.builder()
-                .reservationId(refundRequest.reservationId())
-                .userId(refundRequest.userId())
-                .account(refundRequest.account())
-                .bank(refundRequest.bank())
-                .status(RefundStatus.PENDING)
+                .reservationId(reservationId)
+                .userId(userId)
+                .status(RefundStatus.PENDING) // 계좌정보 입력 기다림
                 .build();
 
-        // 예약 상태를 CANCEL_PENDING로 변경
-        reservation.setStatus(ReservationStatus.CANCEL_PENDING);
+        refundRepository.save(newRefund);
 
-        Refund savedRefund = refundRepository.save(newRefund);
-
-        // refund 저장 후 일부 내용을 dto에 담아 전달
-        return RefundResponse.fromEntity(savedRefund);
     }
 
     /// 모든 id의 환불 디테일 페이지 조회
@@ -104,25 +82,39 @@ public class RefundService {
 
     /// 특정 status의 환불 디테일 페이지 조회
     @Transactional(readOnly = true)
-    public Page<RefundDetailResponse> findAllRefundsDetailByRefundStatus(String refundStatus, Pageable pageable) {
+    public Page<RefundDetailResponse> findAllRefundsDetailByRefundStatus(String status, Pageable pageable) {
+        // string -> RefundStatus로 변환
+        RefundStatus refundStatus = getRefundStatus(status);
 
-        RefundStatus status;
-
-        // 문자열 쿼리 파라미터를 대문자로 변환하여 RefundStatus 생성 시도
-        try {
-            status = RefundStatus.valueOf(refundStatus.toUpperCase());
-
-        } catch (IllegalArgumentException e) {
-            // 유효하지 않은 종류의 refundStatus가 들어왔을 경우
-            throw ErrorCode.INVALID_REFUND_STATUS.domainException("유효하지 않은 종류의 refund status로 생성요청. status: "+refundStatus);
-        }
-
-        Page<Object[]> results = refundRepository.findRefundsDetailByStatus(status, pageable);
+        Page<Object[]> results = refundRepository.findRefundsDetailByStatus(refundStatus, pageable);
         return refundDetailMapper.toRefundDetailResponsePage(results);
     }
 
+    // string -> RefundStatus로 변환. 변환 불가능할 경우 throw exception
+    private static RefundStatus getRefundStatus(String refundStatus) {
+        RefundStatus status;
 
-    /// CONFIRM 상태로 바꿀 때는 이 메서드 이용. 예약도 함께 상태변경해준다.
+        try { // 문자열 쿼리 파라미터를 대문자로 변환하여 RefundStatus 생성 시도
+            status = RefundStatus.valueOf(refundStatus.toUpperCase());
+
+        } catch (IllegalArgumentException e) {
+            // 유효하지 않은 종류의 refundStatus 문자열이 들어왔을 경우
+            throw ErrorCode.INVALID_REFUND_STATUS.domainException("유효하지 않은 종류의 refund status로 생성요청. status: "+ refundStatus);
+        }
+        return status;
+    }
+
+
+    /// 특정 환불 상태로 변경할 때 이용
+    @Transactional
+    public void updateRefundStatus(Long id, String status) {
+        Refund foundRefund = refundRepository.findById(id)
+                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + id));
+
+        foundRefund.setStatus(getRefundStatus(status));
+    }
+
+    /// refund를 CONFIRM 상태로 바꾼다. 예약서비스에서 호출 예정
     @Transactional
     public void confirmRefund(Long id) {
         // id로 먼저 찾아보고 해당하는 Refund가 없다면 throw NO_SUCH_REFUND_ERROR
@@ -131,10 +123,21 @@ public class RefundService {
 
         // refund domain에서 상태 업데이트
         refund.confirm();
+    }
 
-        // 해당하는 예약을 찾아 CANCEL_CONFIRMED로 상태 변경
-        Reservation reservation = reservationRepository.findById(refund.getReservationId()).orElseThrow(); // 나중에 ErrorCode 추가
-        reservation.setStatus(ReservationStatus.CANCEL_CONFIRMED);
+    ///  계좌, 은행, 입금자명 설정
+    @Transactional
+    public Refund updateBankInfo(UpdateBankInfoRequest request) {
+        // 해당 refund 존재하는지 유효성검사
+        Refund refund = refundRepository.findById(request.refundId())
+                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + request.refundId()));
+
+        // 계좌정보 설정
+        refund.updateBankInfo(request.account(), request.bank(), request.depositorName());
+        // PENDING -> READY 설정
+        refund.ready();
+
+        return refund;
     }
 
     /// 전체 refund 목록 조회 (간단한 내용)
@@ -153,18 +156,6 @@ public class RefundService {
         return foundRefunds.stream()
                 .map(RefundResponse::fromEntity)
                 .collect(Collectors.toList());
-    }
-
-    /// 원하는 환불 상태로 변경할 때 이용
-    @Transactional
-    public void updateRefundStatus(Long id, RefundStatus status) {
-        refundRepository.findById(id)
-                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + id));
-        
-        int updatedRows = refundRepository.updateRefundStatus(id, status);
-        if (updatedRows == 0) {
-            throw ErrorCode.REFUND_NOT_FOUND.domainException("환불 상태 업데이트 실패. refundId: " + id);
-        }
     }
 
 

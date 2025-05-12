@@ -23,9 +23,24 @@ public class Refund extends BaseEntity {
 
     private String bank; // 환불 받을 은행
 
+    private String accountOwner; // 예금주
+
     @Setter
     @Enumerated(EnumType.STRING)
     private RefundStatus status; // 환불대기, 환불완료 상태 표시
+
+    public void updateBankInfo(String account, String bank, String accountOwner){
+        this.account = account;
+        this.bank = bank;
+        this.accountOwner = accountOwner;
+    }
+
+    public void ready() {
+        if (this.status == RefundStatus.READY) {
+            throw ErrorCode.INVALID_REFUND_STATUS.domainException("이미 환불 준비된 상태입니다.");
+        }
+        this.status = RefundStatus.READY;
+    }
 
     public void confirm() {
         if (this.status == RefundStatus.CONFIRMED) {
@@ -35,12 +50,11 @@ public class Refund extends BaseEntity {
     }
 
     @Builder
-    public Refund(Long id, Long reservationId, Long userId, String account, String bank, RefundStatus status) {
+    public Refund(Long id, Long reservationId, Long userId, RefundStatus status) {
+        // account, bank, accountOwner는 처음 생성할 때 null
         this.id = id;
         this.reservationId = reservationId;
         this.userId = userId;
-        this.account = account;
-        this.bank = bank;
         this.status = status;
     }
 }

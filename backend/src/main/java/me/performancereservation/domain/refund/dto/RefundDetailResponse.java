@@ -38,8 +38,10 @@ public record RefundDetailResponse(
                 refund.getAccount(),
                 refund.getBank(),
                 refund.getStatus(),
+
                 reservationQuantity,
                 startTime,
+
                 performance.getFileId(),
                 performance.getTitle(),
                 performance.getVenue(),
