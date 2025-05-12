@@ -206,12 +206,13 @@ class PerformanceServiceTest {
                 2000,
                 "OPERA",
                 LocalDateTime.of(2025,12,13, 0,0),
-                "한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!"
+                "한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!",
+                FILE_ID1
         );
         when(performanceRepository.save(any(Performance.class))).thenReturn(performance1);
 
         //when
-        Long savedId = performanceService.createPerformance(request, FILE_ID1, MANAGER_ID);
+        Long savedId = performanceService.createPerformance(request, MANAGER_ID);
 
         //then
         assertThat(savedId).isNotNull();
