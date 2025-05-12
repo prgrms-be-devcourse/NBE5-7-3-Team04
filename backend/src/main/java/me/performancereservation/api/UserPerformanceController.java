@@ -33,8 +33,8 @@ public class UserPerformanceController {
     @GetMapping
     public ResponseEntity<Page<PerformanceListResponse>> getPerformanceList(
             @PageableDefault(size=10, sort = "performanceDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<PerformanceListResponse> performanceResponses = performanceService.getPerformanceList(pageable);
-        return ResponseEntity.ok(performanceResponses);
+        Page<PerformanceListResponse> performancePageResponse = performanceService.getPerformanceList(pageable);
+        return ResponseEntity.ok(performancePageResponse);
     }
 
     /** 공연 상세정보 페이지 호출

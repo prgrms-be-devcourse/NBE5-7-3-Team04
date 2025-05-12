@@ -41,8 +41,8 @@ public class ManagerPerformanceController {
                     sort = "performanceDate",
                     direction = Sort.Direction.DESC) Pageable pageable,
             Long managerId) {
-        Page<PerformanceManagerListResponse> performanceManagerResponses = performanceService.getPerformanceManagerList(pageable, managerId);
-        return ResponseEntity.ok(performanceManagerResponses);
+        Page<PerformanceManagerListResponse> PerformanceManagerPageResponse = performanceService.getPerformanceManagerList(pageable, managerId);
+        return ResponseEntity.ok(PerformanceManagerPageResponse);
     }
 
     /** 공연자 공연 상세 페이지
@@ -62,19 +62,16 @@ public class ManagerPerformanceController {
      *
      * 매니저 id 시큐리티 개발 후 수정 필요
      * @param request
-     * @param image
      * @param managerId
      * @return 201 + performanceId
      */
     @PostMapping("/register")
     public ResponseEntity<Long> registerPerformance(
-            @RequestPart("request") PerformanceCreateRequest request,
-            @RequestPart("image") MultipartFile image,
+            @RequestBody PerformanceCreateRequest request,
             Long managerId
             ) {
 
-        UploadFileResponse uploadFile = fileService.upload(image);
-        Long performanceId = performanceService.createPerformance(request, uploadFile.id(), managerId);
+        Long performanceId = performanceService.createPerformance(request, managerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(performanceId);
     }
 
@@ -133,12 +130,4 @@ public class ManagerPerformanceController {
          */
         return ResponseEntity.noContent().build();
     }
-
-
-
-
-
-
-
-
 }
