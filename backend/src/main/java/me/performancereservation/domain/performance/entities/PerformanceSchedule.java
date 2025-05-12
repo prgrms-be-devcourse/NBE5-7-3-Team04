@@ -42,4 +42,8 @@ public class PerformanceSchedule extends BaseEntity {
             this.canceled = true;
         }
     }
+
+    public boolean hasPermission(Long performanceId) {
+        return performanceId != null && performanceId.equals(this.performanceId);
+    }
 }

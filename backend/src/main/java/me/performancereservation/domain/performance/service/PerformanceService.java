@@ -46,9 +46,9 @@ public class PerformanceService {
      * @return performanceId
      */
     @Transactional
-    public Long createPerformance(PerformanceCreateRequest request, Long fileId, Long managerId) {
+    public Long createPerformance(PerformanceCreateRequest request, Long managerId) {
 
-        return performanceRepository.save(PerformanceMapper.toEntity(request, fileId, managerId)).getId();
+        return performanceRepository.save(PerformanceMapper.toEntity(request, managerId)).getId();
     }
 
 
@@ -64,7 +64,7 @@ public class PerformanceService {
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
 
         // 권한 검사
-        if(!hasPermission(managerId, performance)) {
+        if(!performance.hasPermission(managerId)) {
             throw ErrorCode.PERMISSION_DENIED.domainException("수정 권한이 없습니다. id=" + performanceId);
         }
 
@@ -83,7 +83,7 @@ public class PerformanceService {
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
 
         // 권한 검사
-        if(!hasPermission(managerId, performance)) {
+        if(!performance.hasPermission(managerId)) {
             throw ErrorCode.PERMISSION_DENIED.domainException(
                     "공연을 취소할 권한이 없습니다. performance id=" + performanceId + ", managerId=" + managerId);
         }
@@ -141,12 +141,16 @@ public class PerformanceService {
         List<PerformanceSchedule> schedules = performanceScheduleRepository
                 .findByPerformanceId(performance.getId());
 
-        // 파일 조회
-        File file = fileRepository.findById(performance.getFileId())
-                .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
+        // 파일이 존재하는지
+        if (!performance.hasFile()) {
+            return PerformanceMapper.toDetailResponse(performance, null, schedules);
+        } else {
+            // 파일이 존재한다면 조회
+            File file = fileRepository.findById(performance.getFileId())
+                    .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
 
-
-        return PerformanceMapper.toDetailResponse(performance, file.getKey(), schedules);
+            return PerformanceMapper.toDetailResponse(performance, file.getKey(), schedules);
+        }
     }
 
     /** 공연자 자신의 공연 목록 조회
@@ -186,13 +190,9 @@ public class PerformanceService {
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
 
         // 공연자의 공연이 맞는지 권한 검사
-        if(!hasPermission(managerId, performance)) {
+        if(!performance.hasPermission(managerId)) {
             throw ErrorCode.PERMISSION_DENIED.domainException("performanceId=" + performanceId + "는 managerId=" + managerId + "의 공연이 아닙니다.");
         }
-
-        // 연결된 파일 조회
-        File file = fileRepository.findById(performance.getFileId())
-                .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
 
         // 연결된 회차 조회
         List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
@@ -200,12 +200,15 @@ public class PerformanceService {
         // 회차 Response 객체 변환
         List<PerformanceScheduleResponse> scheduleResponses = schedules.stream().map(PerformanceScheduleMapper::toResponse).toList();
 
-        return PerformanceMapper.toManagerDetailResponse(performance, file.getKey(), scheduleResponses);
-    }
+        // 파일이 존재하는지
+        if(!performance.hasFile()) {
+            return PerformanceMapper.toManagerDetailResponse(performance, null, scheduleResponses);
+        } else {
+            // 연결된 파일 조회
+            File file = fileRepository.findById(performance.getFileId())
+                    .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
 
-    // 권한 검사
-    private static boolean hasPermission(Long managerId, Performance performance) {
-        return performance.getManagerId().equals(managerId);
+            return PerformanceMapper.toManagerDetailResponse(performance, file.getKey(), scheduleResponses);
+        }
     }
-
 }

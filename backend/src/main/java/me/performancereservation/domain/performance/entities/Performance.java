@@ -8,6 +8,7 @@ import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
+import me.performancereservation.global.exception.ErrorCode;
 
 import java.time.LocalDateTime;
 
@@ -62,8 +63,21 @@ public class Performance extends BaseEntity {
     }
 
     public void cancel() {
-        if(!(this.status == PerformanceStatus.CANCELLED)) {
-            this.status = PerformanceStatus.CANCELLED;
+        if(this.status == PerformanceStatus.CANCELLED) {
+            throw ErrorCode.ALREADY_CANCELED_SCHEDULE.domainException("이미 취소된 공연입니다.");
         }
+        this.status = PerformanceStatus.CANCELLED;
+    }
+
+    public boolean hasFile() {
+        return this.fileId != null;
+    }
+
+    public boolean hasPermission(Long managerId) {
+        return this.managerId != null && this.managerId.equals(managerId);
+    }
+
+    public boolean isConfirmed() {
+        return this.status == PerformanceStatus.CONFIRMED;
     }
 }
