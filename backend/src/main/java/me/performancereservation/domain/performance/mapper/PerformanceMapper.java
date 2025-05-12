@@ -21,9 +21,9 @@ public class PerformanceMapper {
      * @param request
      * @return Performance
      */
-    public static Performance toEntity(PerformanceCreateRequest request, Long fileId, Long managerId) {
+    public static Performance toEntity(PerformanceCreateRequest request, Long managerId) {
         return Performance.builder()
-                .fileId(fileId)
+                .fileId(request.fileId())
                 .managerId(managerId)
                 .title(request.title())
                 .venue(request.venue())
