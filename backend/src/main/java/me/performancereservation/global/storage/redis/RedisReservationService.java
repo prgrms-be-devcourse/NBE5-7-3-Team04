@@ -15,7 +15,7 @@ public class RedisReservationService {
     @Value("${reservation.expired_time}")
     private int RESERVATION_PENDING_EXPIRE_MINUTES; // 예약 만료 시간 TODO 개발 끝나면 제대로 설정
 
-    private final String RESERVATION_EXPIRATION_KEY = "reservation::pending:expiration"; // 만료 시간 값 저장을 위한 ZSet 키
+    private final String RESERVATION_EXPIRATION_KEY = "reservation:pending:expiration"; // 만료 시간 값 저장을 위한 ZSet 키
 
     private final StringRedisTemplate redisTemplate;
 

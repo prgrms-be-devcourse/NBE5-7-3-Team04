@@ -35,7 +35,7 @@ public class RedisSeatReservationService implements SeatReservationService {
      * 3. Reservation 저장 (상태: PAYMENTS_PENDING - 결제 대기)
      * 4. Redis ZSet에 예약(결제) 만료 정보 등록
      *
-     * TODO 추후 어드민 무통장 결제 승인 메서드에서 좌석정보를 Schedule에 반영해야함
+     * TODO 추후 어드민 무통장 결제 승인 메서드에서 티켓 수량만큼을 해당 Schedule에 차감 반영해야함
      *
      * @param scheduleId 공연 회차 ID
      * @param userId 예약하는 유저 ID
@@ -43,6 +43,7 @@ public class RedisSeatReservationService implements SeatReservationService {
      * @return ReservationResponse
      */
     @Transactional
+    @Override
     public ReservationResponse reserve(Long scheduleId, Long userId, int quantity) {
         // Redis에서 좌석 1개 먼저 차감 (RDB 접근 없이 선 예약 선점 - 빠른 필터링이 가능한게 장점)
         redisSeatService.safeDecrement(scheduleId, quantity); // 내부에 Redis 좌석 선점 관련 예외처리 있음
@@ -77,9 +78,39 @@ public class RedisSeatReservationService implements SeatReservationService {
      * @param reservationId 예약 ID
      * @param userId 예약한 유저 ID
      */
+    @Transactional
     @Override
     public void cancel(Long reservationId, Long userId) {
-        
+        // 예약 조회
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.domainException("예약이 존재하지 않습니다."));
+
+        // 예약이 이미 취소된 상태(CANCEL_CONFIRMED, CANCEL_PENDING)이면 예외 발생
+        if (reservation.isAlreadyCanceled()) {
+            throw ErrorCode.ALREADY_CANCELED_RESERVATION.domainException("이미 취소된 예약입니다.");
+        }
+
+        // 본인 예약만 취소 가능
+        if (!reservation.getUserId().equals(userId)) {
+            throw ErrorCode.UNAUTHORIZED.domainException("본인의 예약만 취소할 수 있습니다.");
+        }
+
+        // 결제 완료 상태라면 환불 요청 상태로 전환
+        if (reservation.isRefundRequired()) {
+            reservation.requestCancel(); // CANCEL_PENDING
+
+            //TODO 환불서비스에 환불객체 생성 요청
+            // refundService.save(reservation);
+        } else {
+            // 결제 미완료 상태라면 바로 취소 확정 처리
+            reservation.cancelConfirm(); // CANCEL_CONFIRMED
+        }
+
+        // Redis 좌석 롤백 처리
+        redisSeatService.safeIncrement(reservation.getScheduleId(), reservation.getQuantity());
+
+        // 예약 만료 처리 대기 큐에서도 제거
+        redisReservationService.removeFromPendingExpirationQueue(reservation.getId());
     }
 
     //TODO 이벤트리스너로 공연이 취소됐을 때 일괄 예약 취소

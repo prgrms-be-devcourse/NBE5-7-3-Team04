@@ -7,10 +7,7 @@ import me.performancereservation.domain.reservation.dto.ReservationRequest;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -37,5 +34,19 @@ public class ReservationController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    @PostMapping("/{reservationId}/cancel")
+    public ResponseEntity<Void> cancel(
+            @PathVariable Long reservationId
+            // @AuthenticationPrincipal Authentication authentication // TODO Authentication 머지 되면 수정 예정
+    ) {
+        reservationService.cancel(
+                reservationId,
+                1L // TODO 수정 예정
+                // authentication.userId() // TODO Authentication 머지 되면 수정 예정
+        ) ;
+
+        return ResponseEntity.noContent().build();
     }
 }
