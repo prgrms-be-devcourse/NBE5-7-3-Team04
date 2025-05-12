@@ -1,7 +1,7 @@
-package me.performancereservation.domain.user.controller;
+package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
-import me.performancereservation.domain.user.dto.UserMeResponse;
+import me.performancereservation.domain.user.dto.UserResponse;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.service.UserService;
 import me.performancereservation.global.exception.AppException;
@@ -22,12 +22,12 @@ public class UserController {
     //http://localhost:8080/oauth2/authorization/google 로그인 테스트
 
     @GetMapping("/me")
-    public ResponseEntity<UserMeResponse> getMyInfo(Authentication authentication) {
+    public ResponseEntity<UserResponse> getMyInfo(Authentication authentication) {
         if (authentication == null || authentication.getPrincipal() == null) {
             throw new AppException(ErrorCode.UNAUTHORIZED, ErrorType.DOMAIN);
         }
         Long userId = (Long) authentication.getPrincipal();
         User user = userService.getUserById(userId);
-        return ResponseEntity.ok(new UserMeResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
+        return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
     }
 }

@@ -1,4 +1,4 @@
-package me.performancereservation.domain.auth.controller;
+package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.user.entitiy.User;
@@ -21,12 +21,9 @@ public class AuthController {
     @PostMapping("/signup-test")
     public ResponseEntity<String> testSignUp(
             @RequestParam String email, @RequestParam String name) {
-        User user;
-        try {
-            user = userService.getUserByEmail(email);
-        } catch (AppException e) {
-            user = userService.registerUser(email,name, null, Role.USER);
-        }
+
+        User user = userService.createTestUserAndToken(email, name, null, Role.USER);
+
         String jwt = jwtTokenProvider.createAccessToken(user);
         return ResponseEntity.ok(jwt);
     }

@@ -5,9 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.user.entitiy.User;
-import me.performancereservation.global.exception.AppException;
 import me.performancereservation.global.exception.ErrorCode;
-import me.performancereservation.global.exception.ErrorType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -78,7 +76,7 @@ public class JwtTokenProvider {
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
-            throw new AppException(ErrorCode.INVALID_JWT_TOKEN,ErrorType.DOMAIN);
+            throw ErrorCode.INVALID_JWT_TOKEN.serviceException();
             //로그만 받을지, 유효성 검사 후 메시지 출력하는 함수를 따로 만들지,
             //parseClaimsJws 내부에서 자동으로 이루어지는 유효성 검사를 모두 밖으로 분리해서 try-catch문으로 하나씩 작성할지 고민이 되네요
             //어떤 방식이 좋을지 리뷰부탁드립니다.

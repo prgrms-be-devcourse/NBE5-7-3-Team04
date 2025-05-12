@@ -1,5 +1,6 @@
 package me.performancereservation.global.security.oauth.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -41,7 +43,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         //테스트를 위해 토큰을 json 방식으로 반환, 나중에 리다이렉션 방식으로 재수정 예정.
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json; charset=utf-8");
-        response.getWriter().write("{\"accessToken\": \"" + jwt + "\"}");
+        response.setCharacterEncoding("UTF-8");
+
+        Map<String, String> tokenMap = Map.of("accessToken", jwt);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(tokenMap);
+
+        response.getWriter().write(json);
+
 
 //        boolean isExist = Boolean.TRUE.equals(oAuth2User.getAttribute("exist"));
 //

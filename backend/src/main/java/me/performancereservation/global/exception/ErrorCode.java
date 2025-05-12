@@ -21,7 +21,7 @@ public enum ErrorCode {
     // 유저 관련
     DUPLICATE_USER_EMAIL(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 유저입니다."),
-    AUTH_SOCIAL_DUPLICATED(HttpStatus.CONFLICT,"이미 연결된 소셜 로그인 플랫폼입니다."),
+    DUPLICATE_AUTH_SOCIAL(HttpStatus.CONFLICT,"이미 연결된 소셜 로그인 플랫폼입니다."),
     INVALID_PROVIDER(HttpStatus.BAD_REQUEST,"지원하지 않는 소셜 플랫폼 입니다."),
     INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않는 JWT 토큰입니다."),
     ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다." ),

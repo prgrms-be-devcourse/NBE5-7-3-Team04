@@ -4,14 +4,11 @@ import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.Role;
 import me.performancereservation.domain.user.repository.UserRepository;
-import me.performancereservation.global.exception.AppException;
 import me.performancereservation.global.exception.ErrorCode;
-import me.performancereservation.global.exception.ErrorType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserService {
 
@@ -21,7 +18,7 @@ public class UserService {
     @Transactional
     public User registerUser(String email, String name, String phoneNumber, Role role) {
         if(userRepository.existsByEmail(email)) {
-            throw new AppException(ErrorCode.DUPLICATE_USER_EMAIL, ErrorType.SERVICE); //중복 이메일은 예외 처리
+            throw ErrorCode.DUPLICATE_USER_EMAIL.serviceException(); //중복 이메일은 예외 처리
         }
         User user = User.builder()
                 .email(email)
@@ -35,13 +32,18 @@ public class UserService {
     //id 기반 유저 조회
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_FOUND, ErrorType.SERVICE));
+                .orElseThrow(ErrorCode.USER_NOT_FOUND::serviceException);
     }
 
     //email 기반 유저 조회
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_FOUND, ErrorType.SERVICE));
+                .orElseThrow(ErrorCode.USER_NOT_FOUND::serviceException);
     }
 
+    //테스트용 서비스
+    public User createTestUserAndToken(String email, String name, String phoneNumber, Role role) {
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> registerUser(email, name, phoneNumber, role));
+    }
 }

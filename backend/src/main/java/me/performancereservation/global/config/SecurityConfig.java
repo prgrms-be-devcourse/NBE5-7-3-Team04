@@ -26,6 +26,8 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtExceptionHandlerFilter jwtExceptionHandlerFilter;
 
     //비밀번호 암호화용 PasswordEncoder 빈 등록 : 소셜로그인만 써도 확장성/관례상 등록해주기!!
     @Bean
@@ -35,7 +37,7 @@ public class SecurityConfig {
 
     //SecurityFilterChain : 인증/인가, OAuth2, JWT, CORS, CSRF 등 모든 정책을 한 곳에서 관리
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain oauthSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 // token 사용 -> csrf 필요 없음
                 .csrf(AbstractHttpConfigurer::disable)
@@ -48,8 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/sign-in","/api/v1/users/sign-up").permitAll() //인증 없이 접근 허용(사이트 구경은 가능)
                         .requestMatchers("/api/v1/reservation/**").authenticated() //JWT 인증 필요 : 예약은 회원만..
                         .requestMatchers( "/oauth2/**","/oauth2/authorize/**", "/login/oauth2/code/**").permitAll()
-                        // .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") //어드민(세션) 구현 예정
-                        .anyRequest().permitAll() //테스트용으로 일단 전부 허용, 이후 수정하겠습니다!!
+                        .anyRequest().permitAll() //테스트용으로 일단 전부 허용 이후 수정!!
                         //.anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
@@ -59,9 +60,11 @@ public class SecurityConfig {
                         .successHandler(oAuth2SuccessHandler)
                 )
                 //JWT 인증 필터는 UsernamePasswordAuthenticationFilter 앞에
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                //.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 //예외처리 필터는 JWT 인증 필터 앞에
-                .addFilterBefore(new JwtExceptionHandlerFilter(), JwtAuthenticationFilter.class)
+//                .addFilterBefore(new JwtExceptionHandlerFilter(), JwtAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionHandlerFilter, JwtAuthenticationFilter.class)
         ;
 
         return http.build();
