@@ -334,7 +334,7 @@ class RefundServiceTest {
             assertThat(refund.getStatus()).isEqualTo(RefundStatus.PENDING);
             assertThat(refund.getAccount()).isNull();
             assertThat(refund.getBank()).isNull();
-            assertThat(refund.getAccountOwner()).isNull();
+            assertThat(refund.getDepositorName()).isNull();
             
             // 예약 정보와 일치하는지 검증
             Reservation originalReservation = reservations.stream()
@@ -383,7 +383,7 @@ class RefundServiceTest {
             assertThat(refund.getStatus()).isEqualTo(RefundStatus.PENDING);
             assertThat(refund.getAccount()).isNull();
             assertThat(refund.getBank()).isNull();
-            assertThat(refund.getAccountOwner()).isNull();
+            assertThat(refund.getDepositorName()).isNull();
         }
         
         log.info("이미 환불이 있는 경우 대량 환불 생성 테스트 완료");

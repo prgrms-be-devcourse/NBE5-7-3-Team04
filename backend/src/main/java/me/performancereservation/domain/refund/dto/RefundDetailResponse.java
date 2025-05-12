@@ -13,6 +13,7 @@ public record RefundDetailResponse(
         Long reservationId,
         String account,
         String bank,
+        String depositOwner,
         RefundStatus refundStatus,
 
         // Reservation에서 가져오는 데이터
@@ -37,6 +38,7 @@ public record RefundDetailResponse(
                 refund.getReservationId(),
                 refund.getAccount(),
                 refund.getBank(),
+                refund.getDepositorName(),
                 refund.getStatus(),
 
                 reservationQuantity,

@@ -9,6 +9,7 @@ public record RefundResponse(
     Long userId, // 사용자 id
     String account, // 계좌번호
     String bank, // 환불 상태
+    String depositorName,
     RefundStatus status
 ) {
     /**
@@ -23,6 +24,7 @@ public record RefundResponse(
             refund.getUserId(),
             refund.getAccount(),
             refund.getBank(),
+            refund.getDepositorName(),
             refund.getStatus()
         );
     }

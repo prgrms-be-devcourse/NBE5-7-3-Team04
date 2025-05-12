@@ -23,16 +23,16 @@ public class Refund extends BaseEntity {
 
     private String bank; // 환불 받을 은행
 
-    private String accountOwner; // 예금주
+    private String depositorName; // 입금자명
 
     @Setter
     @Enumerated(EnumType.STRING)
     private RefundStatus status; // 환불대기, 환불완료 상태 표시
 
-    public void updateBankInfo(String account, String bank, String accountOwner){
+    public void updateBankInfo(String account, String bank, String depositorName){
         this.account = account;
         this.bank = bank;
-        this.accountOwner = accountOwner;
+        this.depositorName = depositorName;
     }
 
     public void ready() {
@@ -51,7 +51,7 @@ public class Refund extends BaseEntity {
 
     @Builder
     public Refund(Long id, Long reservationId, Long userId, RefundStatus status) {
-        // account, bank, accountOwner는 처음 생성할 때 null
+        // account, bank, depositorName는 처음 생성할 때 null
         this.id = id;
         this.reservationId = reservationId;
         this.userId = userId;
