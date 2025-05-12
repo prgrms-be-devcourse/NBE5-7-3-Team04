@@ -16,13 +16,21 @@ public enum ErrorCode {
     MISSING_FILE_PARAMETER(HttpStatus.BAD_REQUEST, "요청에 'file' 파라미터가 포함되어야 합니다."),
     UNSUPPORTED_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다."),
     FILE_EXTENSION_MISSING(HttpStatus.BAD_REQUEST, "확장자가 없는 파일로 요청했습니다."),
-    EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
+    EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다."),
 
     // 유저 관련
 
     // 공연 관련
 
     // 예약 관련
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 공연 회차가 없습니다."),
+    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND,  "해당하는 예약이 없습니다."),
+    ALREADY_CANCELED_RESERVATION(HttpStatus.BAD_REQUEST, "이미 취소된 예약입니다."),
+
+    // 좌석 재고 관련
+    NO_REMAINING_SEATS(HttpStatus.BAD_REQUEST, "남은 좌석이 없습니다."),
+    SEAT_STOCK_DECREMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "좌석 차감에 실패했습니다."),
+    SEAT_STOCK_INCREMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "좌석 복원에 실패했습니다.");
 
     // 환불 관련
 
