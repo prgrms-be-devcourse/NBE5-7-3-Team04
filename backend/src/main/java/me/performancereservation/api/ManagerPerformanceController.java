@@ -97,7 +97,7 @@ public class ManagerPerformanceController {
      * @param performanceId
      * @param managerId
      */
-    @PatchMapping("/performances/{performanceId}")
+    @PatchMapping("/performances/{performanceId}/cancel")
     public ResponseEntity<Void> cancelPerformance(@PathVariable Long performanceId, Long managerId) {
         performanceService.cancelPerformance(performanceId, managerId);
 
