@@ -75,7 +75,7 @@ public class RefundService {
         return RefundResponse.fromEntity(savedRefund);
     }
 
-    /// 모든 id의 환불내역 디테일 조회
+    /// 모든 id의 환불 디테일 페이지 조회
     @Transactional(readOnly = true)
     public Page<RefundDetailResponse> findAllRefundsDetail(Pageable pageable) {
         // 쿼리로 [Refund, 예약수량, 시작시간, 회차상태, Performance]의 리스트를 받아옴
@@ -83,7 +83,7 @@ public class RefundService {
         return refundDetailMapper.toRefundDetailResponsePage(results);
     }
 
-    /// 입력받은 id의 환불내역 디테일 조회
+    /// 입력받은 id의 환불 디테일 페이지 조회
     @Transactional(readOnly = true)
     public Page<RefundDetailResponse> findAllRefundsDetailByUserId(Long userId, Pageable pageable) {
         Page<Object[]> results = refundRepository.findRefundsDetailByUserId(userId, pageable);
@@ -102,10 +102,22 @@ public class RefundService {
         return refundDetailMapper.toRefundDetailResponse(results.get(0));
     }
 
-    /// 특정 status의 환불내역 디테일 조회
+    /// 특정 status의 환불 디테일 페이지 조회
     @Transactional(readOnly = true)
-    public Page<RefundDetailResponse> findAllRefundsDetailByRefundStatus(RefundStatus refundStatus, Pageable pageable) {
-        Page<Object[]> results = refundRepository.findRefundsDetailByStatus(refundStatus, pageable);
+    public Page<RefundDetailResponse> findAllRefundsDetailByRefundStatus(String refundStatus, Pageable pageable) {
+
+        RefundStatus status;
+
+        // 문자열 쿼리 파라미터를 대문자로 변환하여 RefundStatus 생성 시도
+        try {
+            status = RefundStatus.valueOf(refundStatus.toUpperCase());
+
+        } catch (IllegalArgumentException e) {
+            // 유효하지 않은 종류의 refundStatus가 들어왔을 경우
+            throw ErrorCode.INVALID_REFUND_STATUS.domainException("유효하지 않은 종류의 refund status로 생성요청. status: "+refundStatus);
+        }
+
+        Page<Object[]> results = refundRepository.findRefundsDetailByStatus(status, pageable);
         return refundDetailMapper.toRefundDetailResponsePage(results);
     }
 

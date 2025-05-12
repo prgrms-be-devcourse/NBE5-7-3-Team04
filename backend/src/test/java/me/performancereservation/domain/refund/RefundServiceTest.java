@@ -340,8 +340,8 @@ class RefundServiceTest {
         log.info("PAYMENTS_PENDING 상태 예약의 환불 요청 완료: response={}", pendingResponse);
 
         // when
-        Page<RefundDetailResponse> pendingRefunds = refundService.findAllRefundsDetailByRefundStatus(RefundStatus.PENDING, PageRequest.of(0, 10));
-        Page<RefundDetailResponse> confirmedRefunds = refundService.findAllRefundsDetailByRefundStatus(RefundStatus.CONFIRMED, PageRequest.of(0, 10));
+        Page<RefundDetailResponse> pendingRefunds = refundService.findAllRefundsDetailByRefundStatus("pending", PageRequest.of(0, 10));
+        Page<RefundDetailResponse> confirmedRefunds = refundService.findAllRefundsDetailByRefundStatus("confirmed", PageRequest.of(0, 10));
 
         log.info("PENDING 상태 환불 상세 정보 조회 완료: size={}", pendingRefunds.getTotalElements());
         log.info("CONFIRMED 상태 환불 상세 정보 조회 완료: size={}", confirmedRefunds.getTotalElements());

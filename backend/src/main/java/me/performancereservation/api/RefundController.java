@@ -74,16 +74,10 @@ public class RefundController {
         if (refundStatus == null) {
             return ResponseEntity.ok(refundService.findAllRefundsDetail(pageable));
         }
-        
-        try {
-            // 문자열 쿼리 파라미터를 대문자로 변환하여 RefundStatus 생성
-            RefundStatus status = RefundStatus.valueOf(refundStatus.toUpperCase());
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(refundService.findAllRefundsDetailByRefundStatus(status, pageable));
-        } catch (IllegalArgumentException e) {
-            // 유효하지 않은 종류의 refundStatus가 들어왔을 경우
-            throw ErrorCode.INVALID_REFUND_STATUS.domainException("유효하지 않은 종류의 refund status로 생성요청. status: "+refundStatus);
-        }
+
+        // status로 조회. 유효성 검사는 서비스측에서 수행
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(refundService.findAllRefundsDetailByRefundStatus(refundStatus, pageable));
     }
 
     /// 환불 상태 변경 (환불 승인) PENDING-> CONFIRMED
