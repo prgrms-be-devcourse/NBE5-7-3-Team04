@@ -7,10 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface RefundRepository extends JpaRepository<Refund, Long> {
 
     List<Refund> findRefundByStatus(RefundStatus status);
@@ -45,15 +47,15 @@ public interface RefundRepository extends JpaRepository<Refund, Long> {
     Page<Object[]> findRefundsDetailByUserId(@Param("userId") Long userId, Pageable pageable);
 
     /// refund id로 refund detail response PAGE 반환
-        @Query(""" 
-                SELECT rf, res.quantity, sch.startTime, p
-                FROM Refund rf
-                JOIN Reservation res ON rf.reservationId = res.id
-                JOIN PerformanceSchedule sch ON res.scheduleId = sch.id
-                JOIN Performance p ON sch.performanceId = p.id
-                WHERE rf.id = :refundId
-                """)
-        List<Object[]> findRefundsDetailByRefundId(@Param("refundId") Long refundId);
+    @Query(""" 
+            SELECT rf, res.quantity, sch.startTime, p
+            FROM Refund rf
+            JOIN Reservation res ON rf.reservationId = res.id
+            JOIN PerformanceSchedule sch ON res.scheduleId = sch.id
+            JOIN Performance p ON sch.performanceId = p.id
+            WHERE rf.id = :refundId
+            """)
+    List<Object[]> findRefundsDetailByRefundId(@Param("refundId") Long refundId);
 
     /// refund status로 refund detail response PAGE 반환
     @Query("""
@@ -65,4 +67,11 @@ public interface RefundRepository extends JpaRepository<Refund, Long> {
             """)
     Page<Object[]> findRefundsDetailByStatus(@Param("status") RefundStatus status, Pageable pageable);
 
+    /**
+     * 주어진 예약 ID 목록에 해당하는 환불의 예약 ID 목록을 조회합니다.
+     * @param reservationIds 조회할 예약 ID 목록
+     * @return 이미 환불이 생성된 예약 ID 목록
+     */
+    @Query("SELECT r.reservationId FROM Refund r WHERE r.reservationId IN :reservationIds")
+    List<Long> findRefundByReservationIdIn(@Param("reservationIds") List<Long> reservationIds);
 }

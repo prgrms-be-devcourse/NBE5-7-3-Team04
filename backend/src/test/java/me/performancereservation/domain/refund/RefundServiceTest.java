@@ -25,6 +25,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -298,5 +300,110 @@ class RefundServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.REFUND_NOT_FOUND);
 
         log.info("존재하지 않는 환불 ID 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("대량 환불 생성 테스트")
+    void saveRefundFromReservationListTest() {
+        // given
+        log.info("대량 환불 생성 테스트 시작");
+
+        // 여러 개의 예약 생성
+        List<Reservation> reservations = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Reservation newReservation = Reservation.builder()
+                    .userId((long) i + 1)
+                    .scheduleId(schedule.getId())
+                    .quantity(2)
+                    .status(ReservationStatus.PAYMENTS_CONFIRMED)
+                    .build();
+            reservations.add(reservationRepository.save(newReservation));
+        }
+        log.info("테스트용 예약 {}개 생성 완료", reservations.size());
+
+        // when
+        refundService.saveRefundFromReservationList(reservations);
+        log.info("대량 환불 생성 완료");
+
+        // then
+        List<Refund> savedRefunds = refundRepository.findAll();
+        assertThat(savedRefunds).hasSize(5);
+        
+        // 각 환불의 상태와 정보 검증
+        for (Refund refund : savedRefunds) {
+            assertThat(refund.getStatus()).isEqualTo(RefundStatus.PENDING);
+            assertThat(refund.getAccount()).isNull();
+            assertThat(refund.getBank()).isNull();
+            assertThat(refund.getAccountOwner()).isNull();
+            
+            // 예약 정보와 일치하는지 검증
+            Reservation originalReservation = reservations.stream()
+                    .filter(r -> r.getId().equals(refund.getReservationId()))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(refund.getUserId()).isEqualTo(originalReservation.getUserId());
+        }
+        
+        log.info("대량 환불 생성 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("이미 환불이 생성된 예약이 있는 경우 대량 환불 생성 테스트")
+    void saveRefundFromReservationListWithExistingRefundTest() {
+        // given
+        log.info("이미 환불이 있는 경우 대량 환불 생성 테스트 시작");
+
+        // 여러 개의 예약 생성
+        List<Reservation> reservations = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Reservation newReservation = Reservation.builder()
+                    .userId((long) i + 1)
+                    .scheduleId(schedule.getId())
+                    .quantity(2)
+                    .status(ReservationStatus.PAYMENTS_CONFIRMED)
+                    .build();
+            reservations.add(reservationRepository.save(newReservation));
+        }
+        log.info("테스트용 예약 {}개 생성 완료", reservations.size());
+
+        // 첫 번째 예약에 대해 환불 미리 생성
+        refundService.save(reservations.get(0));
+        log.info("첫 번째 예약에 대한 환불 미리 생성 완료");
+
+        // when
+        refundService.saveRefundFromReservationList(reservations);
+        log.info("대량 환불 생성 완료");
+
+        // then
+        List<Refund> savedRefunds = refundRepository.findAll();
+        assertThat(savedRefunds).hasSize(5); // 첫 번째 환불 + 새로 생성된 4개
+        
+        // 각 환불의 상태와 정보 검증
+        for (Refund refund : savedRefunds) {
+            assertThat(refund.getStatus()).isEqualTo(RefundStatus.PENDING);
+            assertThat(refund.getAccount()).isNull();
+            assertThat(refund.getBank()).isNull();
+            assertThat(refund.getAccountOwner()).isNull();
+        }
+        
+        log.info("이미 환불이 있는 경우 대량 환불 생성 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("빈 예약 목록으로 대량 환불 생성 시도 테스트")
+    void saveRefundFromEmptyReservationListTest() {
+        // given
+        log.info("빈 예약 목록 테스트 시작");
+        List<Reservation> emptyList = new ArrayList<>();
+
+        // when
+        refundService.saveRefundFromReservationList(emptyList);
+        log.info("빈 목록으로 대량 환불 생성 시도 완료");
+
+        // then
+        List<Refund> savedRefunds = refundRepository.findAll();
+        assertThat(savedRefunds).isEmpty();
+        
+        log.info("빈 예약 목록 테스트 완료");
     }
 }

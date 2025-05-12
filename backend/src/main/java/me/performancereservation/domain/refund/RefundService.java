@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,8 @@ public class RefundService {
     private final RefundRepository refundRepository;
     private final ReservationRepository reservationRepository;
     private final RefundDetailMapper refundDetailMapper;
+
+    private static final int BATCH_SIZE = 1000;
 
     /** 사용자가 단일 예약에 대해 환불 생성할 때 이용.
      * 예약id를 받고 Refund를 생성하여 저장
@@ -125,7 +128,7 @@ public class RefundService {
         refund.confirm();
     }
 
-    ///  계좌, 은행, 입금자명 설정
+    ///  계좌, 은행, 입금자명 설정, READY state 설정
     @Transactional
     public Refund updateBankInfo(UpdateBankInfoRequest request) {
         // 해당 refund 존재하는지 유효성검사
@@ -158,7 +161,57 @@ public class RefundService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 대량의 예약에 대한 환불을 일괄적으로 생성합니다.
+     * 결제승인 상태의 예약들에 대해 환불을 생성하며, 벌크 인서트와 배치 처리를 적용합니다.
+     *
+     * @param reservationList 환불을 생성할 예약 목록
+     */
+    @Transactional
+    public void saveRefundFromReservationList(List<Reservation> reservationList) {
+        if (reservationList == null || reservationList.isEmpty()) {
+            log.warn("환불 생성할 예약 목록이 비어있습니다.");
+            return;
+        }
 
+        log.info("대량 환불 생성 시작: 예약 수={}", reservationList.size());
 
+        // 이미 환불이 생성된 예약 ID 목록 조회
+        List<Long> existingRefundReservationIds = refundRepository.findRefundByReservationIdIn(
+                reservationList.stream()
+                        .map(Reservation::getId)
+                        .collect(Collectors.toList())
+        );
+
+        // 환불 생성할 예약 필터링 (이미 환불이 생성된 예약 제외)
+        List<Refund> refundsToSave = reservationList.stream()
+                .filter(reservation -> !existingRefundReservationIds.contains(reservation.getId()))
+                .map(reservation -> Refund.builder()
+                        .reservationId(reservation.getId())
+                        .userId(reservation.getUserId())
+                        .status(RefundStatus.PENDING)
+                        .build())
+                .collect(Collectors.toList());
+
+        if (refundsToSave.isEmpty()) {
+            log.info("생성할 환불이 없습니다.");
+            return;
+        }
+
+        // 배치 단위로 나누어 저장
+        List<List<Refund>> batches = new ArrayList<>();
+        for (int i = 0; i < refundsToSave.size(); i += BATCH_SIZE) {
+            batches.add(refundsToSave.subList(i, Math.min(i + BATCH_SIZE, refundsToSave.size())));
+        }
+
+        // 배치 단위로 저장 실행
+        for (List<Refund> batch : batches) {
+            refundRepository.saveAll(batch);
+            log.info("환불 배치 저장 완료: {}개", batch.size());
+        }
+
+        log.info("대량 환불 생성 완료: 총 {}개 중 {}개 생성됨", 
+                reservationList.size(), refundsToSave.size());
+    }
 
 }
