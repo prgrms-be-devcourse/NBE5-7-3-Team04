@@ -49,7 +49,7 @@ public record RefundDetailResponse(
                 performance.getVenue(),
                 performance.getPrice(),
                 performance.getCategory().toString(),
-                performance.getPerformance_date(),
+                performance.getPerformanceDate(),
                 performance.getDescription()
         );
     }
