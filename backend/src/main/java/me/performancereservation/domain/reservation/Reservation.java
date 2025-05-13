@@ -81,9 +81,13 @@ public class Reservation extends BaseEntity {
         return this.quantity * ticketPrice;
     }
 
+    // 예약 확정
     public void confirm() {
         if(this.status == ReservationStatus.PAYMENTS_CONFIRMED) {
             throw ErrorCode.RESERVATION_ALREADY_CONFIRMED.domainException("이미 확정된 예약입니다.");
+        }
+        if(this.status == ReservationStatus.CANCEL_PENDING || this.status == ReservationStatus.CANCEL_CONFIRMED) {
+            throw ErrorCode.INVALID_RESERVATION_STATUS.domainException("유효하지 않은 예약 상태입니다.");
         }
         this.status = ReservationStatus.PAYMENTS_CONFIRMED;
     }
