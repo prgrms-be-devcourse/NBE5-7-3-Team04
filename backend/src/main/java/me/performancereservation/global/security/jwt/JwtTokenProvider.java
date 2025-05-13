@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -26,15 +25,18 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final long accessExpiration;
+    private final long refreshExpiration;
     private final UserService userService;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-expiration}") long accessExpiration,
+            @Value("${jwt.refresh-expiration}") long refreshExpiration,
             UserService userService
     ) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.accessExpiration = accessExpiration;
+        this.refreshExpiration = refreshExpiration;
         this.userService = userService;
     }
 
@@ -47,6 +49,19 @@ public class JwtTokenProvider {
                 .setSubject(String.valueOf(user.getId()))
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
+                .setIssuedAt(now)
+                .setExpiration(expire)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    //리프레쉬 토큰 발급
+    public String createRefreshToken(User user) {
+        Date now = new Date();
+        Date expire = new Date(now.getTime() + refreshExpiration);
+
+        return Jwts.builder()
+                .setSubject(String.valueOf(user.getId()))
                 .setIssuedAt(now)
                 .setExpiration(expire)
                 .signWith(key, SignatureAlgorithm.HS256)
