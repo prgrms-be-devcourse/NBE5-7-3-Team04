@@ -10,11 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 
 @RestController
@@ -31,8 +31,7 @@ public class UserPerformanceController {
      * @return 200 + performanceResponses
      */
     @GetMapping
-    public ResponseEntity<Page<PerformanceListResponse>> getPerformanceList(
-            @PageableDefault(size=10, sort = "performanceDate", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Page<PerformanceListResponse>> getPerformanceList(Pageable pageable) {
         Page<PerformanceListResponse> performancePageResponse = performanceService.getPerformanceList(pageable);
         return ResponseEntity.ok(performancePageResponse);
     }
@@ -46,6 +45,27 @@ public class UserPerformanceController {
     public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId) {
         PerformanceDetailResponse performanceResponse = performanceService.getPerformanceDetail(performanceId);
         return ResponseEntity.ok(performanceResponse);
+    }
+
+
+    /** 공연 목록 검색
+     *
+     * @param title 제목
+     * @param venue 공연장
+     * @param start 필터링 시작 날짜
+     * @param end 필터링 종료 날짜
+     * @param pageable 페이징
+     * @return performanceListResponses
+     */
+    @GetMapping("/search")
+    public ResponseEntity<Page<PerformanceListResponse>> searchPerformanceList(@RequestParam(required = false) String title,
+                                                                               @RequestParam(required = false) String venue,
+                                                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+                                                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+                                                                               Pageable pageable
+    ) {
+        Page<PerformanceListResponse> performanceListResponses = performanceService.searchPerformances(title, venue, start, end, pageable);
+        return ResponseEntity.ok(performanceListResponses);
     }
 
 }

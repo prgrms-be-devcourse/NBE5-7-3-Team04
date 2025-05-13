@@ -8,16 +8,21 @@ import me.performancereservation.domain.performance.dto.performance.request.Perf
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerDetailResponse;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerListResponse;
+import me.performancereservation.domain.performance.enums.PerformanceStatus;
 import me.performancereservation.domain.performance.service.PerformanceScheduleService;
 import me.performancereservation.domain.performance.service.PerformanceService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v1/managers")
@@ -25,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class ManagerPerformanceController {
     private final PerformanceService performanceService;
     private final PerformanceScheduleService performanceScheduleService;
-    private final FileService fileService;
 
     /** 공연자 자신의 공연 목록 페이지 호출
      *
@@ -40,7 +44,10 @@ public class ManagerPerformanceController {
                     size=10,
                     sort = "performanceDate",
                     direction = Sort.Direction.DESC) Pageable pageable,
-            Long managerId) {
+            Long managerId
+//            @AuthenticationPrincipal CustomOAuth2User principal
+            ) {
+        //        Long managerId = principal.getUser().getId();
         Page<PerformanceManagerListResponse> PerformanceManagerPageResponse = performanceService.getPerformanceManagerList(pageable, managerId);
         return ResponseEntity.ok(PerformanceManagerPageResponse);
     }
@@ -53,7 +60,10 @@ public class ManagerPerformanceController {
      * @return 200 + performanceManagerResponse
      */
     @GetMapping("/performances/{performanceId}")
-    public ResponseEntity<PerformanceManagerDetailResponse> getPerformanceDetails(@PathVariable Long performanceId, Long managerId) {
+    public ResponseEntity<PerformanceManagerDetailResponse> getPerformanceDetails(@PathVariable Long performanceId, Long managerId
+//                                                                                  @AuthenticationPrincipal CustomOAuth2User principal
+                                                                                  ) {
+        //        Long managerId = principal.getUser().getId();
         PerformanceManagerDetailResponse performanceManagerResponse = performanceService.getPerformanceManagerDetail(performanceId, managerId);
         return ResponseEntity.ok(performanceManagerResponse);
     }
@@ -69,8 +79,10 @@ public class ManagerPerformanceController {
     public ResponseEntity<Long> registerPerformance(
             @RequestBody PerformanceCreateRequest request,
             Long managerId
+//            @AuthenticationPrincipal CustomOAuth2User principal
             ) {
 
+//        Long managerId = principal.getUser().getId();
         Long performanceId = performanceService.createPerformance(request, managerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(performanceId);
     }
@@ -85,7 +97,10 @@ public class ManagerPerformanceController {
     @PatchMapping("/performance/{performanceId}")
     public ResponseEntity<Void> updatePerformance(@PathVariable Long performanceId,
                                                   @RequestBody PerformanceUpdateRequest request,
-                                                  Long managerId) {
+                                                  Long managerId
+//                                                  @AuthenticationPrincipal CustomOAuth2User principal
+                                                  ) {
+        //        Long managerId = principal.getUser().getId();
         performanceService.updatePerformance(performanceId, request, managerId);
         return ResponseEntity.noContent().build();
     }
@@ -98,7 +113,10 @@ public class ManagerPerformanceController {
      * @param managerId
      */
     @PatchMapping("/performances/{performanceId}/cancel")
-    public ResponseEntity<Void> cancelPerformance(@PathVariable Long performanceId, Long managerId) {
+    public ResponseEntity<Void> cancelPerformance(@PathVariable Long performanceId, Long managerId
+//                                                  @AuthenticationPrincipal CustomOAuth2User principal
+    ) {
+        //        Long managerId = principal.getUser().getId();
         performanceService.cancelPerformance(performanceId, managerId);
 
         /*
@@ -121,7 +139,10 @@ public class ManagerPerformanceController {
     @PatchMapping("/performances/{performanceId}/schedules/{performanceScheduleId}")
     public ResponseEntity<Void> cancelPerformanceSchedule(@PathVariable Long performanceId,
                                                           @PathVariable Long performanceScheduleId,
-                                                          Long managerId) {
+                                                          Long managerId
+//                                                          @AuthenticationPrincipal CustomOAuth2User principal
+    ) {
+        //        Long managerId = principal.getUser().getId();
         performanceScheduleService.cancelPerformanceSchedule(performanceId, performanceScheduleId, managerId);
         /*
 
@@ -129,5 +150,36 @@ public class ManagerPerformanceController {
 
          */
         return ResponseEntity.noContent().build();
+    }
+
+    /** 공연자 공연 검색
+     *
+     * 기본적인 공연 제목 + 날짜, 공연장 + 날짜 검색 가능
+     * 상태 정보를 프론트에서 탭으로 넘기게 되면 사용자 경험이 좋을 것 같아
+     * 공연자용 검색에는 상태별 필터링 추가
+     * 프론트에 전체, 공연중, 공연 완료 탭을 두고 탭을 통해 상태별 필터링
+     * @param title
+     * @param venue
+     * @param start
+     * @param end
+     * @param status
+     * @param pageable
+     * @param managerId
+     * @return PerformanceManagerListResponse
+     */
+    @GetMapping("/performances/search")
+    public ResponseEntity<Page<PerformanceManagerListResponse>> searchPerformances(@RequestParam(required = false) String title,
+                                                                                   @RequestParam(required = false) String venue,
+                                                                                   @RequestParam(required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+                                                                                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+                                                                                   @RequestParam(required = false) PerformanceStatus status,
+                                                                                   Pageable pageable,
+                                                                                   Long managerId
+//                                                                                   @AuthenticationPrincipal CustomOAuth2User principal
+                                                                                   ) {
+        //        Long managerId = principal.getUser().getId();
+        Page<PerformanceManagerListResponse> performanceManagerListResponses = performanceService.searchManagerPerformances(managerId, title, venue, start, end, status, pageable);
+        return ResponseEntity.ok(performanceManagerListResponses);
+
     }
 }

@@ -9,6 +9,7 @@ import me.performancereservation.domain.performance.mapper.PerformanceScheduleMa
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.global.exception.ErrorCode;
+import me.performancereservation.global.storage.redis.RedisSeatService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class PerformanceScheduleService {
 
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
+    private final RedisSeatService redisSeatService;
 
     /** 회차 등록
      *
@@ -44,7 +46,11 @@ public class PerformanceScheduleService {
         }
 
         PerformanceSchedule schedule = PerformanceScheduleMapper.toEntity(request, performanceId, performance.getTotalSeats());
-        return performanceScheduleRepository.save(schedule).getId();
+        Long savedId = performanceScheduleRepository.save(schedule).getId();
+        // 레디스 좌석 초기화
+        redisSeatService.initializeSeatStock(savedId, performance.getTotalSeats());
+
+        return savedId;
     }
 
 
