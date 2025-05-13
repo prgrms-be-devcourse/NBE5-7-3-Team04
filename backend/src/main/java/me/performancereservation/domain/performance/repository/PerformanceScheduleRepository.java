@@ -23,6 +23,18 @@ public interface PerformanceScheduleRepository extends JpaRepository<Performance
     """)
     Optional<SchedulePerformanceInfo> findSchedulePerformanceInfoByScheduleId(@Param("scheduleId") Long scheduleId);
 
+    // scheduleId로 DTO 프로젝션을 이용해서 in절로 SchedulePerformanceInfo 데이터 모델 리스트를 조회
+    @Query("""
+    SELECT new me.performancereservation.domain.performance.model.SchedulePerformanceInfo(
+        p.id, p.title, p.venue, p.price,
+        ps.id, ps.startTime, ps.endTime
+    )
+    FROM PerformanceSchedule ps
+    JOIN Performance p ON ps.performanceId = p.id
+    WHERE ps.id IN :scheduleIds
+    """)
+    List<SchedulePerformanceInfo> findAllSchedulePerformanceInfoByScheduleIds(@Param("scheduleIds") List<Long> scheduleIds);
+
     // 공연 아이디로 모든 회차 가져오기
     List<PerformanceSchedule> findByPerformanceId(Long id);
 }
