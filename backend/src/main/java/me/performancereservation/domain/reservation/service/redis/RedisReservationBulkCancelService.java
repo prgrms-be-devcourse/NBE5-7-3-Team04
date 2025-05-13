@@ -42,7 +42,7 @@ public class RedisReservationBulkCancelService {
 
         for (Reservation reservation : reservations) {
             // 이미 취소된 예약은 패스
-            if (reservation.isAlreadyCanceled()) return;
+            if (reservation.isAlreadyCanceled()) continue;
 
             // 예약 취소 처리
             redisReservationCancelExecutor.execute(reservation);
