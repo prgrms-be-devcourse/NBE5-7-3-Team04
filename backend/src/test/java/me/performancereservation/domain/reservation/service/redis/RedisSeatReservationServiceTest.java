@@ -224,7 +224,7 @@ class RedisSeatReservationServiceTest {
             reservationService.cancel(reservationId, userId)
         );
         
-        assertEquals(ErrorCode.UNAUTHORIZED, exception.getErrorCode());
+        assertEquals(ErrorCode.PERMISSION_DENIED, exception.getErrorCode());
         verify(redisSeatService, never()).safeIncrement(anyLong(), anyInt());
         verify(redisReservationService, never()).removeFromPendingExpirationQueue(anyLong());
     }
