@@ -3,7 +3,7 @@ package me.performancereservation.global.config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.admin.Admin;
-import me.performancereservation.domain.admin.AdminRepository;
+import me.performancereservation.domain.admin.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;

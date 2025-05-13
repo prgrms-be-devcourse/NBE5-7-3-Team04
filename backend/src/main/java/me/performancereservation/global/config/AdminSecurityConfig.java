@@ -1,7 +1,7 @@
 package me.performancereservation.global.config;
 
 import lombok.RequiredArgsConstructor;
-import me.performancereservation.domain.admin.AdminService;
+import me.performancereservation.domain.admin.service.AdminService;
 import me.performancereservation.domain.admin.handler.AdminAuthSuccessHandler;
 import me.performancereservation.domain.admin.handler.CustomAccessDeniedHandler;
 import me.performancereservation.domain.admin.handler.CustomAuthenticationEntryPoint;
