@@ -23,7 +23,7 @@ public enum ErrorCode {
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 공연 관련
-    PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
+    PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 공연입니다."),
     PERFORMANCE_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연의 회차 정보를 찾을 수 없습니다."),
     PERFORMANCE_PENDING_APPROVAL(HttpStatus.BAD_REQUEST, "공연이 승인 대기 중입니다. 승인 후 회차 등록이 가능합니다."),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
@@ -46,9 +46,9 @@ public enum ErrorCode {
     INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 환불 상태입니다."),
 
     // 정산 관련
-    SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 정산을 찾을 수 없습니다."),
-    INVALID_SETTLEMENT_REQUEST(HttpStatus.BAD_REQUEST, "아직 정산을 신청할 수 없습니다."),
-    INVALID_SETTLEMENT_STATUS(HttpStatus.BAD_REQUEST, "잘못된 정산 상태입니다.");
+    SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 정산입니다."),
+    INVALID_SETTLEMENT_REQUEST(HttpStatus.BAD_REQUEST, "공연 종료 후 7일이 지나야 정산 신청이 가능합니다."),
+    INVALID_SETTLEMENT_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 정산 상태입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
