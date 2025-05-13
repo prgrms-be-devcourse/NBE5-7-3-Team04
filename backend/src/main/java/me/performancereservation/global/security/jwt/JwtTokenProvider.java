@@ -94,24 +94,13 @@ public class JwtTokenProvider {
     }
 
     // 엑세스 토큰의 유효성 검증
-    public boolean validateAccessToken(String token) {
+    //유효성 검증을 access,refresh 모두 하나의 검사로 처리하고 싶어서 두개를 만들기 보다는 하나를 변경해보았습니다.
+    public Claims validateToken(String token, ErrorCode errorCode) {
         try {
-                Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+                return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
-            throw ErrorCode.INVALID_ACCESS_TOKEN.serviceException();
-        }
-    }
-
-    // 리프레쉬 토큰의 유효성 검증
-    public boolean validateRefreshToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
-            throw ErrorCode.INVALID_REFRESH_TOKEN.serviceException();
+            throw errorCode.serviceException();
         }
     }
 

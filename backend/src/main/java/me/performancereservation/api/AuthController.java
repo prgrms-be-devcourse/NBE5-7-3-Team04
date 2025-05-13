@@ -25,7 +25,7 @@ public class AuthController {
     @PostMapping("/reissue")
     public ResponseEntity<String> reissue(@RequestParam String refreshToken) { //리프레쉬 토큰에서 uerId 추출
 
-        jwtTokenProvider.validateAccessToken(refreshToken);
+        jwtTokenProvider.validateToken(refreshToken, ErrorCode.INVALID_REFRESH_TOKEN);
 
         Long userId = jwtTokenProvider.getUserId(refreshToken);
 
@@ -34,8 +34,6 @@ public class AuthController {
         if (savedToken == null || !savedToken.equals(refreshToken)) {
             throw ErrorCode.INVALID_REFRESH_TOKEN.domainException("리프레쉬 토큰이 유효하지 않습니다.");
         }
-
-        jwtTokenProvider.validateRefreshToken(refreshToken);
 
         User user = userService.getUserById(userId);
         String newAccessToken = jwtTokenProvider.createAccessToken(user);
