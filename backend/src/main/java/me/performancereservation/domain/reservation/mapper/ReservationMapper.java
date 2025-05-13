@@ -43,6 +43,7 @@ public class ReservationMapper {
     }
 
     /**
+     * 예약 객체와 공연+공연회차 데이터 모델 객체를 이용해 예약 응답 Dto Page 생성
      *
      * @param reservation 예약 객체
      * @param schedulePerformanceInfo 공연+공연회차 데이터 모델 객체
