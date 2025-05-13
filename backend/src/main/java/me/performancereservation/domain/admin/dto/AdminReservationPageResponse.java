@@ -24,6 +24,7 @@ public record AdminReservationPageResponse(
         String title,
         int price,
         int quantity,
+        int totalPrice,
         ReservationStatus status,
         LocalDateTime createdAt
 ) {

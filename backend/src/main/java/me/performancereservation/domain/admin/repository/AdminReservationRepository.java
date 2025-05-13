@@ -29,6 +29,7 @@ public interface AdminReservationRepository extends JpaRepository<Reservation, L
         p.title,
         p.price,
         r.quantity,
+        (p.price * r.quantity),
         r.status,
         r.createdAt
     )
@@ -61,6 +62,7 @@ public interface AdminReservationRepository extends JpaRepository<Reservation, L
         p.title,
         p.price,
         r.quantity,
+        (p.price * r.quantity),
         r.status,
         r.createdAt
     )
