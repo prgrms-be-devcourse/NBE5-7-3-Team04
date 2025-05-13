@@ -11,8 +11,8 @@ public enum ErrorCode {
     // 인증 관련
 
     // 어드민 관련
-    ADMIN_AUTHENTICATION_REQUIRED(HttpStatus.FORBIDDEN, "어드민 인증이 필요합니다."),
-    UNAUTHORIZED_ADMIN(HttpStatus.UNAUTHORIZED, "어드민 권한이 필요합니다."),
+    ADMIN_AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "어드민 인증이 필요합니다."),
+    UNAUTHORIZED_ADMIN(HttpStatus.FORBIDDEN, "어드민 권한이 필요합니다."),
     ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "어드민 아이디와 비밀번호를 확인해주세요."),
 
     // 파일 관련
