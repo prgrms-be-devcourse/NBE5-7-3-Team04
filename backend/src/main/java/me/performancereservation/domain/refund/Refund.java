@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.refund.enums.RefundStatus;
+import me.performancereservation.global.exception.ErrorCode;
 
 @Entity
 @Getter
@@ -22,22 +23,38 @@ public class Refund extends BaseEntity {
 
     private String bank; // 환불 받을 은행
 
+    private String depositorName; // 입금자명
+
+    @Setter
     @Enumerated(EnumType.STRING)
     private RefundStatus status; // 환불대기, 환불완료 상태 표시
 
-    public void setStatus(RefundStatus status) {
-        // 유효성검사 추가
+    public void updateBankInfo(String account, String bank, String depositorName){
+        this.account = account;
+        this.bank = bank;
+        this.depositorName = depositorName;
+    }
 
-        this.status = status;
+    public void ready() {
+        if (this.status == RefundStatus.READY) {
+            throw ErrorCode.INVALID_REFUND_STATUS.domainException("이미 환불 준비된 상태입니다.");
+        }
+        this.status = RefundStatus.READY;
+    }
+
+    public void confirm() {
+        if (this.status == RefundStatus.CONFIRMED) {
+            throw ErrorCode.INVALID_REFUND_STATUS.domainException("이미 환불이 완료된 상태입니다.");
+        }
+        this.status = RefundStatus.CONFIRMED;
     }
 
     @Builder
-    public Refund(Long id, Long reservationId, Long userId, String account, String bank, RefundStatus status) {
+    public Refund(Long id, Long reservationId, Long userId, RefundStatus status) {
+        // account, bank, depositorName는 처음 생성할 때 null
         this.id = id;
         this.reservationId = reservationId;
         this.userId = userId;
-        this.account = account;
-        this.bank = bank;
         this.status = status;
     }
 }

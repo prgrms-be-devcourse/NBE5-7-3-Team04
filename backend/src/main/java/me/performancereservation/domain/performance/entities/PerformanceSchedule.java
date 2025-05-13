@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.performancereservation.domain.common.BaseEntity;
+import me.performancereservation.global.exception.ErrorCode;
 
 import java.time.LocalDateTime;
 
@@ -24,15 +25,27 @@ public class PerformanceSchedule extends BaseEntity {
 
     private int remainingSeats; // 남은 좌석
 
-    private boolean is_canceled; // 회차 취소 여부
+    @Column(name = "is_canceled")
+    private boolean canceled; // 회차 취소 여부
 
     @Builder
-    public PerformanceSchedule(Long id, Long performanceId, LocalDateTime startTime, LocalDateTime endTime, int remainingSeats, boolean is_canceled) {
+    public PerformanceSchedule(Long id, Long performanceId, LocalDateTime startTime, LocalDateTime endTime, int remainingSeats, boolean canceled) {
         this.id = id;
         this.performanceId = performanceId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.remainingSeats = remainingSeats;
-        this.is_canceled = is_canceled;
+        this.canceled = canceled;
+    }
+
+    public void cancel() {
+        if (this.canceled) {
+            throw ErrorCode.SCHEDULE_ALREADY_CANCELED.domainException("이미 취소된 회차입니다. id = " + this.id);
+        }
+        this.canceled = true;
+    }
+
+    public boolean hasPermission(Long performanceId) {
+        return performanceId != null && performanceId.equals(this.performanceId);
     }
 }
