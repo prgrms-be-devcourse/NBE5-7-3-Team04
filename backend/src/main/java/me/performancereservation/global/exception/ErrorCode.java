@@ -29,8 +29,12 @@ public enum ErrorCode {
     PERFORMANCE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 공연입니다."),
     SCHEDULE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 회차입니다.");
     // 예약 관련
+    INVALID_RESERVATION_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 예약 상태입니다."),
 
     // 환불 관련
+    REFUND_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 환불ID입니다."),
+    DUPLICATE_REFUND(HttpStatus.CONFLICT, "이미 존재하는 환불내역입니다."),
+    INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 환불 상태입니다.");
 
     // 정산 관련
 

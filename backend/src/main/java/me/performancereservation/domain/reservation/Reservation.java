@@ -23,6 +23,11 @@ public class Reservation extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ReservationStatus status; //예약 상태 (예약 or 취소)
 
+    public void setStatus(ReservationStatus status) {
+        // 유효성검사
+        this.status = status;
+    }
+
     @Builder
     public Reservation(Long id, Long userId, Long scheduleId, int quantity, ReservationStatus status) {
         this.id = id;
