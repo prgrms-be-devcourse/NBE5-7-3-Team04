@@ -11,9 +11,9 @@ public enum ErrorCode {
     // 인증 관련
 
     // 어드민 관련
-    ADMIN_AUTHENTICATION_REQUIRED(HttpStatus.FORBIDDEN, "관리자 인증이 필요합니다."),
-    UNAUTHORIZED_ADMIN(HttpStatus.UNAUTHORIZED, "관리자 권한이 필요합니다."),
-    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "관리자 아이디와 비밀번호를 확인해주세요."),
+    ADMIN_AUTHENTICATION_REQUIRED(HttpStatus.FORBIDDEN, "어드민 인증이 필요합니다."),
+    UNAUTHORIZED_ADMIN(HttpStatus.UNAUTHORIZED, "어드민 권한이 필요합니다."),
+    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "어드민 아이디와 비밀번호를 확인해주세요."),
 
     // 파일 관련
     INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 업로드 형식이 잘못되었습니다."),

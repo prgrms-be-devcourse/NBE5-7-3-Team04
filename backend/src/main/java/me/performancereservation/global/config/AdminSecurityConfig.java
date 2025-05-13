@@ -39,7 +39,7 @@ public class AdminSecurityConfig {
         return http
                 .csrf(crfs -> crfs.disable())
                 .cors(cors -> cors.disable())
-                .securityMatcher("/api/v1/admin/**") // 관리자 기능에만 AdminSecurity 를 적용하여 사용자와 분리
+                .securityMatcher("/api/v1/admin/**") // 어드민 기능에만 AdminSecurity 를 적용하여 사용자와 분리
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/admin/login")
                         .permitAll()
@@ -65,8 +65,8 @@ public class AdminSecurityConfig {
                         .maxSessionsPreventsLogin(false)    // 새 로그인이 이전 세션 만료시킴
                 )
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)   // 인증 필요 시 커스텀 예외
-                        .accessDeniedHandler(customAccessDeniedHandler)             // 접근 거부 시 커스텀 예외
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)   // 로그인이 안된 경우를 처리하는 핸들러
+                        .accessDeniedHandler(customAccessDeniedHandler)             // 권한이 없는 경우를 처리하는 핸들러
                 )
                 .userDetailsService(adminService)
                 .build();

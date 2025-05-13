@@ -24,11 +24,11 @@ public class AdminInitializer {
     @Value("${app.admin.password}")
     private String adminPassword;
 
-    // CommandLineRunner는 스프링이 올라가면 자동으로 실행되어 첫 관리자 계정을 만들어 줍니다.
+    // CommandLineRunner는 스프링이 올라가면 자동으로 실행되어 첫 어드민 계정을 만들어 줍니다.
     @Bean
     public CommandLineRunner createAdmin() {
         return args -> {
-            //같은 이름의 관리자가 없는 경우에만 생성
+            //같은 이름의 어드민이 없는 경우에만 생성
             if (adminRepository.findById(adminId).isEmpty()) {
                 Admin admin = Admin.builder()
                         .id(adminId)

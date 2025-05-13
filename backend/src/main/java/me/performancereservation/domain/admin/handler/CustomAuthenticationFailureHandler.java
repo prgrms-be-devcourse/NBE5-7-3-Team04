@@ -21,7 +21,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
     private final ObjectMapper objectMapper;
 
-    //관리자의 인증정보(아이디, 비밀번호)가 틀린 경우의 예외를 처리하는 핸들러
+    //어드민의 인증정보(아이디, 비밀번호)가 틀린 경우의 예외를 처리하는 핸들러
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse response,
