@@ -37,8 +37,10 @@ public class AdminSecurityConfig {
     @Order(1) // 사용자 SecurityConfig 보다 먼저 적용되도록 Order 값 설정
     public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(crfs -> crfs.disable())
-                .cors(cors -> cors.disable())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/v1/admin/login") // 로그인은 csrf 설정 제외
+                )
+                .cors(cors -> cors.disable())           // 배포시 프론트 주소로 설정 필요
                 .securityMatcher("/api/v1/admin/**") // 어드민 기능에만 AdminSecurity 를 적용하여 사용자와 분리
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/admin/login")
