@@ -67,8 +67,8 @@ public class AdminReservationService {
         PerformanceSchedule schedule = performanceScheduleRepository.findById(reservation.getScheduleId())
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.domainException("회차가 존재하지 않습니다."));
 
-        schedule.decreaseRemainingSeats(reservation.getQuantity());
         reservation.confirm();
+        schedule.decreaseRemainingSeats(reservation.getQuantity());
     }
 
 }
