@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
+import me.performancereservation.global.exception.ErrorCode;
 
 @Entity
 @Getter
@@ -30,5 +31,12 @@ public class Reservation extends BaseEntity {
         this.scheduleId = scheduleId;
         this.quantity = quantity;
         this.status = status;
+    }
+
+    public void confirm() {
+        if(this.status == ReservationStatus.PAYMENTS_CONFIRMED) {
+            throw ErrorCode.RESERVATION_ALREADY_CONFIRMED.domainException("이미 확정된 예약입니다.");
+        }
+        this.status = ReservationStatus.PAYMENTS_CONFIRMED;
     }
 }
