@@ -40,7 +40,7 @@ public class Settlement extends BaseEntity {
         this.status = status;
     }
 
-    public void confirm(int totalAmount){
+    public void confirm(){
         this.settledAt = LocalDateTime.now();
         this.status = SettlementStatus.CONFIRMED;
     }

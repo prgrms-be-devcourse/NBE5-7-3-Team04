@@ -177,6 +177,9 @@ class SettlementServiceTest {
         assertThat(response.getContent()).hasSize(2);
         assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
         assertThat(response.getContent().get(0).status()).isIn(SettlementStatus.PENDING, SettlementStatus.CONFIRMED);
+        
+        // 로깅 추가
+        response.getContent().forEach(SettlementServiceTestUtils::logSettlementResponse);
     }
 
     @Test
@@ -184,7 +187,8 @@ class SettlementServiceTest {
     void findAllSettlementsSuccess() {
         // given
         Settlement settlement1 = createSettlement(SettlementStatus.PENDING);
-        Settlement settlement2 = createSettlement(SettlementStatus.CONFIRMED);
+        Settlement settlement2 = createSettlement(SettlementStatus.PENDING);
+        settlementService.confirmSettlement(settlement2.getId());
         PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
         // when
@@ -194,6 +198,9 @@ class SettlementServiceTest {
         assertThat(response.getContent()).hasSize(2);
         assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
         assertThat(response.getContent().get(0).status()).isIn(SettlementStatus.PENDING, SettlementStatus.CONFIRMED);
+        
+        // 로깅 추가
+        response.getContent().forEach(SettlementServiceTestUtils::logSettlementResponse);
     }
 
     @Test
@@ -211,6 +218,9 @@ class SettlementServiceTest {
         assertThat(response.getContent()).hasSize(1);
         assertThat(response.getContent().get(0).status()).isEqualTo(SettlementStatus.PENDING);
         assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
+        
+        // 로깅 추가
+        response.getContent().forEach(SettlementServiceTestUtils::logSettlementResponse);
     }
 
     @Test

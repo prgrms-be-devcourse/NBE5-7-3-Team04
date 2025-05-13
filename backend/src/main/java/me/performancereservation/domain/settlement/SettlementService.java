@@ -81,12 +81,12 @@ public class SettlementService {
         Settlement settlement = settlementRepository.findById(settlementId)
                 .orElseThrow(() -> ErrorCode.SETTLEMENT_NOT_FOUND.domainException("존재하지 않는 정산입니다."));
 
-        // 정산 상태 변경 및 완료 시간 설정
-        settlement.confirm(settlement.getTotalAmount());
-
         // 공연 정보 조회
         Performance performance = performanceRepository.findById(settlement.getPerformanceId())
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
+
+        // 정산 상태 변경 및 완료 시간 설정
+        settlement.confirm();
 
         // SettlementResponse 생성 및 반환
         return SettlementResponse.fromEntity(settlement, performance.getTitle());
@@ -106,7 +106,6 @@ public class SettlementService {
     public Page<SettlementResponse> findAllSettlementsByStatus(String status, Pageable pageable) {
 
         SettlementStatus settlementStatus = getSettlementStatus(status);
-
         return settlementRepository.findAllSettlementsByStatus(settlementStatus, pageable);
     }
 
@@ -119,7 +118,7 @@ public class SettlementService {
 
         } catch (IllegalArgumentException e) {
             // 유효하지 않은 종류의 settlementStatus 문자열이 들어왔을 경우
-            throw ErrorCode.INVALID_SETTLEMENT_STATUS.domainException("유효하지 않은 종류의 settlement status로 생성요청. status: "+ settlementStatus);
+            throw ErrorCode.INVALID_SETTLEMENT_STATUS.domainException("유효하지 않은 종류의 settlement status로 생성 요청하였습니다. status: "+ settlementStatus);
         }
         return status;
     }

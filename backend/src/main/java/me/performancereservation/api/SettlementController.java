@@ -33,7 +33,7 @@ public class SettlementController {
     }
 
     /**
-     * api/v1/settlements/admin/{settlementId}/confirm으로 ADMIN이 승인
+     * api/v1/settlements/admin/{settlementId}/confirm으로 ADMIN이 승인진행
      * @param settlementId 승인할 정산 id
      * @return 필드 변경된 정산 결과
      */
@@ -63,9 +63,9 @@ public class SettlementController {
     }
 
     /**
-     * api/v1/settlements/admin으로 모든 유저의 정산 조회
-     * status == null이면 전체 조회
-     * status가 유효하면 해당 status인 정산만 조회
+     * api/v1/settlements/admin으로 모든 유저의 정산 조회.
+     * status == null이면 전체 조회.
+     * status가 유효하면 해당 status인 정산만 조회.
      * @param status PENDING 혹은 CONFIRMED여야 한다
      * @return status로 필터링한 모든 유저의 정산목록 Page
      */
