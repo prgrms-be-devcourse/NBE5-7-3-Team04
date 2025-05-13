@@ -9,5 +9,5 @@ import jakarta.validation.constraints.Positive;
 public record ReservationRequest(
         @NotNull Long scheduleId, // 공연 회차 ID
         @NotNull Long userId, // 유저 ID TODO Authentication 구현 끝나면 제거
-        @Positive int quantity // 티켓수량
+        @NotNull @Positive int quantity // 티켓수량
 ) {}
