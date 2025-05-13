@@ -42,8 +42,8 @@ public class RedisSeatReservationService implements SeatReservationService {
      * @param quantity 예약한 티켓 수
      * @return ReservationResponse
      */
-    @Transactional
     @Override
+    @Transactional
     public ReservationResponse reserve(Long scheduleId, Long userId, int quantity) {
         // Redis에서 좌석 1개 먼저 차감 (RDB 접근 없이 선 예약 선점 - 빠른 필터링이 가능한게 장점)
         redisSeatService.safeDecrement(scheduleId, quantity); // 내부에 Redis 좌석 선점 관련 예외처리 있음
@@ -78,8 +78,8 @@ public class RedisSeatReservationService implements SeatReservationService {
      * @param reservationId 예약 ID
      * @param userId 예약한 유저 ID
      */
-    @Transactional
     @Override
+    @Transactional
     public void cancel(Long reservationId, Long userId) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
