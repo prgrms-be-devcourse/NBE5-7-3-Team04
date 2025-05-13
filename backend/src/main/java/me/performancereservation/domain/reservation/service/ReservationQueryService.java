@@ -5,7 +5,7 @@ import me.performancereservation.domain.performance.model.SchedulePerformanceInf
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
-import me.performancereservation.domain.reservation.dto.ReservationListResponse;
+import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
 import me.performancereservation.domain.reservation.mapper.ReservationMapper;
 import me.performancereservation.global.exception.ErrorCode;
@@ -33,7 +33,7 @@ public class ReservationQueryService {
      * @return 페이지네이션된 ReservationListResponse
      */
     @Transactional(readOnly = true)
-    public Page<ReservationListResponse> getAllByUserId(Long userId, Pageable pageable) {
+    public Page<ReservationPageResponse> getAllByUserId(Long userId, Pageable pageable) {
         // 본인의 모든 예약 목록 조회
         Page<Reservation> reservations = reservationRepository.findAllByUserId(userId, pageable);
 
@@ -53,7 +53,7 @@ public class ReservationQueryService {
     }
 
     // ReservationListResponseDto로 매핑 (가독성을 위해 map 로직 추출)
-    private ReservationListResponse mapToResponse(Reservation reservation, Map<Long, SchedulePerformanceInfo> infoMap) {
+    private ReservationPageResponse mapToResponse(Reservation reservation, Map<Long, SchedulePerformanceInfo> infoMap) {
         SchedulePerformanceInfo schedulePerformanceInfo = infoMap.get(reservation.getScheduleId());
 
         return reservationMapper.toListResponseDto(reservation, schedulePerformanceInfo);

@@ -2,7 +2,7 @@ package me.performancereservation.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.performancereservation.domain.reservation.dto.ReservationListResponse;
+import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.service.ReservationQueryService;
 import me.performancereservation.domain.reservation.service.redis.RedisSeatReservationService;
 import me.performancereservation.domain.reservation.dto.ReservationRequest;
@@ -58,10 +58,10 @@ public class ReservationController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Page<ReservationListResponse>> getUserReservations(
+    public ResponseEntity<Page<ReservationPageResponse>> getUserReservations(
 //            @AuthenticationPrincipal JwtAuthentication authentication,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ReservationListResponse> result = reservationQueryService.getAllByUserId(
+        Page<ReservationPageResponse> result = reservationQueryService.getAllByUserId(
 //                authentication.userId(), // TODO Authentication 머지 되면 수정 예정
                 1L, // TODO 수정 예정
                 pageable

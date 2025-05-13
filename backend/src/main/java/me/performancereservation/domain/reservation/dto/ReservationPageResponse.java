@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 /**
  * 예약 목록 조회용 응답 Dto
  */
-public record ReservationListResponse(
+public record ReservationPageResponse(
         // Reservation
         Long reservationId, // 예약 ID
         int quantity, // 티켓 수량

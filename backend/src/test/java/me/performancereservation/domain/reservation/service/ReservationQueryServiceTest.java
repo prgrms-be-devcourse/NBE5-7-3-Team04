@@ -4,7 +4,7 @@ import me.performancereservation.domain.performance.model.SchedulePerformanceInf
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
-import me.performancereservation.domain.reservation.dto.ReservationListResponse;
+import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.domain.reservation.mapper.ReservationMapper;
@@ -27,7 +27,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,7 +70,7 @@ class ReservationQueryServiceTest {
             LocalDateTime.now().plusHours(2)
         );
         
-        ReservationListResponse expectedResponse = new ReservationListResponse(
+        ReservationPageResponse expectedResponse = new ReservationPageResponse(
             1L,
             quantity,
             ReservationStatus.PAYMENTS_PENDING,
@@ -90,7 +89,7 @@ class ReservationQueryServiceTest {
         when(reservationMapper.toListResponseDto(any(Reservation.class), any(SchedulePerformanceInfo.class)))
             .thenReturn(expectedResponse);
         
-        Page<ReservationListResponse> result = queryService.getAllByUserId(userId, pageable);
+        Page<ReservationPageResponse> result = queryService.getAllByUserId(userId, pageable);
         
         // then
         assertNotNull(result);
