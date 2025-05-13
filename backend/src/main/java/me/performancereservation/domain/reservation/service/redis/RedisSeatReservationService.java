@@ -64,7 +64,7 @@ public class RedisSeatReservationService implements SeatReservationService {
 
         // response dto mapping용도로 schedulePerformanceInfo 데이터 모델 조회
         SchedulePerformanceInfo schedulePerformanceInfo = performanceScheduleRepository.findSchedulePerformanceInfoByScheduleId(scheduleId)
-                .orElseThrow(() -> ErrorCode.SCHEDULE_NOT_FOUND.domainException("해당 id의 공연 회차 없음 : " + scheduleId));
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.domainException("해당 id의 공연 회차 없음 : " + scheduleId));
 
         return reservationMapper.toResponseDto(reservation, schedulePerformanceInfo);
     }
@@ -92,7 +92,7 @@ public class RedisSeatReservationService implements SeatReservationService {
 
         // 본인 예약만 취소 가능
         if (!reservation.getUserId().equals(userId)) {
-            throw ErrorCode.UNAUTHORIZED.domainException("본인의 예약만 취소할 수 있습니다.");
+            throw ErrorCode.PERMISSION_DENIED.domainException("본인의 예약만 취소할 수 있습니다.");
         }
 
         // 결제 완료 상태라면 환불 요청 상태로 전환
