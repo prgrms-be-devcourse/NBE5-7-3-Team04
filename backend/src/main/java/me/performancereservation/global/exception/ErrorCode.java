@@ -27,13 +27,15 @@ public enum ErrorCode {
     PERFORMANCE_PENDING_APPROVAL(HttpStatus.BAD_REQUEST, "공연이 승인 대기 중입니다. 승인 후 회차 등록이 가능합니다."),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     PERFORMANCE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 공연입니다."),
-    SCHEDULE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 회차입니다.");
+    SCHEDULE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 회차입니다."),
     // 예약 관련
 
     // 환불 관련
 
     // 정산 관련
-
+    SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 정산을 찾을 수 없습니다."),
+    INVALID_SETTLEMENT_REQUEST(HttpStatus.BAD_REQUEST, "아직 정산을 신청할 수 없습니다."),
+    INVALID_SETTLEMENT_STATUS(HttpStatus.BAD_REQUEST, "잘못된 정산 상태입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

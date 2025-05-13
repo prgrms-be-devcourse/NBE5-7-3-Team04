@@ -1,0 +1,92 @@
+package me.performancereservation.domain.settlement;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.domain.performance.entities.Performance;
+import me.performancereservation.domain.performance.entities.PerformanceSchedule;
+import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
+import me.performancereservation.domain.performance.service.PerformanceService;
+import me.performancereservation.domain.settlement.dto.SettlementRequest;
+import me.performancereservation.domain.settlement.dto.SettlementResponse;
+import me.performancereservation.domain.settlement.enums.SettlementStatus;
+import me.performancereservation.global.exception.ErrorCode;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import me.performancereservation.domain.performance.repository.PerformanceRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class SettlementService {
+    private final SettlementRepository settlementRepository;
+    private final PerformanceRepository performanceRepository;
+    private final PerformanceScheduleRepository performanceScheduleRepository;
+    private final PerformanceService performanceService;
+
+    @Transactional
+    public Long createSettlement(SettlementRequest request) {
+        // 공연 정보 조회
+        Performance performance = performanceRepository.findById(request.performanceId())
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
+
+        // 공연 스케줄 조회
+        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
+
+        // 가장 늦은 공연 날짜 확인
+        LocalDateTime latestSchedule = schedules.stream()
+                .map(PerformanceSchedule::getStartTime)
+                .max(LocalDateTime::compareTo)
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("공연 스케줄이 존재하지 않습니다."));
+
+        // 정산 신청 가능 날짜 체크 (7일 이내)
+        if (latestSchedule.plusDays(7).isAfter(LocalDateTime.now())) {
+            throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("공연 종료 후 7일이 지나야 정산 신청이 가능합니다.");
+        }
+
+        // 총 정산 금액 계산
+        int totalAmount = calculateTotalAmount(schedules, performance);
+
+        // Settlement 객체 생성
+        // settledAt은 아직 값 설정하지 않고 나중에 confirm 할 때 설정
+        Settlement settlement = Settlement.builder()
+                .performanceId(request.performanceId())
+                .totalAmount(totalAmount)
+                .account(request.account())
+                .bank(request.bank())
+                .status(SettlementStatus.PENDING)
+                .build();
+
+        return settlementRepository.save(settlement).getId();
+    }
+
+    private int calculateTotalAmount(List<PerformanceSchedule> schedules, Performance performance) {
+        int price = performance.getPrice();
+        int totalSeats = performance.getTotalSeats();
+
+        // 스케쥴 리스트로 총 정산금액 누적 계산
+        return schedules.stream()
+                .filter(schedule -> !schedule.isCanceled()) // 취소된 스케쥴은 계산하지 않음
+                .mapToInt(schedule -> price * (totalSeats - schedule.getRemainingSeats()))
+                .sum();
+    }
+
+    @Transactional
+    public SettlementResponse confirmSettlement(Long settlementId) {
+        // 정산 객체 조회
+        Settlement settlement = settlementRepository.findById(settlementId)
+                .orElseThrow(() -> ErrorCode.SETTLEMENT_NOT_FOUND.domainException("존재하지 않는 정산입니다."));
+
+        // 정산 상태 변경 및 완료 시간 설정
+        settlement.confirm(settlement.getTotalAmount());
+
+        // 공연 정보 조회
+        Performance performance = performanceRepository.findById(settlement.getPerformanceId())
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
+
+        // SettlementResponse 생성 및 반환
+        return SettlementResponse.fromEntity(settlement, performance.getTitle());
+    }
+}
