@@ -20,9 +20,15 @@ public enum ErrorCode {
     EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다."),
 
     // 유저 관련
+    PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 공연 관련
-
+    PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
+    PERFORMANCE_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연의 회차 정보를 찾을 수 없습니다."),
+    PERFORMANCE_PENDING_APPROVAL(HttpStatus.BAD_REQUEST, "공연이 승인 대기 중입니다. 승인 후 회차 등록이 가능합니다."),
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
+    PERFORMANCE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 공연입니다."),
+    SCHEDULE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 회차입니다.");
     // 예약 관련
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 공연 회차가 없습니다."),
     RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND,  "해당하는 예약이 없습니다."),

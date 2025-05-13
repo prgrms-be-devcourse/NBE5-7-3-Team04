@@ -8,8 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface PerformanceScheduleRepository extends JpaRepository<PerformanceSchedule, Long> {
+import java.util.List;
 
+public interface PerformanceScheduleRepository extends JpaRepository<PerformanceSchedule, Long> {
     // scheduleId로 DTO 프로젝션을 이용해서 SchedulePerformanceInfo 데이터 모델을 조회
     @Query("""
         SELECT new me.performancereservation.domain.performance.model.SchedulePerformanceInfo(
@@ -21,4 +22,7 @@ public interface PerformanceScheduleRepository extends JpaRepository<Performance
         WHERE ps.id = :scheduleId
     """)
     Optional<SchedulePerformanceInfo> findSchedulePerformanceInfoByScheduleId(@Param("scheduleId") Long scheduleId);
+
+    // 공연 아이디로 모든 회차 가져오기
+    List<PerformanceSchedule> findByPerformanceId(Long id);
 }
