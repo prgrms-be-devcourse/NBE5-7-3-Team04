@@ -26,7 +26,7 @@ public class ReservationMapper {
         LocalDateTime createdAt = reservation.getCreatedAt();
         LocalDateTime expirationAt = createdAt.plusMinutes(EXPIRE_MINUTES * 60L);
 
-        int totalPrice = calculateTotalPrice(schedulePerformanceInfo.price(), reservation.getQuantity());
+        int totalPrice = reservation.calculateTotalPrice(schedulePerformanceInfo.price());
 
         return new ReservationResponse(
                 reservation.getId(),
@@ -39,9 +39,5 @@ public class ReservationMapper {
                 schedulePerformanceInfo.price(),
                 totalPrice
         );
-    }
-
-    private int calculateTotalPrice(int ticketPrice, int quantity) {
-        return ticketPrice * quantity;
     }
 }

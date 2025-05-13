@@ -63,4 +63,9 @@ public class Reservation extends BaseEntity {
 
         this.status = ReservationStatus.CANCEL_PENDING;
     }
+
+    // 공연 티켓 가격 * 수량 -> 총 가격
+    public int calculateTotalPrice(int ticketPrice) {
+        return this.quantity * ticketPrice;
+    }
 }
