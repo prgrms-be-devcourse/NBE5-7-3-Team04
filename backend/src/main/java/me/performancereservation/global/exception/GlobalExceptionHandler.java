@@ -2,6 +2,7 @@ package me.performancereservation.global.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartException;
@@ -42,6 +43,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(400)
                 .body(ErrorResponse.from(errorCode));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult()
+                .getAllErrors()
+                .get(0)
+                .getDefaultMessage();
+
+        return ResponseEntity
+                .status(400)
+                .body(new ErrorResponse(errorMessage));
     }
 
     @ExceptionHandler(Exception.class)
