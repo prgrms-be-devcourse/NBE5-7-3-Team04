@@ -36,7 +36,7 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
             log.info("[JwtExceptionHandlerFilter] error name = ExpiredJwtException");
 
         } catch (IllegalArgumentException e) { // 잘못된 인수나 인수의 값이 올바르지 않은 경우
-            setErrorResponse(response, ErrorCode.INVALID_JWT_TOKEN);
+            setErrorResponse(response, ErrorCode.INVALID_ACCESS_TOKEN);
             log.info("[JwtExceptionHandlerFilter] error name = IllegalArgumentException");
 
         } catch (NullPointerException e) { //토큰이 NULL인 경우(헤더 누락 등)
@@ -44,7 +44,7 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
             log.info("[JwtExceptionHandlerFilter] error name = NullPointerException");
 
         } catch (Exception e) { //기타 오류 발생
-            setErrorResponse(response, ErrorCode.INVALID_JWT_TOKEN);
+            setErrorResponse(response, ErrorCode.INVALID_ACCESS_TOKEN);
             log.info("[JwtExceptionHandlerFilter] error name = UNKNOWN_Exception");
 
         }

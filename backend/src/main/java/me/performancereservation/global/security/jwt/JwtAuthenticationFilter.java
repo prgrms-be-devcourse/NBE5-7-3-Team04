@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = jwtTokenProvider.resolveToken(request); //Authorization 헤더에서 Bearer 토큰 추출
 
         //토큰이 유효하면 SecurityContext에 인증 정보 저장
-        if(accessToken !=null && jwtTokenProvider.validateToken(accessToken)) {
+        if(accessToken !=null && jwtTokenProvider.validateAccessToken(accessToken)) {
                 Authentication auth = jwtTokenProvider.getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
