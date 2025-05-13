@@ -1,11 +1,11 @@
 package me.performancereservation.global.config;
 
 import lombok.RequiredArgsConstructor;
-import me.performancereservation.domain.admin.service.AdminService;
-import me.performancereservation.domain.admin.handler.AdminAuthSuccessHandler;
-import me.performancereservation.domain.admin.handler.CustomAccessDeniedHandler;
-import me.performancereservation.domain.admin.handler.CustomAuthenticationEntryPoint;
-import me.performancereservation.domain.admin.handler.CustomAuthenticationFailureHandler;
+import me.performancereservation.global.security.admin.service.AdminUserDeatilsService;
+import me.performancereservation.global.security.admin.handler.AdminAuthSuccessHandler;
+import me.performancereservation.global.security.admin.handler.CustomAccessDeniedHandler;
+import me.performancereservation.global.security.admin.handler.CustomAuthenticationEntryPoint;
+import me.performancereservation.global.security.admin.handler.CustomAuthenticationFailureHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -21,7 +21,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @RequiredArgsConstructor
 public class AdminSecurityConfig {
 
-    private final AdminService adminService;
+    private final AdminUserDeatilsService adminUserDeatilsService;
 
     private final AdminAuthSuccessHandler adminAuthSuccessHandler;                          // 로그인 성공 핸들러
     private final CustomAccessDeniedHandler customAccessDeniedHandler;                      // 권한이 없는 경우를 처리하는 핸들러
@@ -70,7 +70,7 @@ public class AdminSecurityConfig {
                         .authenticationEntryPoint(customAuthenticationEntryPoint)   // 로그인이 안된 경우를 처리하는 핸들러
                         .accessDeniedHandler(customAccessDeniedHandler)             // 권한이 없는 경우를 처리하는 핸들러
                 )
-                .userDetailsService(adminService)
+                .userDetailsService(adminUserDeatilsService)
                 .build();
     }
 }

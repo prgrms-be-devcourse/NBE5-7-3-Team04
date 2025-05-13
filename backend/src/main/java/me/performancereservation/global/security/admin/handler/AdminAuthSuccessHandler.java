@@ -1,4 +1,4 @@
-package me.performancereservation.domain.admin.handler;
+package me.performancereservation.global.security.admin.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

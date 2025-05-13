@@ -1,4 +1,4 @@
-package me.performancereservation.domain.admin.handler;
+package me.performancereservation.global.security.admin.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.exception.ErrorResponse;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -17,16 +17,16 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
-    //로그인을 하지 않고 admin 기능에 접근한 경우의 예외를 처리하는 핸들러
+    //로그인을 했지만 권한이 ADMIN이 아닌 사용자가 접근한 경우의 예외를 처리하는 핸들러
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
-        ErrorCode errorCode = ErrorCode.ADMIN_AUTHENTICATION_REQUIRED;
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED_ADMIN;
         ErrorResponse errorResponse = ErrorResponse.from(errorCode);
 
         //response에 예외를 셋팅해 반환해 줍니다.

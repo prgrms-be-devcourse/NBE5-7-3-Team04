@@ -1,6 +1,7 @@
-package me.performancereservation.domain.admin;
+package me.performancereservation.global.security.admin;
 
 import lombok.Getter;
+import me.performancereservation.domain.admin.Admin;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

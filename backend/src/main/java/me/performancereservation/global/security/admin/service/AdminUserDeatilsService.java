@@ -1,8 +1,8 @@
-package me.performancereservation.domain.admin.service;
+package me.performancereservation.global.security.admin.service;
 
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.admin.Admin;
-import me.performancereservation.domain.admin.AdminUserDetails;
+import me.performancereservation.global.security.admin.AdminUserDetails;
 import me.performancereservation.domain.admin.repository.AdminRepository;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AdminService implements UserDetailsService {
+public class AdminUserDeatilsService implements UserDetailsService {
 
     private final AdminRepository adminRepository;
 
