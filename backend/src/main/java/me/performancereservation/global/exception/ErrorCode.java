@@ -20,6 +20,14 @@ public enum ErrorCode {
     EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다."),
 
     // 유저 관련
+    DUPLICATE_USER_EMAIL(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 유저입니다."),
+    DUPLICATE_AUTH_SOCIAL(HttpStatus.CONFLICT,"이미 연결된 소셜 로그인 플랫폼입니다."),
+    INVALID_PROVIDER(HttpStatus.BAD_REQUEST,"지원하지 않는 소셜 플랫폼 입니다."),
+    INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않는 JWT 토큰입니다."),
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다." ),
+    TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST,"존재하지 않는 토큰입니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 공연 관련
