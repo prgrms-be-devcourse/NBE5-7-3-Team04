@@ -36,18 +36,23 @@ public class Reservation extends BaseEntity {
     /**
      * 도메인 로직
      */
+
+    // 취소 가능한 상태인지
     public boolean isCancelable() {
         return this.status == ReservationStatus.PAYMENTS_PENDING || this.status == ReservationStatus.PAYMENTS_CONFIRMED;
     }
 
+    // 환불이 필요한 상태인지
     public boolean isRefundRequired() {
         return this.status == ReservationStatus.PAYMENTS_CONFIRMED;
     }
 
+    // 이미 예약 취소 상태인지
     public boolean isAlreadyCanceled() {
         return this.status == ReservationStatus.CANCEL_CONFIRMED || this.status == ReservationStatus.CANCEL_PENDING;
     }
 
+    // 예약 취소 확정 상태로 변경
     public void cancelConfirm(){
         if(isAlreadyCanceled()){
             throw ErrorCode.ALREADY_CANCELED_RESERVATION.domainException("이미 취소된 예약임");
@@ -56,6 +61,7 @@ public class Reservation extends BaseEntity {
         this.status = ReservationStatus.CANCEL_CONFIRMED;
     }
 
+    // 예약 취소 대기 상태로 변경
     public void requestCancel() {
         if(isAlreadyCanceled()){
             throw ErrorCode.ALREADY_CANCELED_RESERVATION.domainException("이미 취소된 예약임");
