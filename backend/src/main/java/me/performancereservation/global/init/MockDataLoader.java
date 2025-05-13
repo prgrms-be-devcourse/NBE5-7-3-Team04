@@ -37,7 +37,7 @@ public class MockDataLoader implements CommandLineRunner {
                         .price(8000)
                         .venue("서울 어딘가")
                         .managerId(1L)
-                        .performance_date(LocalDateTime.now())
+                        .performanceDate(LocalDateTime.now())
                         .totalSeats(100)
                         .status(PerformanceStatus.CONFIRMED)
                         .build(),
@@ -48,7 +48,7 @@ public class MockDataLoader implements CommandLineRunner {
                         .price(10000)
                         .venue("경기도 어딘가")
                         .managerId(2L)
-                        .performance_date(LocalDateTime.now())
+                        .performanceDate(LocalDateTime.now())
                         .totalSeats(10)
                         .status(PerformanceStatus.CONFIRMED)
                         .build(),
@@ -59,7 +59,7 @@ public class MockDataLoader implements CommandLineRunner {
                         .price(10000)
                         .venue("부산 어딘가")
                         .managerId(3L)
-                        .performance_date(LocalDateTime.now())
+                        .performanceDate(LocalDateTime.now())
                         .totalSeats(3)
                         .status(PerformanceStatus.CONFIRMED)
                         .build()
@@ -76,7 +76,7 @@ public class MockDataLoader implements CommandLineRunner {
                         .startTime(LocalDateTime.now().plusDays(i))
                         .endTime(LocalDateTime.now().plusDays(i).plusHours(2))
                         .remainingSeats(performance.getTotalSeats())
-                        .is_canceled(false)
+                        .canceled(false)
                         .build();
 
                 allSchedules.add(schedule);
