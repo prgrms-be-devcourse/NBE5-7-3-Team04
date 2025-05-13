@@ -29,7 +29,7 @@ public class RefundController {
             @PathVariable Long userId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
     // TODO: 나중에 로그인 구현 후 security로 userid 받아오는 방식으로 수정
-//        Long userId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+    //      Long userId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
 
         log.info("사용자 환불 내역 조회 요청: userId={}, page={}, size={}",
                 userId, pageable.getPageNumber(), pageable.getPageSize());
@@ -45,24 +45,24 @@ public class RefundController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+
     /*--- ADMIN 요청에 대응 ---*/
     /// 모든 환불 내역 중 특정 status 리스트 반환
     /// /refunds/admin?status=CONFIRMED
     @GetMapping("/admin")
     public ResponseEntity<Page<RefundDetailResponse>> getAllRefundDetailsByRefundStatus(
-            @RequestParam(required = false) String refundStatus,
+            @RequestParam(required = false) String status,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        log.info("상태별 환불 내역 조회 요청: status={}, page={}, size={}", 
-                refundStatus, pageable.getPageNumber(), pageable.getPageSize());
+        log.info("상태별 환불 내역 조회 요청: status={}, page={}, size={}",
+                status, pageable.getPageNumber(), pageable.getPageSize());
 
         // 쿼리 파라미터로 status가 지정되지 않았을 경우 전체 조회
-        if (refundStatus == null) {
+        if (status == null) {
             return ResponseEntity.ok(refundService.findAllRefundsDetail(pageable));
         }
 
         // status로 조회. 유효성 검사는 서비스측에서 수행
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(refundService.findAllRefundsDetailByRefundStatus(refundStatus, pageable));
+        return ResponseEntity.ok(refundService.findAllRefundsDetailByRefundStatus(status, pageable));
     }
 
     /// 환불 상태 변경 (환불 승인) PENDING-> CONFIRMED

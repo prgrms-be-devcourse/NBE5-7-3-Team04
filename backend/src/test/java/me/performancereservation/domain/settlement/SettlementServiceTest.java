@@ -14,6 +14,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -41,6 +44,7 @@ class SettlementServiceTest {
     private Performance performance;
     private PerformanceSchedule schedule1;
     private PerformanceSchedule schedule2;
+    private Long managerId = 1L;
 
     @BeforeEach
     void setUp() {
@@ -49,6 +53,7 @@ class SettlementServiceTest {
                 .title("테스트 공연")
                 .price(10000)
                 .totalSeats(100)
+                .managerId(managerId)
                 .build();
         performanceRepository.save(performance);
         SettlementServiceTestUtils.logPerformanceInfo(performance);
@@ -155,5 +160,80 @@ class SettlementServiceTest {
                 .isInstanceOf(AppException.class) // 예외 타입 먼저 확인
                 .satisfies(e -> assertThat(((AppException) e).getErrorCode())
                         .isEqualTo(ErrorCode.SETTLEMENT_NOT_FOUND));
+    }
+
+    @Test
+    @DisplayName("사용자별 정산 목록 조회 성공")
+    void findAllSettlementsWithUserIdSuccess() {
+        // given
+        Settlement settlement1 = createSettlement(SettlementStatus.PENDING);
+        Settlement settlement2 = createSettlement(SettlementStatus.CONFIRMED);
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+
+        // when
+        Page<SettlementResponse> response = settlementService.findAllSettlementsWithUserId(managerId, pageRequest);
+
+        // then
+        assertThat(response.getContent()).hasSize(2);
+        assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
+        assertThat(response.getContent().get(0).status()).isIn(SettlementStatus.PENDING, SettlementStatus.CONFIRMED);
+    }
+
+    @Test
+    @DisplayName("전체 정산 목록 조회 성공")
+    void findAllSettlementsSuccess() {
+        // given
+        Settlement settlement1 = createSettlement(SettlementStatus.PENDING);
+        Settlement settlement2 = createSettlement(SettlementStatus.CONFIRMED);
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+
+        // when
+        Page<SettlementResponse> response = settlementService.findAllSettlements(pageRequest);
+
+        // then
+        assertThat(response.getContent()).hasSize(2);
+        assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
+        assertThat(response.getContent().get(0).status()).isIn(SettlementStatus.PENDING, SettlementStatus.CONFIRMED);
+    }
+
+    @Test
+    @DisplayName("상태별 정산 목록 조회 성공")
+    void findAllSettlementsByStatusSuccess() {
+        // given
+        Settlement settlement1 = createSettlement(SettlementStatus.PENDING);
+        Settlement settlement2 = createSettlement(SettlementStatus.CONFIRMED);
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+
+        // when
+        Page<SettlementResponse> response = settlementService.findAllSettlementsByStatus("PENDING", pageRequest);
+
+        // then
+        assertThat(response.getContent()).hasSize(1);
+        assertThat(response.getContent().get(0).status()).isEqualTo(SettlementStatus.PENDING);
+        assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
+    }
+
+    @Test
+    @DisplayName("잘못된 상태로 정산 목록 조회 시 실패")
+    void findAllSettlementsByStatusFailWithInvalidStatus() {
+        // given
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+
+        // when & then
+        assertThatThrownBy(() -> settlementService.findAllSettlementsByStatus("INVALID_STATUS", pageRequest))
+                .isInstanceOf(AppException.class)
+                .satisfies(e -> assertThat(((AppException) e).getErrorCode())
+                        .isEqualTo(ErrorCode.INVALID_SETTLEMENT_STATUS));
+    }
+
+    private Settlement createSettlement(SettlementStatus status) {
+        Settlement settlement = Settlement.builder()
+                .performanceId(performance.getId())
+                .totalAmount(500000)
+                .account("123-456-789")
+                .bank("신한은행")
+                .status(status)
+                .build();
+        return settlementRepository.save(settlement);
     }
 }

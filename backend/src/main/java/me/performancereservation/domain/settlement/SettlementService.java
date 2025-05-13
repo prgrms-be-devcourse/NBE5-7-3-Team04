@@ -10,6 +10,8 @@ import me.performancereservation.domain.settlement.dto.SettlementRequest;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
 import me.performancereservation.domain.settlement.enums.SettlementStatus;
 import me.performancereservation.global.exception.ErrorCode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
@@ -88,5 +90,37 @@ public class SettlementService {
 
         // SettlementResponse 생성 및 반환
         return SettlementResponse.fromEntity(settlement, performance.getTitle());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SettlementResponse> findAllSettlementsWithUserId(Long userId, Pageable pageable) {
+        return settlementRepository.findAllSettlementsWithUserId(userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SettlementResponse> findAllSettlements(Pageable pageable) {
+        return settlementRepository.findAllSettlements(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SettlementResponse> findAllSettlementsByStatus(String status, Pageable pageable) {
+
+        SettlementStatus settlementStatus = getSettlementStatus(status);
+
+        return settlementRepository.findAllSettlementsByStatus(settlementStatus, pageable);
+    }
+
+    // string -> settlementStatus로 변환. 변환 불가능할 경우 throw exception
+    private static SettlementStatus getSettlementStatus(String settlementStatus) {
+        SettlementStatus status;
+
+        try { // 문자열 쿼리 파라미터를 대문자로 변환하여 settlementStatus 생성 시도
+            status = SettlementStatus.valueOf(settlementStatus.toUpperCase());
+
+        } catch (IllegalArgumentException e) {
+            // 유효하지 않은 종류의 settlementStatus 문자열이 들어왔을 경우
+            throw ErrorCode.INVALID_SETTLEMENT_STATUS.domainException("유효하지 않은 종류의 settlement status로 생성요청. status: "+ settlementStatus);
+        }
+        return status;
     }
 }

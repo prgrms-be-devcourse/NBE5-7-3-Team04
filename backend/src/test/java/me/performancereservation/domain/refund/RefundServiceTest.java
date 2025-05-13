@@ -68,7 +68,7 @@ class RefundServiceTest {
                 .price(10000)
                 .category(PerformanceCategory.OPERA)
                 .description("테스트 공연 설명")
-                .performance_date(LocalDateTime.now())
+                .performanceDate(LocalDateTime.now())
                 .status(PerformanceStatus.CONFIRMED)
                 .build();
         performance = performanceRepository.save(performance);
@@ -80,7 +80,7 @@ class RefundServiceTest {
                 .startTime(LocalDateTime.now().plusDays(7))
                 .endTime(LocalDateTime.now().plusDays(7).plusHours(2))
                 .remainingSeats(100)
-                .is_canceled(false)
+                .canceled(false)
                 .build();
         schedule = performanceScheduleRepository.save(schedule);
         log.info("PerformanceSchedule 저장 완료: id={}", schedule.getId());
