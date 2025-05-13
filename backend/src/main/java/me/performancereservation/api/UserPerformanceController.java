@@ -2,8 +2,7 @@ package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceListResponse;
-import me.performancereservation.domain.performance.repository.PerformanceRepository;
+import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
 import me.performancereservation.domain.performance.service.PerformanceScheduleService;
 import me.performancereservation.domain.performance.service.PerformanceService;
 import org.springframework.data.domain.Page;
@@ -31,9 +30,9 @@ public class UserPerformanceController {
      * @return 200 + performanceResponses
      */
     @GetMapping
-    public ResponseEntity<Page<PerformanceListResponse>> getPerformanceList(
+    public ResponseEntity<Page<PerformancePageResponse>> getPerformanceList(
             @PageableDefault(size=10, sort = "performanceDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<PerformanceListResponse> performancePageResponse = performanceService.getPerformanceList(pageable);
+        Page<PerformancePageResponse> performancePageResponse = performanceService.getPerformanceList(pageable);
         return ResponseEntity.ok(performancePageResponse);
     }
 

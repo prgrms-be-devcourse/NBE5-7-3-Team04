@@ -2,9 +2,9 @@ package me.performancereservation.domain.performance.mapper;
 
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceCreateRequest;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceListResponse;
+import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerListResponse;
+import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerPageResponse;
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
@@ -63,8 +63,8 @@ public class PerformanceMapper {
      * @param fileUrl
      * @return PerformanceListResponse
      */
-    public static PerformanceListResponse toListResponse(Performance performance, String fileUrl) {
-        return new PerformanceListResponse(
+    public static PerformancePageResponse toListResponse(Performance performance, String fileUrl) {
+        return new PerformancePageResponse(
                 performance.getId(),
                 fileUrl,
                 performance.getTitle(),
@@ -80,8 +80,8 @@ public class PerformanceMapper {
      * @param fileUrl
      * @return PerformanceManagerListResponse
      */
-    public static PerformanceManagerListResponse toManagerListResponse(Performance performance, String fileUrl) {
-        return new PerformanceManagerListResponse(
+    public static PerformanceManagerPageResponse toManagerListResponse(Performance performance, String fileUrl) {
+        return new PerformanceManagerPageResponse(
                 performance.getId(),
                 fileUrl,
                 performance.getTitle(),
