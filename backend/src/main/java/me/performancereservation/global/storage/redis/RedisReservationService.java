@@ -13,7 +13,7 @@ import java.util.Set;
 public class RedisReservationService {
 
     @Value("${reservation.expired_time}")
-    private int RESERVATION_PENDING_EXPIRE_MINUTES; // 예약 만료 시간 TODO 개발 끝나면 제대로 설정
+    private int RESERVATION_EXPIRE_MINUTES; // 예약 만료 시간 TODO 개발 끝나면 제대로 설정
 
     private final String RESERVATION_EXPIRATION_KEY = "reservation:pending:expiration"; // 만료 시간 값 저장을 위한 ZSet 키
 
@@ -29,7 +29,7 @@ public class RedisReservationService {
      * @param reservationId 예약 ID
      */
     public void addToPendingExpirationQueue(Long reservationId) {
-        long expireAt = Instant.now().plusSeconds(RESERVATION_PENDING_EXPIRE_MINUTES * 60L).getEpochSecond();
+        long expireAt = Instant.now().plusSeconds(RESERVATION_EXPIRE_MINUTES * 60L).getEpochSecond();
 
         redisTemplate.opsForZSet().add(RESERVATION_EXPIRATION_KEY, reservationId.toString(), expireAt);
     }

@@ -24,7 +24,7 @@ public class ReservationMapper {
      */
     public ReservationResponse toResponseDto(Reservation reservation, SchedulePerformanceInfo schedulePerformanceInfo) {
         LocalDateTime createdAt = reservation.getCreatedAt();
-        LocalDateTime expirationAt = createdAt.plusMinutes(EXPIRE_MINUTES * 60L);
+        LocalDateTime expirationAt = createdAt.plusMinutes(EXPIRE_MINUTES);
 
         int totalPrice = reservation.calculateTotalPrice(schedulePerformanceInfo.price());
 
