@@ -26,6 +26,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        if (isExcludedUrl(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String accessToken = jwtTokenProvider.resolveToken(request); //Authorization 헤더에서 Bearer 토큰 추출
 
         //토큰이 유효하면 SecurityContext에 인증 정보 저장
@@ -36,5 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         //다음 필터로 요청 전달
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isExcludedUrl(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.equals("/api/v1/auth/reissue") ||
+                uri.equals("/api/v1/auth/login") ||
+                uri.equals("/api/v1/auth/logout");
     }
 }

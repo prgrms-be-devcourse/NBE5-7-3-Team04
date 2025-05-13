@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**","swagger-ui/index.html#/","/v3/api-docs/**", "/swagger-resources/**").permitAll()
-                        .requestMatchers("/api/v1/users/sign-in","/api/v1/users/sign-up").permitAll() //인증 없이 접근 허용(사이트 구경은 가능)
+                        .requestMatchers("/api/v1/users/sign-in","/api/v1/users/sign-up","/api/v1/auth/reissue").permitAll() //인증 없이 접근 허용(사이트 구경은 가능)
                         .requestMatchers("/api/v1/reservation/**").authenticated() //JWT 인증 필요 : 예약은 회원만..
                         .requestMatchers( "/oauth2/**","/oauth2/authorize/**", "/login/oauth2/code/**").permitAll()
                         .anyRequest().permitAll() //테스트용으로 일단 전부 허용 이후 수정!!
