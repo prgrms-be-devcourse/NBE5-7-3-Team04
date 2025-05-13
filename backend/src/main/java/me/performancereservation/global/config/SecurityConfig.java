@@ -60,13 +60,10 @@ public class SecurityConfig {
                         .successHandler(oAuth2SuccessHandler)
                 )
                 //JWT 인증 필터는 UsernamePasswordAuthenticationFilter 앞에
-                //.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 //예외처리 필터는 JWT 인증 필터 앞에
-//                .addFilterBefore(new JwtExceptionHandlerFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionHandlerFilter, JwtAuthenticationFilter.class)
         ;
-
         return http.build();
     }
 

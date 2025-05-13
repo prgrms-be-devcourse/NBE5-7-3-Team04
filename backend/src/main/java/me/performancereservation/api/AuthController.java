@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.Role;
 import me.performancereservation.domain.user.service.UserService;
-import me.performancereservation.global.exception.AppException;
 import me.performancereservation.global.security.jwt.JwtTokenProvider;
+import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,9 +30,9 @@ public class AuthController {
     }
 
     //가입된 유저의 테스트용 jwt 발급
-    @GetMapping("token-test/{userId}")
-    public ResponseEntity<String> getTestToken(@PathVariable Long userId) {
-        User user = userService.getUserById(userId);
+    @GetMapping("token-test")
+    public ResponseEntity<String> getTestToken(@AuthenticationPrincipal CustomOAuth2User principal) {
+        User user = principal.getUser();
         String jwt = jwtTokenProvider.createAccessToken(user);
         return ResponseEntity.ok(jwt);
     }

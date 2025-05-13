@@ -17,10 +17,10 @@ public class CustomOAuth2User implements OAuth2User {
     private final Map<String, Object> attributes;
 
     //소셜로그인 성공 시 db에서 찾은 유저 정보와 소셜에서 받은 정보를 받아옴
-    public CustomOAuth2User(User user, Map<String, Object> attributes) {
-        this.user = user;
-        this.attributes = attributes;
-    }
+        public CustomOAuth2User(User user, Map<String, Object> attributes) {
+            this.user = user;
+            this.attributes = attributes;
+        }
 
     @Override
     public Map<String, Object> getAttributes() { //소셜에서 내려준 원본 정보 반환

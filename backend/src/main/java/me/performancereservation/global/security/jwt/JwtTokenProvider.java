@@ -5,16 +5,18 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.user.entitiy.User;
+import me.performancereservation.domain.user.service.UserService;
 import me.performancereservation.global.exception.ErrorCode;
+import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -24,13 +26,16 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final long accessExpiration;
+    private final UserService userService;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.access-expiration}") long accessExpiration
+            @Value("${jwt.access-expiration}") long accessExpiration,
+            UserService userService
     ) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.accessExpiration = accessExpiration;
+        this.userService = userService;
     }
 
     //인증된 User 정보로 JWT 토큰을 발급
@@ -52,14 +57,16 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
         Long userId = Long.valueOf(claims.getSubject());
-        String email = claims.get("email", String.class);
-        String role = claims.get("role", String.class);
+
+        // JWT 기반 인증 시, DB에서 유저 조회하여 CustomOAuth2User 생성
+        User user = userService.getUserById(userId);
+        CustomOAuth2User principal = new CustomOAuth2User(user, Map.of());
 
         //UserDetails 대신 직접 Principal 정보 구성
         return new UsernamePasswordAuthenticationToken(
-                userId, // Principal(userId)
+                principal,
                 null, // Credentials(비밀번호 없음)
-                List.of(new SimpleGrantedAuthority(role))
+                principal.getAuthorities()
         );
     }
 
