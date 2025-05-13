@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/admin/reservations")
+@RequestMapping("/api/v1/admin/reservations")
 @RequiredArgsConstructor
 public class AdminReservationController {
 
