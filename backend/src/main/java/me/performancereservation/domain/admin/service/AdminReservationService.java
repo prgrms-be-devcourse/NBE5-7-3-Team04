@@ -3,6 +3,8 @@ package me.performancereservation.domain.admin.service;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.admin.dto.AdminReservationPageResponse;
 import me.performancereservation.domain.admin.repository.AdminReservationRepository;
+import me.performancereservation.domain.performance.entities.PerformanceSchedule;
+import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 public class AdminReservationService {
     private final ReservationRepository reservationRepository;
     private final AdminReservationRepository adminReservationRepository;
+    private final PerformanceScheduleRepository performanceScheduleRepository;
 
     /** 관리자 예약 목록 조회
      *
@@ -60,6 +63,11 @@ public class AdminReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.domainException("예약이 존재하지 않습니다."));
 
+
+        PerformanceSchedule schedule = performanceScheduleRepository.findById(reservation.getScheduleId())
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.domainException("회차가 존재하지 않습니다."));
+
+        schedule.decreaseRemainingSeats(reservation.getQuantity());
         reservation.confirm();
     }
 
