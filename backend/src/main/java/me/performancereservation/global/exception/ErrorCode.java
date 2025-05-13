@@ -11,6 +11,11 @@ public enum ErrorCode {
     // 인증 관련
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
 
+    // 어드민 관련
+    ADMIN_AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "어드민 인증이 필요합니다."),
+    UNAUTHORIZED_ADMIN(HttpStatus.FORBIDDEN, "어드민 권한이 필요합니다."),
+    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "어드민 아이디와 비밀번호를 확인해주세요."),
+
     // 파일 관련
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드를 실패했습니다."),
     INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 업로드 형식이 잘못되었습니다."),
