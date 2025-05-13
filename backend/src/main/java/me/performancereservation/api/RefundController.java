@@ -28,7 +28,7 @@ public class RefundController {
     public ResponseEntity<Page<RefundDetailResponse>> getAllRefundDetailsWithUserId(
             @PathVariable Long userId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    // 나중에 로그인 구현 후 security로 userid 받아오는 방식으로 수정
+    // TODO: 나중에 로그인 구현 후 security로 userid 받아오는 방식으로 수정
 //        Long userId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
 
         log.info("사용자 환불 내역 조회 요청: userId={}, page={}, size={}",
