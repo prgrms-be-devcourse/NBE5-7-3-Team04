@@ -56,13 +56,9 @@ public class RefundController {
         log.info("상태별 환불 내역 조회 요청: status={}, page={}, size={}",
                 status, pageable.getPageNumber(), pageable.getPageSize());
 
-        // 쿼리 파라미터로 status가 지정되지 않았을 경우 전체 조회
-        if (status == null) {
-            return ResponseEntity.ok(refundService.findAllRefundsDetail(pageable));
-        }
-
         // status로 조회. 유효성 검사는 서비스측에서 수행
-        return ResponseEntity.ok(refundService.findAllRefundsDetailByRefundStatus(status, pageable));
+        // status가 null일 경우 전체조회 응답 받음
+        return ResponseEntity.ok(refundService.findAllRefundsDetail(status, pageable));
     }
 
     /// 환불 상태 변경 (환불 승인) PENDING-> CONFIRMED

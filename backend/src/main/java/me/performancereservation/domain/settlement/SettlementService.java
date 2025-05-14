@@ -98,13 +98,11 @@ public class SettlementService {
     }
 
     @Transactional(readOnly = true)
-    public Page<SettlementResponse> findAllSettlements(Pageable pageable) {
-        return settlementRepository.findAllSettlements(pageable);
-    }
-
-    @Transactional(readOnly = true)
     public Page<SettlementResponse> findAllSettlementsByStatus(String status, Pageable pageable) {
-
+        if(status == null) {
+            return settlementRepository.findAllSettlements(pageable);
+        }
+        
         SettlementStatus settlementStatus = getSettlementStatus(status);
         return settlementRepository.findAllSettlementsByStatus(settlementStatus, pageable);
     }

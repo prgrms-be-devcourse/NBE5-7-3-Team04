@@ -192,7 +192,7 @@ class SettlementServiceTest {
         PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
         // when
-        Page<SettlementResponse> response = settlementService.findAllSettlements(pageRequest);
+        Page<SettlementResponse> response = settlementService.findAllSettlementsByStatus(null, pageRequest);
 
         // then
         assertThat(response.getContent()).hasSize(2);

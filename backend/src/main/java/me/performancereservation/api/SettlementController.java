@@ -77,12 +77,10 @@ public class SettlementController {
                 status, pageable.getPageNumber(), pageable.getPageSize());
 
         Page<SettlementResponse> response;
-        if (status == null) {
-            response = settlementService.findAllSettlements(pageable);
-        } else {
-            // 서비스 내에서 status string 유효성 검사 진행
-            response = settlementService.findAllSettlementsByStatus(status, pageable);
-        }
+
+        // 서비스 내에서 status string 유효성 검사 진행
+        response = settlementService.findAllSettlementsByStatus(status, pageable);
+
         return ResponseEntity.ok(response);
     }
 }

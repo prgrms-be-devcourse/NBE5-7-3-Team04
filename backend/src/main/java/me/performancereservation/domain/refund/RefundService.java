@@ -58,9 +58,18 @@ public class RefundService {
 
     /// 모든 id의 환불 디테일 페이지 조회
     @Transactional(readOnly = true)
-    public Page<RefundDetailResponse> findAllRefundsDetail(Pageable pageable) {
-        // 쿼리로 [Refund, 예약수량, 시작시간, 회차상태, Performance]의 리스트를 받아옴
-        Page<Object[]> results = refundRepository.findAllRefundsWithDetails(pageable);
+    public Page<RefundDetailResponse> findAllRefundsDetail(String status, Pageable pageable) {
+
+        if (status == null){
+            // 쿼리로 [Refund, 예약수량, 시작시간, 회차상태, Performance]의 리스트를 받아옴
+            Page<Object[]> results = refundRepository.findAllRefundsWithDetails(pageable);
+            return refundDetailMapper.toRefundDetailResponsePage(results);
+        }
+
+        // string -> RefundStatus로 변환
+        RefundStatus refundStatus = getRefundStatus(status);
+
+        Page<Object[]> results = refundRepository.findRefundsDetailByStatus(refundStatus, pageable);
         return refundDetailMapper.toRefundDetailResponsePage(results);
     }
 
@@ -81,16 +90,6 @@ public class RefundService {
             throw ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + refundId);
         }
         return refundDetailMapper.toRefundDetailResponse(results.get(0));
-    }
-
-    /// 특정 status의 환불 디테일 페이지 조회
-    @Transactional(readOnly = true)
-    public Page<RefundDetailResponse> findAllRefundsDetailByRefundStatus(String status, Pageable pageable) {
-        // string -> RefundStatus로 변환
-        RefundStatus refundStatus = getRefundStatus(status);
-
-        Page<Object[]> results = refundRepository.findRefundsDetailByStatus(refundStatus, pageable);
-        return refundDetailMapper.toRefundDetailResponsePage(results);
     }
 
     // string -> RefundStatus로 변환. 변환 불가능할 경우 throw exception
