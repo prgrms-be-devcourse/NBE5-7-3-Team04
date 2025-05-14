@@ -40,7 +40,7 @@ public class ManagerPerformanceController {
     public ResponseEntity<Page<PerformanceManagerPageResponse>> getPerformances(
             @PageableDefault(
                     size=10,
-                    sort = "performanceDate",
+                    sort = "startDate",
                     direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {

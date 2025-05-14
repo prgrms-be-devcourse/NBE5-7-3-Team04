@@ -46,6 +46,11 @@ public class PerformanceScheduleService {
                     .domainException("performanceId=" + performanceId + "는 승인 대기 상태");
         }
 
+        // 회차 등록 가능 날짜 유효성 검사
+        if(!(performance.isRegistrationPeriod(request.startTime(), request.endTime()))) {
+            throw ErrorCode.INVALID_SCHEDULE_PERIOD.domainException("유요하지 않은 등록 기간입니다.");
+        }
+
         PerformanceSchedule schedule = PerformanceScheduleMapper.toEntity(request, performanceId, performance.getTotalSeats());
         Long savedId = performanceScheduleRepository.save(schedule).getId();
         // 레디스 좌석 초기화 이벤트 호출

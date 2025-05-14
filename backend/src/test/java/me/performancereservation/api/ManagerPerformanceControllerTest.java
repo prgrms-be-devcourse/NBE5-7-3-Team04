@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -84,7 +81,8 @@ class ManagerPerformanceControllerTest {
                             .price(120000 + i * 1000)
                             .totalSeats(2000)
                             .category(PerformanceCategory.OPERA)
-                            .performanceDate(LocalDateTime.of(2025, 12, 12, 0, 0).plusDays(i))
+                            .startDate(LocalDateTime.of(2025, 12, 12, 0, 0).plusDays(i))
+                            .endDate(LocalDateTime.of(2025, 12, 15, 0, 0).plusDays(i))
                             .description("오페라 명곡과 스타들! " + i)
                             .managerId(manager.getId())
                             .status(i <= 10 ? PerformanceStatus.CONFIRMED : PerformanceStatus.COMPLETED) // 10개는 진행중, 5개는 완료
@@ -94,8 +92,8 @@ class ManagerPerformanceControllerTest {
             performanceScheduleRepository.save(
                     PerformanceSchedule.builder()
                             .performanceId(performance.getId())
-                            .startTime(performance.getPerformanceDate().withHour(13).withMinute(0).withSecond(0).withNano(0))
-                            .endTime(performance.getPerformanceDate().withHour(15).withMinute(0).withSecond(0).withNano(0))
+                            .startTime(performance.getStartDate().withHour(13).withMinute(0).withSecond(0).withNano(0))
+                            .endTime(performance.getStartDate().withHour(15).withMinute(0).withSecond(0).withNano(0))
                             .remainingSeats(performance.getTotalSeats())
                             .canceled(false)
                             .build()
@@ -104,8 +102,8 @@ class ManagerPerformanceControllerTest {
             performanceScheduleRepository.save(
                     PerformanceSchedule.builder()
                             .performanceId(performance.getId())
-                            .startTime(performance.getPerformanceDate().withHour(17).withMinute(0).withSecond(0).withNano(0))
-                            .endTime(performance.getPerformanceDate().withHour(19).withMinute(0).withSecond(0).withNano(0))
+                            .startTime(performance.getStartDate().withHour(17).withMinute(0).withSecond(0).withNano(0))
+                            .endTime(performance.getStartDate().withHour(19).withMinute(0).withSecond(0).withNano(0))
                             .remainingSeats(performance.getTotalSeats())
                             .canceled(false)
                             .build()
@@ -164,8 +162,8 @@ class ManagerPerformanceControllerTest {
                         .param("size", "10")
                         .with(authentication(new OAuth2AuthenticationToken(principal, principal.getAuthorities(),"google"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(6))
-                .andExpect(jsonPath("$.totalElements").value(6))
+                .andExpect(jsonPath("$.content.length()").value(8))
+                .andExpect(jsonPath("$.totalElements").value(8))
                 .andExpect(jsonPath("$.totalPages").value(1));
     }
 }

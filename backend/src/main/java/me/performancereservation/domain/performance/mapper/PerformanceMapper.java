@@ -30,7 +30,8 @@ public class PerformanceMapper {
                 .price(request.price())
                 .totalSeats(request.totalSeats())
                 .category(PerformanceCategory.valueOf(request.category()))
-                .performanceDate(request.performanceDate())
+                .startDate(request.startDate())
+                .endDate(request.endDate())
                 .description(request.description())
                 .status(PerformanceStatus.PENDING)
                 .build();
@@ -69,7 +70,7 @@ public class PerformanceMapper {
                 fileUrl,
                 performance.getTitle(),
                 performance.getPrice(),
-                performance.getPerformanceDate(),
+                performance.getStartDate(),
                 performance.getVenue()
         );
     }
@@ -85,7 +86,7 @@ public class PerformanceMapper {
                 performance.getId(),
                 fileUrl,
                 performance.getTitle(),
-                performance.getPerformanceDate(),
+                performance.getStartDate(),
                 performance.getVenue(),
                 performance.getStatus().toString()
         );

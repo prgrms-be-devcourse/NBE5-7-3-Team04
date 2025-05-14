@@ -23,7 +23,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         JOIN PerformanceSchedule ps ON p.id = ps.performanceId
         WHERE ps.remainingSeats > 0
         AND p.status = 'CONFIRMED'
-        ORDER BY p.performanceDate DESC
+        ORDER BY p.startDate DESC
     """)
     Page<Performance> findAvailablePerformances(Pageable pageable);
 
@@ -45,9 +45,9 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     AND p.status = 'CONFIRMED'
     AND (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
     AND (:venue IS NULL OR LOWER(p.venue) LIKE LOWER(CONCAT('%', :venue, '%')))
-    AND (:start IS NULL OR p.performanceDate >= :start)
-    AND (:end IS NULL OR p.performanceDate <= :end)
-    ORDER BY p.performanceDate DESC
+    AND (:start IS NULL OR p.endDate >= :start)
+    AND (:end IS NULL OR p.startDate <= :end)
+    ORDER BY p.startDate DESC
 """)
     Page<Performance> searchAvailablePerformances(
             @Param("title") String title,
@@ -76,9 +76,9 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     AND (:status IS NULL OR p.status = :status)
     AND (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
     AND (:venue IS NULL OR LOWER(p.venue) LIKE LOWER(CONCAT('%', :venue, '%')))
-    AND (:start IS NULL OR p.performanceDate >= :start)
-    AND (:end IS NULL OR p.performanceDate <= :end)
-    ORDER BY p.performanceDate DESC
+    AND (:start IS NULL OR p.endDate >= :start)
+    AND (:end IS NULL OR p.startDate <= :end)
+    ORDER BY p.startDate DESC
 """)
     Page<Performance> searchManagerPerformances(
             @Param("managerId") Long managerId,

@@ -11,7 +11,8 @@ public record PerformanceCreateRequest(
         @Positive int price,
         @Positive int totalSeats,
         @NotNull String category,
-        @NotNull LocalDateTime performanceDate,
+        @NotNull LocalDateTime startDate,
+        @NotNull LocalDateTime endDate,
         @NotNull String description,
         Long fileId) {
 }
