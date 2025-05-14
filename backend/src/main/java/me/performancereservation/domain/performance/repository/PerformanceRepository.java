@@ -1,6 +1,7 @@
 package me.performancereservation.domain.performance.repository;
 
 import me.performancereservation.domain.performance.entities.Performance;
+import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface PerformanceRepository extends JpaRepository<Performance, Long> {
     Page<Performance> findByManagerId(Long managerId, Pageable pageable);
@@ -43,6 +45,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     JOIN PerformanceSchedule ps ON p.id = ps.performanceId
     WHERE ps.remainingSeats > 0
     AND p.status = 'CONFIRMED'
+    AND (:category IS NULL OR p.status = :category)
     AND (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
     AND (:venue IS NULL OR LOWER(p.venue) LIKE LOWER(CONCAT('%', :venue, '%')))
     AND (:start IS NULL OR p.endDate >= :start)
@@ -54,6 +57,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
             @Param("venue") String venue,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
+            @Param("category") PerformanceCategory category,
             Pageable pageable
     );
 
@@ -89,4 +93,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
             @Param("end") LocalDateTime end,
             Pageable pageable
     );
+
+    // 종료일 지났고 종료처리 되지 않은 공연을 가져오는 메서드
+    List<Performance> findByEndDateBeforeAndStatus(LocalDateTime endDate, PerformanceStatus status);
 }
