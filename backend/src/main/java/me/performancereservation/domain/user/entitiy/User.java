@@ -1,13 +1,11 @@
 package me.performancereservation.domain.user.entitiy;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.user.enums.Role;
 
+@Setter
 @Getter
 @Entity
 @NoArgsConstructor
