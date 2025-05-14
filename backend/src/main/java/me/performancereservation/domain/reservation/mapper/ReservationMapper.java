@@ -3,6 +3,7 @@ package me.performancereservation.domain.reservation.mapper;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.performance.model.SchedulePerformanceInfo;
 import me.performancereservation.domain.reservation.Reservation;
+import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,30 @@ public class ReservationMapper {
                 reservation.getStatus(),
                 createdAt,
                 expirationAt,
+                schedulePerformanceInfo.price(),
+                totalPrice
+        );
+    }
+
+    /**
+     * 예약 객체와 공연+공연회차 데이터 모델 객체를 이용해 예약 응답 Dto Page 생성
+     *
+     * @param reservation 예약 객체
+     * @param schedulePerformanceInfo 공연+공연회차 데이터 모델 객체
+     * @return ReservationListResponse 예약 목록 응답 dto
+     */
+    public ReservationPageResponse toListResponseDto(Reservation reservation, SchedulePerformanceInfo schedulePerformanceInfo) {
+        LocalDateTime createdAt = reservation.getCreatedAt();
+
+        int totalPrice = reservation.calculateTotalPrice(schedulePerformanceInfo.price());
+
+        return new ReservationPageResponse(
+                reservation.getId(),
+                reservation.getQuantity(),
+                reservation.getStatus(),
+                createdAt,
+                schedulePerformanceInfo.title(),
+                schedulePerformanceInfo.venue(),
                 schedulePerformanceInfo.price(),
                 totalPrice
         );
