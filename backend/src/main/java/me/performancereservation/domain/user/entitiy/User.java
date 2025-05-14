@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.user.enums.Role;
 
+@Getter
 @Entity
 @NoArgsConstructor
-@Getter
 public class User extends BaseEntity {
+    //User는 유저 정보만 가진다
+    //인증, 로그인 정보는 Auth에서 관리
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 유저 ID
@@ -38,3 +40,4 @@ public class User extends BaseEntity {
         this.role = Role.MANAGER;
     }
 }
+

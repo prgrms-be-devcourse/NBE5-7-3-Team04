@@ -5,8 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.performancereservation.domain.common.BaseEntity;
+import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
+import me.performancereservation.global.exception.ErrorCode;
 
 import java.time.LocalDateTime;
 
@@ -55,6 +57,7 @@ public class Performance extends BaseEntity {
         this.status = status;
     }
 
+
     public boolean isPending() {
         return this.status == PerformanceStatus.PENDING;
     }
@@ -65,5 +68,29 @@ public class Performance extends BaseEntity {
 
     public void reject() {
         this.status = PerformanceStatus.REJECTED;
+
+    public void updateFrom(PerformanceUpdateRequest request) {
+        this.fileId = request.fileId();
+        this.description = request.description();
+    }
+
+    public void cancel() {
+        if(this.status == PerformanceStatus.CANCELLED) {
+            throw ErrorCode.PERFORMANCE_ALREADY_CANCELED.domainException("이미 취소된 공연입니다. id = " + this.id);
+        }
+        this.status = PerformanceStatus.CANCELLED;
+    }
+
+    public boolean hasFile() {
+        return this.fileId != null;
+    }
+
+    public boolean hasPermission(Long managerId) {
+        return this.managerId != null && this.managerId.equals(managerId);
+    }
+
+    public boolean isConfirmed() {
+        return this.status == PerformanceStatus.CONFIRMED;
+
     }
 }

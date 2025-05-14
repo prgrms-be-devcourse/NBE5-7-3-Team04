@@ -31,7 +31,7 @@ public class FileService {
      * @param file multipart 파일
      * @return UploadFileResponse
      */
-    public UploadFileResponse upload(MultipartFile file) throws IOException {
+    public UploadFileResponse upload(MultipartFile file) {
         if (file.isEmpty()) {
             throw ErrorCode.EMPTY_FILE_UPLOAD.serviceException("빈 파일은 업로드할 수 없습니다.");
         }
@@ -51,7 +51,11 @@ public class FileService {
         }
 
         // 스토리지에 저장
-        storageStrategy.upload(file, newFileName);
+        try {
+            storageStrategy.upload(file, newFileName);
+        } catch (IOException e) {
+            throw ErrorCode.FILE_UPLOAD_FAILED.serviceException("파일 업로드 중 문제가 발생했습니다.");
+        }
 
         // DB에 저장
         File savedFile = fileRepository.save(
