@@ -32,4 +32,17 @@ public class ManagerRequest extends BaseEntity {
         this.status = status;
         this.approvedAt = approvedAt;
     }
+
+    public boolean isPending() {
+        return status == ManagerRequestStatus.PENDING;
+    }
+
+    public void approve() {
+        status = ManagerRequestStatus.APPROVED;
+        approvedAt = LocalDate.now();
+    }
+
+    public void reject() {
+        status = ManagerRequestStatus.REJECTED;
+    }
 }

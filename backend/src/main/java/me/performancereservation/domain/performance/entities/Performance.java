@@ -60,6 +60,19 @@ public class Performance extends BaseEntity {
         this.status = status;
     }
 
+
+    public boolean isPending() {
+        return this.status == PerformanceStatus.PENDING;
+    }
+
+    public void confirm() {
+        this.status = PerformanceStatus.CONFIRMED;
+    }
+
+    public void reject() {
+        this.status = PerformanceStatus.REJECTED;
+    }
+
     public void updateFrom(PerformanceUpdateRequest request) {
         this.fileId = request.fileId();
         this.description = request.description();
@@ -86,5 +99,6 @@ public class Performance extends BaseEntity {
 
     public boolean isConfirmed() {
         return this.status == PerformanceStatus.CONFIRMED;
+
     }
 }
