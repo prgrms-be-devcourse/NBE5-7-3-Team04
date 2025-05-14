@@ -1,10 +1,12 @@
 package me.performancereservation.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.domain.user.dto.UserOnboardingRequest;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.Role;
 import me.performancereservation.domain.user.repository.UserRepository;
 import me.performancereservation.global.exception.ErrorCode;
+import me.performancereservation.domain.auth.service.AuthService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,20 @@ public class UserService {
                 .role(role)
                 .build();
         return userRepository.save(user);
+    }
+
+    //kakao에서 이메일을 제공해주지 않는 점을 활용해 provider로 구분할까 했지만
+    //좀 더 포괄적으로 비어있으면 입력받도록 구현
+    @Transactional
+    public void onboard(Long userId, UserOnboardingRequest request) {
+        User user = getUserById(userId);
+        if (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank()) {
+            user.updatePhoneNumber(request.phoneNumber());
+        }
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            user.updateEmail(request.email());
+        }
+        userRepository.save(user);
     }
 
     //id 기반 유저 조회

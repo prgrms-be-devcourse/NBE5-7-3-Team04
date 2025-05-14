@@ -1,16 +1,13 @@
 package me.performancereservation.domain.user.entitiy;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.user.enums.Role;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     //User는 유저 정보만 가진다
     //인증, 로그인 정보는 Auth에서 관리
@@ -35,6 +32,15 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
         this.role = role;
     }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
 
     public void promoteManager() {
         this.role = Role.MANAGER;
