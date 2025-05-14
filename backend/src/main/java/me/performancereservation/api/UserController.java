@@ -1,15 +1,14 @@
 package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.domain.user.dto.UserOnboardingRequest;
 import me.performancereservation.domain.user.dto.UserResponse;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.service.UserService;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -23,5 +22,12 @@ public class UserController {
     public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal CustomOAuth2User principal) {
         User user = principal.getUser();
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
+    }
+
+    @PostMapping("/onboarding")
+    public ResponseEntity<UserResponse> onboard(@AuthenticationPrincipal CustomOAuth2User principal,
+                                                @RequestBody UserOnboardingRequest request) {
+        userService.onboard(principal.getUser().getId(), request);
+        return ResponseEntity.noContent().build();
     }
 }
