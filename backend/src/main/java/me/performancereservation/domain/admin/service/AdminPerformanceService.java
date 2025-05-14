@@ -85,23 +85,34 @@ public class AdminPerformanceService {
                 .collect(Collectors.groupingBy(PerformanceSchedule::getPerformanceId));
 
         // 응답 페이징 반환
-        return performances.map(performance -> {
-            // 스케줄 응답 목록 생성
-            List<PendingPerformanceScheduleResponse> scheduleResponses = scheduleMap
-                    .getOrDefault(performance.getId(), List.of())   //공연의 스케줄이 없는 경우 빈 리스트를 채워준다.
-                    .stream()
-                    .map(AdminPerformanceMapper::toScheduleResponse)
-                    .collect(Collectors.toList());
-
-            // Mapper를 사용하여 응답 객체 생성
-            return AdminPerformanceMapper.toPendingResponse(
-                    performance,
-                    fileUrlMap.get(performance.getFileId()),
-                    managerNameMap.get(performance.getManagerId()),
-                    scheduleResponses
-            );
-        });
+        return performances.map(performance -> convertToPerformanceResponse(performance, scheduleMap, fileUrlMap, managerNameMap));
     }
+
+
+    // Performance 엔티티를 PendingPerformancePageResponse 로 변환
+    private PendingPerformancePageResponse convertToPerformanceResponse(
+            Performance performance,
+            Map<Long, List<PerformanceSchedule>> scheduleMap,
+            Map<Long, String> fileUrlMap,
+            Map<Long, String> managerNameMap) {
+
+        // 스케줄 응답 목록 생성
+        List<PendingPerformanceScheduleResponse> scheduleResponses = scheduleMap
+                .getOrDefault(performance.getId(), List.of())
+                .stream()
+                .map(AdminPerformanceMapper::toScheduleResponse)
+                .collect(Collectors.toList());
+
+        // Mapper를 사용하여 응답 객체 생성
+        return AdminPerformanceMapper.toPendingResponse(
+                performance,
+                fileUrlMap.get(performance.getFileId()),
+                managerNameMap.get(performance.getManagerId()),
+                scheduleResponses
+        );
+    }
+
+
 
     /** 공연을 승인
      *
@@ -159,16 +170,20 @@ public class AdminPerformanceService {
                 .collect(Collectors.toMap(User::getId, user -> user));
 
         // 응답 페이징 반환
-        return managerRequests.map(managerRequest -> {
-            // 사용자 정보 조회
-            User user = userMap.get(managerRequest.getUserId());
+        return managerRequests.map(managerRequest -> convertToManagerRequestResponse(managerRequest, userMap));
+    }
 
-            // Mapper를 사용하여 응답 객체 생성
-            return AdminManagerRequestMapper.toPendingResponse(
-                    managerRequest,
-                    user
-            );
-        });
+
+    // ManagerRequest 엔티티를 PendingManagerRequestPageResponse 로 변환
+    private PendingManagerRequestPageResponse convertToManagerRequestResponse(
+            ManagerRequest managerRequest,
+            Map<Long, User> userMap) {
+
+        // 사용자 정보 조회
+        User user = userMap.get(managerRequest.getUserId());
+
+        // Mapper를 사용하여 응답 객체 생성
+        return AdminManagerRequestMapper.toPendingResponse(managerRequest, user);
     }
 
     /** 공연 관리자 요청을 승인
