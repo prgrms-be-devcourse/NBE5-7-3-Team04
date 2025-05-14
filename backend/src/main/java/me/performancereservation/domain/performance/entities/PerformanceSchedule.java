@@ -39,9 +39,6 @@ public class PerformanceSchedule extends BaseEntity {
     }
 
     public void cancel() {
-        if (this.canceled) {
-            throw ErrorCode.SCHEDULE_ALREADY_CANCELED.domainException("이미 취소된 회차입니다. id = " + this.id);
-        }
         this.canceled = true;
     }
 
