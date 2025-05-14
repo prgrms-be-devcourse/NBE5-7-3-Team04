@@ -68,7 +68,8 @@ class RefundServiceTest {
                 .price(10000)
                 .category(PerformanceCategory.OPERA)
                 .description("테스트 공연 설명")
-                .performanceDate(LocalDateTime.now())
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusDays(1))
                 .status(PerformanceStatus.CONFIRMED)
                 .build();
         performance = performanceRepository.save(performance);

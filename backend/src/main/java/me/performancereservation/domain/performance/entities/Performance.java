@@ -35,7 +35,9 @@ public class Performance extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PerformanceCategory category; // 공연 분류
 
-    private LocalDateTime performanceDate; // 공연 일시
+    private LocalDateTime startDate; // 공연 시작 일시
+
+    private LocalDateTime endDate; // 공연 종료 일시
 
     private String description; // 설명
 
@@ -43,7 +45,7 @@ public class Performance extends BaseEntity {
     private PerformanceStatus status; // 공연 상태
 
     @Builder
-    public Performance(Long id, Long fileId, Long managerId, String title, String venue, int price, int totalSeats, PerformanceCategory category, LocalDateTime performanceDate, String description, PerformanceStatus status) {
+    public Performance(Long id, Long fileId, Long managerId, String title, String venue, int price, int totalSeats, PerformanceCategory category, LocalDateTime startDate, LocalDateTime endDate, String description, PerformanceStatus status) {
         this.id = id;
         this.fileId = fileId;
         this.managerId = managerId;
@@ -52,7 +54,8 @@ public class Performance extends BaseEntity {
         this.price = price;
         this.totalSeats = totalSeats;
         this.category = category;
-        this.performanceDate = performanceDate;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.description = description;
         this.status = status;
     }
@@ -67,6 +70,10 @@ public class Performance extends BaseEntity {
             throw ErrorCode.PERFORMANCE_ALREADY_CANCELED.domainException("이미 취소된 공연입니다. id = " + this.id);
         }
         this.status = PerformanceStatus.CANCELLED;
+    }
+
+    public boolean isRegistrationPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+        return !startDate.isBefore(this.startDate) && !endDate.isAfter(this.endDate);
     }
 
     public boolean hasFile() {
