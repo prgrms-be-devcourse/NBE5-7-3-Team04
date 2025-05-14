@@ -231,7 +231,7 @@ class AdminReservationControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void getReservationListPaging_Success() throws Exception {
-        mockMvc.perform(get("/api/v1//admin/reservations")
+        mockMvc.perform(get("/api/v1/admin/reservations")
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
@@ -245,7 +245,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByName_Success() throws Exception {
         // 사용자1의 예약 수 = 50 / 4 = 12.5 → 13개
-        mockMvc.perform(get("/api/v1//admin/reservations/search")
+        mockMvc.perform(get("/api/v1/admin/reservations/search")
                         .param("userName", "사용자1")
                         .param("page", "0")
                         .param("size", "10"))
@@ -259,7 +259,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByName_Failure() throws Exception {
         // 사용자1의 예약 수 = 50 / 4 = 12.5 → 13개
-        mockMvc.perform(get("/api/v1//admin/reservations/search")
+        mockMvc.perform(get("/api/v1/admin/reservations/search")
                         .param("userName", "없는 사용자")
                         .param("page", "0")
                         .param("size", "10"))
@@ -273,7 +273,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByTitle_Success() throws Exception {
         // 사용자1의 예약 수 = 50 / 4 = 12.5 → 13개
-        mockMvc.perform(get("/api/v1//admin/reservations/search")
+        mockMvc.perform(get("/api/v1/admin/reservations/search")
                         .param("performanceTitle", "오페라 갈라")
                         .param("page", "0")
                         .param("size", "10"))
@@ -287,7 +287,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByTitle_Failure() throws Exception {
         // 사용자1의 예약 수 = 50 / 4 = 12.5 → 13개
-        mockMvc.perform(get("/api/v1//admin/reservations/search")
+        mockMvc.perform(get("/api/v1/admin/reservations/search")
                         .param("performanceTitle", "없는 공연")
                         .param("page", "0")
                         .param("size", "10"))
@@ -350,7 +350,7 @@ class AdminReservationControllerTest {
         LocalDateTime start = LocalDateTime.now().minusDays(11).toLocalDate().atStartOfDay();
         LocalDateTime end = LocalDateTime.now().minusDays(10).toLocalDate().atTime(23, 59, 59);
 
-        mockMvc.perform(get("/api/v1//admin/reservations/search")
+        mockMvc.perform(get("/api/v1/admin/reservations/search")
                         .param("startDate", start.toString())
                         .param("endDate", end.toString())
                         .param("page", "0")
@@ -367,7 +367,7 @@ class AdminReservationControllerTest {
         // 펜딩 상태 예약 확정 성공
         Reservation pending = reservationRepository.findByUserId(user5.getId()).get();
 
-        mockMvc.perform(patch("/api/v1//admin/reservations/" + pending.getId())
+        mockMvc.perform(patch("/api/v1/admin/reservations/" + pending.getId())
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
