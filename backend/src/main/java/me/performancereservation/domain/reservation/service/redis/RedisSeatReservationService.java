@@ -2,6 +2,7 @@ package me.performancereservation.domain.reservation.service.redis;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.performance.model.SchedulePerformanceInfo;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
@@ -15,6 +16,10 @@ import me.performancereservation.global.storage.redis.RedisReservationService;
 import me.performancereservation.global.storage.redis.RedisSeatService;
 import org.springframework.stereotype.Service;
 
+/**
+ * 유저 단위의 예약, 예약 취소 서비스
+ */
+@Slf4j
 @Service("redisSeatReservationService")
 @RequiredArgsConstructor
 public class RedisSeatReservationService implements SeatReservationService {
@@ -25,6 +30,9 @@ public class RedisSeatReservationService implements SeatReservationService {
     private final RedisReservationService redisReservationService;
 
     private final ReservationMapper reservationMapper;
+
+    private final RedisReservationCancelExecutor redisReservationCancelExecutor;
+
 
     /**
      * 공연 회차에 대해 좌석 선점 후 예약 정보를 생성하고 나서
@@ -95,23 +103,7 @@ public class RedisSeatReservationService implements SeatReservationService {
             throw ErrorCode.PERMISSION_DENIED.domainException("본인의 예약만 취소할 수 있습니다.");
         }
 
-        // 결제 완료 상태라면 환불 요청 상태로 전환
-        if (reservation.isRefundRequired()) {
-            reservation.requestCancel(); // CANCEL_PENDING
-
-            //TODO 환불서비스에 환불객체 생성 요청
-            // refundService.save(reservation);
-        } else {
-            // 결제 미완료 상태라면 바로 취소 확정 처리
-            reservation.cancelConfirm(); // CANCEL_CONFIRMED
-        }
-
-        // Redis 좌석 롤백 처리
-        redisSeatService.safeIncrement(reservation.getScheduleId(), reservation.getQuantity());
-
-        // 예약 만료 처리 대기 큐에서도 제거
-        redisReservationService.removeFromPendingExpirationQueue(reservation.getId());
+        // 예약 취소 처리
+        redisReservationCancelExecutor.executeForUserCancel(reservation);
     }
-
-    //TODO 이벤트리스너로 공연이 취소됐을 때 일괄 예약 취소
 }
