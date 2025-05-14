@@ -27,6 +27,7 @@ public class UserPerformanceController {
     /** 메인화면 호출(공연목록 조회)
      *
      * @param pageable 10개 단위 페이징 + 최신 공연 내림차순
+     *                 쿼리에서 바로 정렬하여 가져오도록 변경 (디폴트 페이징 정렬 설정 제거)
      * @return 200 + performanceResponses
      */
     @GetMapping
@@ -57,14 +58,14 @@ public class UserPerformanceController {
      * @return performanceListResponses
      */
     @GetMapping("/search")
-    public ResponseEntity<Page<PerformanceListResponse>> searchPerformanceList(@RequestParam(required = false) String title,
+    public ResponseEntity<Page<PerformancePageResponse>> searchPerformanceList(@RequestParam(required = false) String title,
                                                                                @RequestParam(required = false) String venue,
                                                                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
                                                                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
                                                                                Pageable pageable
     ) {
-        Page<PerformanceListResponse> performanceListResponses = performanceService.searchPerformances(title, venue, start, end, pageable);
-        return ResponseEntity.ok(performanceListResponses);
+        Page<PerformancePageResponse> performancePageResponse = performanceService.searchPerformances(title, venue, start, end, pageable);
+        return ResponseEntity.ok(performancePageResponse);
     }
 
 }
