@@ -33,6 +33,7 @@ public class UserService {
 
     //kakao에서 이메일을 제공해주지 않는 점을 활용해 provider로 구분할까 했지만
     //좀 더 포괄적으로 비어있으면 입력받도록 구현
+    @Transactional
     public void onboard(Long userId, UserOnboardingRequest request) {
         User user = getUserById(userId);
         if (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank()) {
