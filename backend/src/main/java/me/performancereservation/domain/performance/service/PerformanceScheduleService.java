@@ -21,7 +21,6 @@ public class PerformanceScheduleService {
 
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
-    private final RedisSeatService redisSeatService;
     private final ApplicationEventPublisher eventPublisher;
 
     /** 회차 등록
