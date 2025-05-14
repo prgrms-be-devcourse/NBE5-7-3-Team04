@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     // 예약 id들과 예약 상태를 조건으로 해당하는 예약들을 조회
@@ -16,6 +17,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         WHERE r.id IN :ids AND r.status = :status
     """)
     List<Reservation> findAllByIdsAndStatus(@Param("ids") List<Long> ids, @Param("status") ReservationStatus status);
+
+    Optional<Reservation> findByUserId(Long userId);
 
     // 공연 회차 id 들로 예약 리스트 조회
     @Query("""
@@ -27,4 +30,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findAllByScheduleId(Long scheduleId);
 
     Page<Reservation> findAllByUserId(Long userId, Pageable pageable);
+
 }
