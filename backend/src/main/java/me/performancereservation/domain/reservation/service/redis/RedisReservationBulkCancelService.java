@@ -62,4 +62,32 @@ public class RedisReservationBulkCancelService {
             redisReservationCancelExecutor.executeForPerformanceCancel(reservation);
         }
     }
+
+    /**
+     * 공연 회차 id를 기반으로 해당 회차에 대한 예약들을 일괄 취소
+     * TODO 공연 취소 이벤트 처리와 마찬가지로 벌크 처리 아직 구현 x
+     *
+     * @param scheduleId 취소된 공연 id
+     */
+    @Transactional
+    public void cancelAllByScheduleId(Long scheduleId) {
+        log.info("[회차 일괄 취소] 회차 id: {}", scheduleId);
+
+        // 회차 예약 목록 조회
+        List<Reservation> reservations = reservationRepository.findAllByScheduleId(scheduleId);
+
+        // 예약이 없으면 패스
+        if (reservations.isEmpty()) return;
+
+        // 레디스 좌석 정보 제거
+        redisSeatService.deleteSeatStock(scheduleId);
+
+        for (Reservation reservation : reservations) {
+            // 이미 취소된 예약은 패스
+            if (reservation.isAlreadyCanceled()) continue;
+
+            // 예약 취소 처리
+            redisReservationCancelExecutor.executeForPerformanceCancel(reservation);
+        }
+    }
 }

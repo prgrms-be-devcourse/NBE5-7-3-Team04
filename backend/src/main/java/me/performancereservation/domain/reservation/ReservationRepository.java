@@ -24,5 +24,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     """)
     List<Reservation> findAllByScheduleIds(@Param("scheduleIds") List<Long> scheduleIds);
 
+    List<Reservation> findAllByScheduleId(Long scheduleId);
+
     Page<Reservation> findAllByUserId(Long userId, Pageable pageable);
 }
