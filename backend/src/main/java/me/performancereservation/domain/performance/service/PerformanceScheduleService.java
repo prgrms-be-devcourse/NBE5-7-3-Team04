@@ -1,6 +1,7 @@
 package me.performancereservation.domain.performance.service;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.domain.performance.dto.performance.event.PerformanceScheduleCreatedEvent;
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleRequest;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
@@ -10,6 +11,7 @@ import me.performancereservation.domain.performance.repository.PerformanceReposi
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.storage.redis.RedisSeatService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class PerformanceScheduleService {
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final RedisSeatService redisSeatService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 회차 등록
      *
@@ -47,8 +50,8 @@ public class PerformanceScheduleService {
 
         PerformanceSchedule schedule = PerformanceScheduleMapper.toEntity(request, performanceId, performance.getTotalSeats());
         Long savedId = performanceScheduleRepository.save(schedule).getId();
-        // 레디스 좌석 초기화
-        redisSeatService.initializeSeatStock(savedId, performance.getTotalSeats());
+        // 레디스 좌석 초기화 이벤트 호출
+        eventPublisher.publishEvent(new PerformanceScheduleCreatedEvent(savedId, performance.getTotalSeats()));
 
         return savedId;
     }
@@ -81,6 +84,8 @@ public class PerformanceScheduleService {
         }
 
         schedule.cancel();
+        // 예약 취소 이벤트 호출 처리
+//        eventPublisher.publishEvent(new PerformanceScheduleCanceledEvent(schedule.getId()));
         return schedule.getId();
     }
 }

@@ -19,6 +19,7 @@ import me.performancereservation.domain.performance.mapper.PerformanceScheduleMa
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.global.exception.ErrorCode;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class PerformanceService {
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final FileRepository fileRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 공연 등록 요청
      *
@@ -93,6 +95,8 @@ public class PerformanceService {
         // 해당 공연 회차 전체 취소
         performanceScheduleRepository.findByPerformanceId(performance.getId())
                 .forEach(PerformanceSchedule::cancel);
+
+//        eventPublisher.publishEvent(new PerformanceCanceledEvent(performance.getId()));
 
         return performance.getId();
     }
@@ -216,7 +220,7 @@ public class PerformanceService {
      * @return PerformanceListResponse
      */
     @Transactional(readOnly = true)
-    public Page<PerformanceListResponse> searchPerformances(String title,
+    public Page<PerformancePageResponse> searchPerformances(String title,
                                                             String venue,
                                                             LocalDateTime start,
                                                             LocalDateTime end,
@@ -243,7 +247,7 @@ public class PerformanceService {
      * @return PerformanceManagerListResponse
      */
     @Transactional(readOnly = true)
-    public Page<PerformanceManagerListResponse> searchManagerPerformances(Long managerId,
+    public Page<PerformanceManagerPageResponse> searchManagerPerformances(Long managerId,
                                                                    String title,
                                                                    String venue,
                                                                    LocalDateTime start,
