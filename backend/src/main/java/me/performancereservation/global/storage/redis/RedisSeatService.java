@@ -35,6 +35,16 @@ public class RedisSeatService {
     }
 
     /**
+     * 공연 회차별 좌석 수를 Redis에서 제거
+     * 공연이 취소되거나 끝나면 제거해줘야 함
+     *
+     * @param scheduleId 공연 회차 ID
+     */
+    public void deleteSeatStock(Long scheduleId) {
+        redisTemplate.delete(key(scheduleId));
+    }
+
+    /**
      * Redis에 저장된 공연 회차의 좌석 수를 차감
      * 예약 시 좌석 선점 단계에서 사용되고 동시성 제어를 위해 원자적 연산으로 처리됨
      *

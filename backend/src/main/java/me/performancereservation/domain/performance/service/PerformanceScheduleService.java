@@ -1,14 +1,16 @@
 package me.performancereservation.domain.performance.service;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.domain.performance.event.PerformanceScheduleCreatedEvent;
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleRequest;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
-import me.performancereservation.domain.performance.enums.PerformanceStatus;
+import me.performancereservation.domain.performance.event.ScheduleCanceledEvent;
 import me.performancereservation.domain.performance.mapper.PerformanceScheduleMapper;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.global.exception.ErrorCode;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ public class PerformanceScheduleService {
 
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 회차 등록
      *
@@ -43,8 +46,17 @@ public class PerformanceScheduleService {
                     .domainException("performanceId=" + performanceId + "는 승인 대기 상태");
         }
 
+        // 회차 등록 가능 날짜 유효성 검사
+        if(!(performance.isRegistrationPeriod(request.startTime(), request.endTime()))) {
+            throw ErrorCode.INVALID_SCHEDULE_PERIOD.domainException("유요하지 않은 등록 기간입니다.");
+        }
+
         PerformanceSchedule schedule = PerformanceScheduleMapper.toEntity(request, performanceId, performance.getTotalSeats());
-        return performanceScheduleRepository.save(schedule).getId();
+        Long savedId = performanceScheduleRepository.save(schedule).getId();
+        // 레디스 좌석 초기화 이벤트 호출
+        eventPublisher.publishEvent(new PerformanceScheduleCreatedEvent(savedId, performance.getTotalSeats()));
+
+        return savedId;
     }
 
 
@@ -75,6 +87,8 @@ public class PerformanceScheduleService {
         }
 
         schedule.cancel();
+        // 예약 취소 이벤트 호출 처리
+        eventPublisher.publishEvent(new ScheduleCanceledEvent(schedule.getId()));
         return schedule.getId();
     }
 }

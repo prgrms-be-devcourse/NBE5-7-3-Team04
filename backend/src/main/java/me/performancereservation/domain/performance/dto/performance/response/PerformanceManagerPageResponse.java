@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
  * @param id
  * @param fileUrl
  * @param title
- * @param performanceDate
+ * @param startDate
+ * @param endDate
  * @param venue
  * @param status    // 공연 등록 여부 (PENDING, CONFIRM 등)
  */
@@ -15,7 +16,8 @@ public record PerformanceManagerPageResponse(
         Long id,
         String fileUrl,
         String title,
-        LocalDateTime performanceDate,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         String venue,
         String status
 ) {

@@ -13,16 +13,20 @@ import me.performancereservation.domain.performance.dto.performance.response.Per
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
+import me.performancereservation.domain.performance.enums.PerformanceStatus;
+import me.performancereservation.domain.performance.event.PerformanceCanceledEvent;
 import me.performancereservation.domain.performance.mapper.PerformanceMapper;
 import me.performancereservation.domain.performance.mapper.PerformanceScheduleMapper;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.global.exception.ErrorCode;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +40,7 @@ public class PerformanceService {
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final FileRepository fileRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 공연 등록 요청
      *
@@ -92,6 +97,9 @@ public class PerformanceService {
         performanceScheduleRepository.findByPerformanceId(performance.getId())
                 .forEach(PerformanceSchedule::cancel);
 
+        // 예약 취소 이벤트 호출
+        eventPublisher.publishEvent(new PerformanceCanceledEvent(performance.getId()));
+
         return performance.getId();
     }
 
@@ -109,14 +117,10 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findAvailablePerformances(pageable);
 
         // 페이징된 공연의 파일 id 추출
-        List<Long> fileIds = performances.getContent().stream()
-                .map(Performance::getFileId)
-                .filter(Objects::nonNull)
-                .toList();
+        List<Long> fileIds = getFileIdList(performances);
 
         // fileId로 조회한 경로 매핑
-        Map<Long, String> fileUrlMap = fileRepository.findAllById(fileIds).stream()
-                .collect(Collectors.toMap(File::getId, File::getKey));
+        Map<Long, String> fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds));
 
         // 응답 페이징 반환
         return performances.map(performance -> (
@@ -163,14 +167,10 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findByManagerId(managerId, pageable);
 
         // 페이징된 공연의 파일 id 추출
-        List<Long> fileIds = performances.getContent().stream()
-                .map(Performance::getFileId)
-                .filter(Objects::nonNull)
-                .toList();
+        List<Long> fileIds = getFileIdList(performances);
 
         // fileId로 조회한 경로 매핑
-        Map<Long, String> fileUrlMap = fileRepository.findAllById(fileIds).stream()
-                .collect(Collectors.toMap(File::getId, File::getKey));
+        Map<Long, String> fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds));
 
         return performances.map(performance ->
                 PerformanceMapper.toManagerListResponse(performance, fileUrlMap.get(performance.getFileId())));
@@ -208,5 +208,75 @@ public class PerformanceService {
 
             return PerformanceMapper.toManagerDetailResponse(performance, file.getKey(), scheduleResponses);
         }
+    }
+
+    /** 고객 공연 목록 검색
+     *
+     * 공연 제목 + 날짜 필터링
+     * 공연 장소 + 날짜 필터링
+     * @param title
+     * @param venue
+     * @param start
+     * @param end
+     * @param pageable
+     * @return PerformanceListResponse
+     */
+    @Transactional(readOnly = true)
+    public Page<PerformancePageResponse> searchPerformances(String title,
+                                                            String venue,
+                                                            LocalDateTime start,
+                                                            LocalDateTime end,
+                                                            Pageable pageable) {
+        Page<Performance> performances = performanceRepository.searchAvailablePerformances(title, venue, start, end, pageable);
+
+        List<Long> fileIds = getFileIdList(performances);
+
+        Map<Long, String> fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds));
+
+        return performances.map(performance -> (
+                PerformanceMapper.toListResponse(performance, fileUrlMap.get(performance.getFileId()))));
+    }
+
+    /** 공연자 공연 목록 검색
+     *
+     * @param managerId 공연자 id
+     * @param title 제목
+     * @param venue 공연장
+     * @param start 필터링 시작 날짜
+     * @param end 필터링 종료 날짜
+     * @param status 공연 상태 필터링
+     * @param pageable 페이징
+     * @return PerformanceManagerListResponse
+     */
+    @Transactional(readOnly = true)
+    public Page<PerformanceManagerPageResponse> searchManagerPerformances(Long managerId,
+                                                                   String title,
+                                                                   String venue,
+                                                                   LocalDateTime start,
+                                                                   LocalDateTime end,
+                                                                   PerformanceStatus status,
+                                                                   Pageable pageable) {
+        Page<Performance> performances = performanceRepository.searchManagerPerformances(managerId, status, title, venue, start, end, pageable);
+
+        List<Long> fileIds = getFileIdList(performances);
+
+        Map<Long, String> fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds));
+
+        return performances.map(performance ->
+                PerformanceMapper.toManagerListResponse(performance, fileUrlMap.get(performance.getFileId())));
+    }
+
+    // 파일 Url 맵 변환 메서드
+    private Map<Long, String> getFileUrlMap(List<File> files) {
+        return files.stream()
+                .collect(Collectors.toMap(File::getId, File::getKey));
+    }
+
+    // 파일 id 리스트 변환 메서드
+    private List<Long> getFileIdList(Page<Performance> performances) {
+        return performances.getContent().stream()
+                .map(Performance::getFileId)
+                .filter(Objects::nonNull)
+                .toList();
     }
 }
