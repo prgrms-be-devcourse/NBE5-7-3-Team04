@@ -234,7 +234,8 @@ class BookmarkServiceTest {
                         .description("테스트 설명 1")
                         .category(PerformanceCategory.OPERA)
                         .status(PerformanceStatus.CONFIRMED)
-                        .performanceDate(LocalDateTime.now().plusDays(1))
+                        .startDate(LocalDateTime.now().plusDays(1))
+                        .endDate(LocalDateTime.now().plusDays(2))
                         .build(),
                 Performance.builder()
                         .id(2L)
@@ -245,7 +246,8 @@ class BookmarkServiceTest {
                         .description("테스트 설명 2")
                         .category(PerformanceCategory.OPERA)
                         .status(PerformanceStatus.CONFIRMED)
-                        .performanceDate(LocalDateTime.now().plusDays(2))
+                        .startDate(LocalDateTime.now().plusDays(2))
+                        .endDate(LocalDateTime.now().plusDays(3))
                         .build()
         );
 
