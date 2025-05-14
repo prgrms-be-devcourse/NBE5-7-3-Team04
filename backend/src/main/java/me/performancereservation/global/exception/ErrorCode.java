@@ -58,10 +58,14 @@ public enum ErrorCode {
     // 환불 관련
     REFUND_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 환불ID입니다."),
     DUPLICATE_REFUND(HttpStatus.CONFLICT, "이미 존재하는 환불내역입니다."),
-    INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 환불 상태입니다.");
+    INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 환불 상태입니다."),
 
     // 정산 관련
 
+
+    //찜 관련
+    DUPLICATED_BOOKMARK(HttpStatus.CONFLICT, "이미 같은 공연에 찜이 존재합니다."),
+    BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "이미 찜이 안되어 있는 공연입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
