@@ -1,6 +1,9 @@
 package me.performancereservation.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.domain.performance.repository.PerformanceRepository;
+import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
+import me.performancereservation.domain.reservation.ReservationRepository;
 import me.performancereservation.domain.review.Review;
 import me.performancereservation.domain.review.dto.request.ReviewCreateRequest;
 import me.performancereservation.domain.review.dto.respornse.ReviewResponse;
@@ -8,6 +11,7 @@ import me.performancereservation.domain.review.mapper.ReviewMapper;
 import me.performancereservation.domain.review.repository.ReviewRepository;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.repository.UserRepository;
+import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,10 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
+    private final PerformanceRepository performanceRepository;
+    private final ReservationRepository reservationRepository;
+    private final PerformanceScheduleRepository performanceScheduleRepository;
+
 
     /**
      * 리뷰 작성
@@ -32,6 +40,11 @@ public class ReviewService {
      */
     @Transactional
     public void createReview(Long userId, ReviewCreateRequest request) {
+
+        checkExistPerformance(request.performanceId());
+        checkExistSchedule(request.performanceId(), request.scheduledId());
+        checkValidateUser(userId, request.performanceId());
+
         Review review = Review.builder()
                 .performanceId(request.performanceId())
                 .scheduleId(request.scheduledId())
@@ -56,5 +69,27 @@ public class ReviewService {
 
         //맵퍼로 변환하기
         return reviews.map(review -> reviewMapper.toReviewResponse(review, userMap.get(review.getUserId())));
+    }
+
+    //찾아온 후 비어있는지 확인하는 방법보단 단순 존재 여부를 확인하기 위해 exist를 사용하였습니다.
+    private void checkExistPerformance(Long performanceId) {
+        performanceRepository.findById(performanceId)
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
+    }
+
+    private void checkExistSchedule(Long performanceId, Long scheduleId) {
+        boolean exists = performanceScheduleRepository.existsByIdAndPerformanceId(performanceId, scheduleId);
+        if (!exists) {
+            throw ErrorCode.INVALID_SCHEDULE.domainException("해당 공연에 속하지 않는 회차입니다.");
+        }
+    }
+
+    private void checkValidateUser(Long userId, Long scheduleId) {
+        if (!reservationRepository.existsByUserIdAndScheduleId(userId, scheduleId)) {
+            throw ErrorCode.UNAUTHORIZED_REVIEW.domainException("예매 내역이 없는 공연 회차에는 리뷰를 작성할 수 없습니다.");
+        }
+        if (reviewRepository.existsByUserIdAndScheduleId(userId, scheduleId)) {
+            throw ErrorCode.DUPLICATE_REVIEW.domainException("이미 리뷰를 작성하셨습니다.");
+        }
     }
 }

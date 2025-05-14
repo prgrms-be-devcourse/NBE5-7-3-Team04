@@ -11,4 +11,6 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     //리뷰 페이징
     Page<Review> findByPerformanceIdOrderByCreatedAtDesc(Long performanceId, Pageable pageable);
+
+    boolean existsByUserIdAndScheduleId(Long userId, Long scheduleId);
 }
