@@ -41,10 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -316,18 +313,26 @@ class AdminPerformanceServiceTest {
     void approveManagerRequest_Success() {
         // given
         Long managerRequestId = 1L;
+        Long userId = 1L;
 
         ManagerRequest managerRequest = mock(ManagerRequest.class);
         when(managerRequest.isPending()).thenReturn(true);
+        when(managerRequest.getUserId()).thenReturn(userId);
+
+        User user = mock(User.class);
 
         // when
         when(adminManagerRequestRepository.findById(managerRequestId))
                 .thenReturn(Optional.of(managerRequest));
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
 
         adminPerformanceService.approveManagerRequest(managerRequestId);
 
         // then
         verify(adminManagerRequestRepository).findById(managerRequestId);
+        verify(userRepository).findById(userId);
+        verify(user).promoteManager();
         verify(managerRequest).approve();
     }
 
@@ -348,6 +353,7 @@ class AdminPerformanceServiceTest {
 
         assertEquals(ErrorCode.MANAGER_REQUEST_NOT_FOUND, exception.getErrorCode());
         verify(adminManagerRequestRepository).findById(managerRequestId);
+        verify(userRepository, never()).findById(anyLong());
     }
 
     @Test
@@ -371,6 +377,35 @@ class AdminPerformanceServiceTest {
         assertEquals(ErrorCode.MANAGER_REQUEST_STATUS_NOT_PENDING, exception.getErrorCode());
         verify(adminManagerRequestRepository).findById(managerRequestId);
         verify(managerRequest, never()).approve();
+        verify(userRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    @DisplayName("요청자 사용자 정보를 찾을 수 없는 경우")
+    void approveManagerRequest_UserNotFound() {
+        // given
+        Long managerRequestId = 1L;
+        Long userId = 1L;
+
+        ManagerRequest managerRequest = mock(ManagerRequest.class);
+        when(managerRequest.isPending()).thenReturn(true);
+        when(managerRequest.getUserId()).thenReturn(userId);
+
+        // when
+        when(adminManagerRequestRepository.findById(managerRequestId))
+                .thenReturn(Optional.of(managerRequest));
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.empty());
+
+        // then
+        AppException exception = assertThrows(AppException.class, () ->
+                adminPerformanceService.approveManagerRequest(managerRequestId)
+        );
+
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+        verify(adminManagerRequestRepository).findById(managerRequestId);
+        verify(userRepository).findById(userId);
+        verify(managerRequest, never()).approve();
     }
 
     @Test
@@ -378,6 +413,7 @@ class AdminPerformanceServiceTest {
     void rejectManagerRequest_Success() {
         // given
         Long managerRequestId = 1L;
+        Long userId = 1L;
 
         ManagerRequest managerRequest = mock(ManagerRequest.class);
         when(managerRequest.isPending()).thenReturn(true);
@@ -391,5 +427,7 @@ class AdminPerformanceServiceTest {
         // then
         verify(adminManagerRequestRepository).findById(managerRequestId);
         verify(managerRequest).reject();
+        // 거부 시에는 사용자 권한을 변경하지 않으므로 userRepository를 호출하지 않음
+        verify(userRepository, never()).findById(anyLong());
     }
 }
