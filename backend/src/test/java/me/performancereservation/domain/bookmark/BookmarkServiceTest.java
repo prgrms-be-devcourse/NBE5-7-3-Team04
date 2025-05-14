@@ -276,7 +276,6 @@ class BookmarkServiceTest {
         assertEquals("테스트 공연 1", response1.title());
         assertEquals(10000, response1.price());
         assertEquals("테스트 장소 1", response1.venue());
-        assertEquals("테스트 설명 1", response1.description());
         assertEquals(PerformanceCategory.OPERA, response1.category());
         assertEquals(PerformanceStatus.CONFIRMED, response1.status());
         assertTrue(response1.bookmarked());
@@ -287,7 +286,6 @@ class BookmarkServiceTest {
         assertEquals("테스트 공연 2", response2.title());
         assertEquals(20000, response2.price());
         assertEquals("테스트 장소 2", response2.venue());
-        assertEquals("테스트 설명 2", response2.description());
         assertEquals(PerformanceCategory.OPERA, response2.category());
         assertEquals(PerformanceStatus.CONFIRMED, response2.status());
         assertTrue(response2.bookmarked());

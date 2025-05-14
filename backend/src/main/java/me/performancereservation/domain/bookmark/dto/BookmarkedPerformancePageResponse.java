@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
  * @param fileUrl
  * @param title
  * @param price
- * @param performanceDate
+ * @param startDate
+ * @param endDate
  * @param venue
- * @param description
  * @param category
  * @param status
  * @param bookmarked //북마크 되어있는지 여부
@@ -26,7 +26,6 @@ public record BookmarkedPerformancePageResponse(
         LocalDateTime startDate,
         LocalDateTime endDate,
         String venue,
-        String description,
         PerformanceCategory category,
         PerformanceStatus status,
         boolean bookmarked
