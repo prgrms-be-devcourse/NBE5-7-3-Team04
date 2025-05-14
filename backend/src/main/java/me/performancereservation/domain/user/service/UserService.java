@@ -54,12 +54,10 @@ public class UserService {
 
     /** 사용자가 공연 관리자 권한 신청
      *
-     * @param principal
+     * @param userId
      */
     @Transactional
-    public void submitManagerRequest(CustomOAuth2User principal) {
-        Long userId = principal.getUser().getId();
-
+    public void submitManagerRequest(Long userId) {
         ManagerRequest managerRequest = ManagerRequest.builder()
                 .userId(userId)
                 .status(ManagerRequestStatus.PENDING)

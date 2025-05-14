@@ -28,7 +28,7 @@ public class UserController {
 
     @PostMapping("/manager-request")
     public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal) {
-        userService.submitManagerRequest(principal);
+        userService.submitManagerRequest(principal.getUser().getId());
         return ResponseEntity.noContent().build();
     }
 }
