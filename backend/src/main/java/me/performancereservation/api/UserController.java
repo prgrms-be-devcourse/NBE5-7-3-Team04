@@ -37,5 +37,3 @@ public class UserController {
         userService.onboard(principal.getUser().getId(), request);
         return ResponseEntity.noContent().build();
     }
-}
-

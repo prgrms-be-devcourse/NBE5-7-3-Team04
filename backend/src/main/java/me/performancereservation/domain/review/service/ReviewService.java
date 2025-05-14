@@ -52,9 +52,9 @@ public class ReviewService {
         //유저 id 모아서 한번에 유조 조회하고 맵핑!
         List<Long> userIds = reviews.stream().map(Review::getUserId).distinct().toList();
         List<User> users = userRepository.findAllById(userIds);
-
         Map<Long, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
 
+        //맵퍼로 변환하기
         return reviews.map(review -> reviewMapper.toReviewResponse(review, userMap.get(review.getUserId())));
     }
 }

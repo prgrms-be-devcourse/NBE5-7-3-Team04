@@ -7,6 +7,7 @@ import me.performancereservation.domain.review.service.ReviewService;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,7 +41,7 @@ public class ReviewController {
     @GetMapping("/{performanceId}")
     public ResponseEntity<Page<ReviewResponse>> getReviews(
             @PathVariable Long performanceId,
-            @PageableDefault(size = 10) Pageable pageable
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(reviewService.getReviewsByPerformanceId(performanceId, pageable));
     }
