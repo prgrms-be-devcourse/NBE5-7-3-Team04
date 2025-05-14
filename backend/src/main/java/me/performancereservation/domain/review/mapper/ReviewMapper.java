@@ -1,6 +1,7 @@
 package me.performancereservation.domain.review.mapper;
 
 import me.performancereservation.domain.review.Review;
+import me.performancereservation.domain.review.dto.request.ReviewCreateRequest;
 import me.performancereservation.domain.review.dto.respornse.ReviewResponse;
 import me.performancereservation.domain.user.entitiy.User;
 import org.springframework.stereotype.Component;
@@ -20,5 +21,14 @@ public class ReviewMapper {
                 review.getScheduleId(),
                 review.getComments()
         );
+    }
+
+    public Review toEntity(Long userId, ReviewCreateRequest request) {
+        return Review.builder()
+                .performanceId(request.performanceId())
+                .scheduleId(request.scheduledId())
+                .userId(userId)
+                .comments(request.comments())
+                .build();
     }
 }

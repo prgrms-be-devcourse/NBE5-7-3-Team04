@@ -31,6 +31,7 @@ public class ReviewService {
     private final PerformanceRepository performanceRepository;
     private final ReservationRepository reservationRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
+    private Review review;
 
 
     /**
@@ -45,12 +46,7 @@ public class ReviewService {
         checkExistSchedule(request.performanceId(), request.scheduledId());
         checkValidateUser(userId, request.performanceId());
 
-        Review review = Review.builder()
-                .performanceId(request.performanceId())
-                .scheduleId(request.scheduledId())
-                .userId(userId)
-                .comments(request.comments())
-                .build();
+        reviewMapper.toEntity(userId, request);
         reviewRepository.save(review);
     }
 
