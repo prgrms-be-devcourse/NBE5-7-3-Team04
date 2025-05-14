@@ -5,8 +5,8 @@ import me.performancereservation.domain.file.FileRepository;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceCreateRequest;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceListResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerListResponse;
+import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
+import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerPageResponse;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
@@ -359,7 +359,7 @@ class PerformanceServiceTest {
         when(fileRepository.findAllById(List.of(FILE_ID1, FILE_ID2, FILE_ID3))).thenReturn(List.of(file1, file2, file3));
 
         //when
-        Page<PerformanceManagerListResponse> response = performanceService.getPerformanceManagerList(Pageable.unpaged(), MANAGER_ID);
+        Page<PerformanceManagerPageResponse> response = performanceService.getPerformanceManagerList(Pageable.unpaged(), MANAGER_ID);
 
         //then
         assertThat(response.getContent()).hasSize(3);
@@ -375,12 +375,12 @@ class PerformanceServiceTest {
         when(performanceRepository.findAvailablePerformances(Pageable.unpaged())).thenReturn(page);
 
         //when
-        Page<PerformanceListResponse> response = performanceService.getPerformanceList(Pageable.unpaged());
+        Page<PerformancePageResponse> response = performanceService.getPerformanceList(Pageable.unpaged());
 
         //then
         assertThat(response.getContent()).hasSize(2);
         assertThat(response.getContent())
-                .extracting(PerformanceListResponse::id)
+                .extracting(PerformancePageResponse::id)
                 .doesNotContain(PERFORMANCE_ID3);
     }
 

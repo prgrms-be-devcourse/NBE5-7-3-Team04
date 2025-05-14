@@ -25,6 +25,15 @@ public enum ErrorCode {
     EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다."),
 
     // 유저 관련
+    DUPLICATE_USER_EMAIL(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 유저입니다."),
+    DUPLICATE_AUTH_SOCIAL(HttpStatus.CONFLICT,"이미 연결된 소셜 로그인 플랫폼입니다."),
+    INVALID_PROVIDER(HttpStatus.BAD_REQUEST,"지원하지 않는 소셜 플랫폼 입니다."),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않는 ACCESS 토큰입니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않는 REFRESH 토큰입니다."),
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다." ),
+    TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST,"존재하지 않는 토큰입니다."),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 공연 관련
@@ -39,8 +48,9 @@ public enum ErrorCode {
     RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND,  "해당하는 예약이 없습니다."),
     ALREADY_CANCELED_RESERVATION(HttpStatus.BAD_REQUEST, "이미 취소된 예약입니다."),
     INVALID_RESERVATION_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 예약 상태입니다."),
-  
-    // 좌석 재고 관련
+    RESERVATION_ALREADY_CONFIRMED(HttpStatus.CONFLICT, "이미 확정된 예약입니다."),
+
+    // 좌석 재고 관련,
     NO_REMAINING_SEATS(HttpStatus.BAD_REQUEST, "남은 좌석이 없습니다."),
     SEAT_STOCK_DECREMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "좌석 차감에 실패했습니다."),
     SEAT_STOCK_INCREMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "좌석 복원에 실패했습니다."),

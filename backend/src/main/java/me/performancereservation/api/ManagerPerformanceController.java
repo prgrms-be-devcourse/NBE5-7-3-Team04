@@ -3,11 +3,10 @@ package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.file.FileService;
-import me.performancereservation.domain.file.dto.UploadFileResponse;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceCreateRequest;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerListResponse;
+import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerPageResponse;
 import me.performancereservation.domain.performance.service.PerformanceScheduleService;
 import me.performancereservation.domain.performance.service.PerformanceService;
 import org.springframework.data.domain.Page;
@@ -17,7 +16,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/managers")
@@ -35,13 +33,13 @@ public class ManagerPerformanceController {
      * @return 200 + Page<PerformanceManagerListResponse>
      */
     @GetMapping("/performances")
-    public ResponseEntity<Page<PerformanceManagerListResponse>> getPerformances(
+    public ResponseEntity<Page<PerformanceManagerPageResponse>> getPerformances(
             @PageableDefault(
                     size=10,
                     sort = "performanceDate",
                     direction = Sort.Direction.DESC) Pageable pageable,
             Long managerId) {
-        Page<PerformanceManagerListResponse> PerformanceManagerPageResponse = performanceService.getPerformanceManagerList(pageable, managerId);
+        Page<PerformanceManagerPageResponse> PerformanceManagerPageResponse = performanceService.getPerformanceManagerList(pageable, managerId);
         return ResponseEntity.ok(PerformanceManagerPageResponse);
     }
 
