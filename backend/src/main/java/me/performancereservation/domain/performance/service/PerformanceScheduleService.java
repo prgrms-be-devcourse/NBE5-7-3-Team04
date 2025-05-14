@@ -82,7 +82,7 @@ public class PerformanceScheduleService {
 
         schedule.cancel();
         // 예약 취소 이벤트 호출 처리
-        eventPublisher.publishEvent(new ScheduleCanceledEvent(schedule.getId()));
+//        eventPublisher.publishEvent(new ScheduleCanceledEvent(schedule.getId()));
         return schedule.getId();
     }
 }
