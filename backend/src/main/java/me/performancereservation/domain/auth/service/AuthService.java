@@ -33,13 +33,4 @@ public class AuthService {
         return authRepository.findByProviderAndOauthId(provider, oauthId)
                 .orElseThrow(ErrorCode.USER_NOT_FOUND::serviceException);
     }
-
-    public String getProviderByUserId(Long userId) {
-        Optional<Auth> user = authRepository.findByUserId(userId);
-        if (user.isPresent()) {
-            return user.get().getProvider();
-        } else {
-            throw ErrorCode.USER_NOT_FOUND.domainException("존재하지 않는 유저입니다.");
-        }
-    }
 }
