@@ -3,7 +3,6 @@ package me.performancereservation.domain.reservation.service;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.performance.event.PerformanceCanceledEvent;
 import me.performancereservation.domain.reservation.service.redis.RedisReservationBulkCancelService;
-import me.performancereservation.domain.reservation.service.redis.RedisSeatReservationService;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ReservationEventListener {
 
-    private final RedisReservationBulkCancelService redisReservationBulkCancelService;
+    private final RedisReservationBulkCancelService reservationBulkCancelService;
 
     /**
      * 공연이 취소됐을 때 발생하는 이벤트를 핸들링하는 리스너
@@ -23,6 +22,6 @@ public class ReservationEventListener {
     @Async
     @EventListener
     public void handlePerformanceCanceled(PerformanceCanceledEvent event) {
-        redisReservationBulkCancelService.cancelAllByPerformanceId(event.performanceId());
+        reservationBulkCancelService.cancelAllByPerformanceId(event.performanceId());
     }
 }

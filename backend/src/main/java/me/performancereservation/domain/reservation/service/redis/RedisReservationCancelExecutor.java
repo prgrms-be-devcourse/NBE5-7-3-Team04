@@ -18,8 +18,18 @@ public class RedisReservationCancelExecutor {
     private final RedisSeatService redisSeatService;
     private final RedisReservationService redisReservationService;
 
-    // 예약 취소 로직 실행 (단일 예약 취소)
-    public void execute(Reservation reservation) {
+    // 유저가 취소했을 경우 (레디스 좌석 롤백 필요)
+    public void executeForUserCancel(Reservation reservation) {
+        execute(reservation, true);
+    }
+
+    // 공연이 취소됐을 경우 (레디스 좌석 롤백 불필요)
+    public void executeForPerformanceCancel(Reservation reservation) {
+        execute(reservation, false);
+    }
+
+    // 예약 취소 로직 실행 (단일 예약 취소 + 환불 객체 생성)
+    private void execute(Reservation reservation, boolean rollbackSeat) {
         // 결제 완료된 예약인 경우 환불 요청 상태로 변경
         if (reservation.isRefundRequired()) {
             reservation.requestCancel(); // CANCEL_PENDING
@@ -31,8 +41,11 @@ public class RedisReservationCancelExecutor {
             reservation.cancelConfirm(); // CANCEL_CONFIRMED
         }
 
-        // Redis 좌석 롤백 처리
-        redisSeatService.safeIncrement(reservation.getScheduleId(), reservation.getQuantity());
+        // 레디스 좌석 롤백이 필요한가?
+        if (rollbackSeat) {
+            // Redis 좌석 롤백 처리
+            redisSeatService.safeIncrement(reservation.getScheduleId(), reservation.getQuantity());
+        }
 
         // 예약 만료 처리 대기 큐에서도 제거
         redisReservationService.removeFromPendingExpirationQueue(reservation.getId());

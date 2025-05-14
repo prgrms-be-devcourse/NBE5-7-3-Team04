@@ -104,6 +104,6 @@ public class RedisSeatReservationService implements SeatReservationService {
         }
 
         // 예약 취소 처리
-        redisReservationCancelExecutor.execute(reservation);
+        redisReservationCancelExecutor.executeForUserCancel(reservation);
     }
 }

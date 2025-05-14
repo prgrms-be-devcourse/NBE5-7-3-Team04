@@ -3,9 +3,11 @@ package me.performancereservation.domain.reservation.service.redis;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
+import me.performancereservation.global.storage.redis.RedisSeatService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RedisReservationBulkCancelService {
+    private final RedisSeatService redisSeatService;
+
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final ReservationRepository reservationRepository;
 
@@ -36,16 +40,26 @@ public class RedisReservationBulkCancelService {
 
         // 취소된 공연의 모든 회차 id 조회
         List<Long> scheduleIds = performanceScheduleRepository.findIdsByPerformanceId(performanceId);
+        
+        // 공연 일정이 없으면 패스
+        if (scheduleIds.isEmpty()) return;
 
         // 회차별 예약 목록 조회
         List<Reservation> reservations = reservationRepository.findAllByScheduleIds(scheduleIds);
+        
+        // 예약이 없으면 패스
+        if (reservations.isEmpty()) return;
 
+        // 레디스 좌석 정보 제거 및 예약 취소 처리
         for (Reservation reservation : reservations) {
             // 이미 취소된 예약은 패스
             if (reservation.isAlreadyCanceled()) continue;
 
+            // 레디스 좌석 정보 제거
+            redisSeatService.deleteSeatStock(reservation.getScheduleId());
+            
             // 예약 취소 처리
-            redisReservationCancelExecutor.execute(reservation);
+            redisReservationCancelExecutor.executeForPerformanceCancel(reservation);
         }
     }
 }
