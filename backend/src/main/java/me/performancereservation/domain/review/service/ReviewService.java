@@ -9,10 +9,10 @@ import me.performancereservation.domain.review.repository.ReviewRepository;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,7 +25,11 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
 
-    //리뷰 작성
+    /**
+     * 리뷰 작성
+     * @param userId 작성자
+     * @param request 리뷰 작성 요청 DTO
+     */
     @Transactional
     public void createReview(Long userId, ReviewCreateRequest request) {
         Review review = Review.builder()
@@ -37,7 +41,11 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    //리뷰 리스트 조회
+    /**
+     * 공연별 리뷰 목록 조회
+     * @param performanceId 공연 ID
+     * @return 리뷰 응답 DTO 리스트
+     */
     @Transactional
     public Page<ReviewResponse> getReviewsByPerformanceId(Long performanceId, Pageable pageable) {
         Page<Review> reviews = reviewRepository.findByPerformanceIdOrderByCreatedAtDesc(performanceId,pageable);
