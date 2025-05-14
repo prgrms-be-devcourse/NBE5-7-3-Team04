@@ -71,7 +71,7 @@ public enum ErrorCode {
     // 정산 관련
     SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 정산입니다."),
     INVALID_SETTLEMENT_REQUEST(HttpStatus.BAD_REQUEST, "공연 종료 후 7일이 지나야 정산 신청이 가능합니다."),
-    INVALID_SETTLEMENT_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 정산 상태입니다.");
+    INVALID_SETTLEMENT_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 정산 상태입니다."),
 
     //찜 관련
     DUPLICATED_BOOKMARK(HttpStatus.CONFLICT, "이미 같은 공연에 찜이 존재합니다."),

@@ -14,7 +14,8 @@ public record PendingPerformancePageResponse(
         int price,
         int totalSeats,
         PerformanceCategory category,
-        LocalDateTime performanceDate,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         String description,
         List<PendingPerformanceScheduleResponse> schedules
 ) {
