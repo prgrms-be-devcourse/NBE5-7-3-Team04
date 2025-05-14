@@ -6,6 +6,7 @@ import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.global.exception.ErrorCode;
 
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -78,5 +79,16 @@ public class Reservation extends BaseEntity {
     // 공연 티켓 가격 * 수량 -> 총 가격
     public int calculateTotalPrice(int ticketPrice) {
         return this.quantity * ticketPrice;
+    }
+
+    // 예약 확정
+    public void confirm() {
+        if(this.status == ReservationStatus.PAYMENTS_CONFIRMED) {
+            throw ErrorCode.RESERVATION_ALREADY_CONFIRMED.domainException("이미 확정된 예약입니다.");
+        }
+        if(isAlreadyCanceled()) {
+            throw ErrorCode.INVALID_RESERVATION_STATUS.domainException("유효하지 않은 예약 상태입니다.");
+        }
+        this.status = ReservationStatus.PAYMENTS_CONFIRMED;
     }
 }

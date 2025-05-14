@@ -48,8 +48,9 @@ public enum ErrorCode {
     RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND,  "해당하는 예약이 없습니다."),
     ALREADY_CANCELED_RESERVATION(HttpStatus.BAD_REQUEST, "이미 취소된 예약입니다."),
     INVALID_RESERVATION_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 예약 상태입니다."),
-  
-    // 좌석 재고 관련
+    RESERVATION_ALREADY_CONFIRMED(HttpStatus.CONFLICT, "이미 확정된 예약입니다."),
+
+    // 좌석 재고 관련,
     NO_REMAINING_SEATS(HttpStatus.BAD_REQUEST, "남은 좌석이 없습니다."),
     SEAT_STOCK_DECREMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "좌석 차감에 실패했습니다."),
     SEAT_STOCK_INCREMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "좌석 복원에 실패했습니다."),

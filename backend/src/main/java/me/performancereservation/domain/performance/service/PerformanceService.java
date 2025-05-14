@@ -7,9 +7,9 @@ import me.performancereservation.domain.file.FileRepository;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceCreateRequest;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceListResponse;
+import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerListResponse;
+import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerPageResponse;
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
@@ -21,8 +21,6 @@ import me.performancereservation.domain.performance.repository.PerformanceSchedu
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,7 +106,7 @@ public class PerformanceService {
      * @return Page<PerformanceListResponse>
      */
     @Transactional(readOnly = true)
-    public Page<PerformanceListResponse> getPerformanceList(Pageable pageable) {
+    public Page<PerformancePageResponse> getPerformanceList(Pageable pageable) {
         // 페이징된 공연 조회
         Page<Performance> performances = performanceRepository.findAvailablePerformances(pageable);
 
@@ -158,7 +156,7 @@ public class PerformanceService {
      * @return Page<PerformanceManagerListResponse>
      */
     @Transactional(readOnly = true)
-    public Page<PerformanceManagerListResponse> getPerformanceManagerList(Pageable pageable, Long managerId) {
+    public Page<PerformanceManagerPageResponse> getPerformanceManagerList(Pageable pageable, Long managerId) {
         // 공연자의 모든 공연을 페이징 하여 가져옴
         Page<Performance> performances = performanceRepository.findByManagerId(managerId, pageable);
 
