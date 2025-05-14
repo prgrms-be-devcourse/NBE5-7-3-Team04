@@ -96,7 +96,8 @@ public class PerformanceService {
         performanceScheduleRepository.findByPerformanceId(performance.getId())
                 .forEach(PerformanceSchedule::cancel);
 
-//        eventPublisher.publishEvent(new PerformanceCanceledEvent(performance.getId()));
+        // 예약 취소 이벤트 호출
+        eventPublisher.publishEvent(new PerformanceCanceledEvent(performance.getId()));
 
         return performance.getId();
     }

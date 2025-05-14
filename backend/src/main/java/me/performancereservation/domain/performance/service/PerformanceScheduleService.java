@@ -1,16 +1,14 @@
 package me.performancereservation.domain.performance.service;
 
 import lombok.RequiredArgsConstructor;
-import me.performancereservation.domain.performance.dto.performance.event.PerformanceScheduleCreatedEvent;
+import me.performancereservation.domain.performance.event.PerformanceScheduleCreatedEvent;
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleRequest;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
-import me.performancereservation.domain.performance.enums.PerformanceStatus;
 import me.performancereservation.domain.performance.mapper.PerformanceScheduleMapper;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.global.exception.ErrorCode;
-import me.performancereservation.global.storage.redis.RedisSeatService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,7 +82,7 @@ public class PerformanceScheduleService {
 
         schedule.cancel();
         // 예약 취소 이벤트 호출 처리
-//        eventPublisher.publishEvent(new PerformanceScheduleCanceledEvent(schedule.getId()));
+        eventPublisher.publishEvent(new ScheduleCanceledEvent(schedule.getId()));
         return schedule.getId();
     }
 }
