@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
  * @param fileUrl   // 썸네일 파일 주소
  * @param title
  * @param price
- * @param performanceDate
+ * @param startDate
+ * @param endDate
  * @param venue
  */
 public record PerformancePageResponse(
@@ -16,7 +17,8 @@ public record PerformancePageResponse(
         String fileUrl,
         String title,
         int price,
-        LocalDateTime performanceDate,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         String venue
 ) {
 }

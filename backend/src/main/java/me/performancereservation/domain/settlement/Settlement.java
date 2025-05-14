@@ -19,7 +19,7 @@ public class Settlement extends BaseEntity {
 
     private Long performanceId; // 공연 ID
 
-    private Long totalAmount; // 총 정산 금액
+    private int totalAmount; // 총 정산 금액
 
     private String account; // 계좌번호
 
@@ -28,16 +28,20 @@ public class Settlement extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private SettlementStatus status; // 정산 상태
 
-    private LocalDateTime settledAt; // 정산완료일시
+    private LocalDateTime settledAt; // 정산완료일시. 생성 시 초기값 null
 
     @Builder
-    public Settlement(Long id, Long performanceId, Long totalAmount, String account, String bank, SettlementStatus status, LocalDateTime settledAt) {
+    public Settlement(Long id, Long performanceId, int totalAmount, String account, String bank, SettlementStatus status) {
         this.id = id;
         this.performanceId = performanceId;
         this.totalAmount = totalAmount;
         this.account = account;
         this.bank = bank;
         this.status = status;
-        this.settledAt = settledAt;
+    }
+
+    public void confirm(){
+        this.settledAt = LocalDateTime.now();
+        this.status = SettlementStatus.CONFIRMED;
     }
 }

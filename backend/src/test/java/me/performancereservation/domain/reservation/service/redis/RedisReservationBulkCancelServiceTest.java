@@ -57,7 +57,8 @@ class RedisReservationBulkCancelServiceTest {
             .price(120000)
             .totalSeats(2000)
             .category(PerformanceCategory.OPERA)
-            .performanceDate(LocalDateTime.of(2025, 12, 13, 0, 0))
+            .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
+                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
             .description("한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!")
             .status(PerformanceStatus.CONFIRMED)
             .build();

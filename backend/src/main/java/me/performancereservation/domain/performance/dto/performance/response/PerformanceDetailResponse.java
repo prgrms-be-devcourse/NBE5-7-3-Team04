@@ -2,6 +2,7 @@ package me.performancereservation.domain.performance.dto.performance.response;
 
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /** 상세 페이지 응답용
@@ -25,5 +26,7 @@ public record PerformanceDetailResponse(
         String description,
         String status,
         String fileUrl,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         List<PerformanceScheduleResponse> schedules
         ) {}
