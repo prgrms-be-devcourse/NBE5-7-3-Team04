@@ -44,7 +44,7 @@ public class PerformanceMapper {
      * @param schedules
      * @return PerformanceDetailResponse
      */
-    public static PerformanceDetailResponse toDetailResponse(Performance performance, String fileUrl, List<PerformanceSchedule> schedules) {
+    public static PerformanceDetailResponse toDetailResponse(Performance performance, String fileUrl, boolean bookmarked, List<PerformanceSchedule> schedules) {
         return new PerformanceDetailResponse(
                 performance.getId(),
                 performance.getTitle(),
@@ -52,10 +52,11 @@ public class PerformanceMapper {
                 performance.getTotalSeats(),
                 performance.getVenue(),
                 performance.getDescription(),
-                performance.getStatus().toString(),
+                performance.getStatus(),
                 fileUrl,
                 performance.getStartDate(),
                 performance.getEndDate(),
+                bookmarked,
                 schedules.stream().map(PerformanceScheduleMapper::toResponse).toList()
         );
     }
@@ -74,7 +75,8 @@ public class PerformanceMapper {
                 performance.getPrice(),
                 performance.getStartDate(),
                 performance.getEndDate(),
-                performance.getVenue()
+                performance.getVenue(),
+                performance.getCategory()
         );
     }
 
@@ -92,7 +94,8 @@ public class PerformanceMapper {
                 performance.getStartDate(),
                 performance.getEndDate(),
                 performance.getVenue(),
-                performance.getStatus().toString()
+                performance.getStatus(),
+                performance.getCategory()
         );
     }
 
@@ -110,7 +113,7 @@ public class PerformanceMapper {
                 fileUrl,
                 performance.getTitle(),
                 performance.getVenue(),
-                performance.getStatus().toString(),
+                performance.getStatus(),
                 performance.getTotalSeats(),
                 performance.getStartDate(),
                 performance.getEndDate(),

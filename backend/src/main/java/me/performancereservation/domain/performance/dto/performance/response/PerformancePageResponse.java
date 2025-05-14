@@ -1,5 +1,7 @@
 package me.performancereservation.domain.performance.dto.performance.response;
 
+import me.performancereservation.domain.performance.enums.PerformanceCategory;
+
 import java.time.LocalDateTime;
 
 /** 고객 공연 목록 페이지 응답용
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
  * @param startDate
  * @param endDate
  * @param venue
+ * @param category
  */
 public record PerformancePageResponse(
         Long id,
@@ -19,6 +22,7 @@ public record PerformancePageResponse(
         int price,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        String venue
+        String venue,
+        PerformanceCategory category
 ) {
 }

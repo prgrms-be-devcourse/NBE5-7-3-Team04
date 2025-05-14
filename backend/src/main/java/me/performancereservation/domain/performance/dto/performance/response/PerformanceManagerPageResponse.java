@@ -1,5 +1,8 @@
 package me.performancereservation.domain.performance.dto.performance.response;
 
+import me.performancereservation.domain.performance.enums.PerformanceCategory;
+import me.performancereservation.domain.performance.enums.PerformanceStatus;
+
 import java.time.LocalDateTime;
 
 /** 공연 관리자 공연 목록 페이지 응답용
@@ -19,6 +22,7 @@ public record PerformanceManagerPageResponse(
         LocalDateTime startDate,
         LocalDateTime endDate,
         String venue,
-        String status
+        PerformanceStatus status,
+        PerformanceCategory category
 ) {
 }
