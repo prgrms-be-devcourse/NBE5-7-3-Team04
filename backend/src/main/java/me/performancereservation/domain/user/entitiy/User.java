@@ -5,10 +5,9 @@ import lombok.*;
 import me.performancereservation.domain.common.BaseEntity;
 import me.performancereservation.domain.user.enums.Role;
 
-@Setter
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     //User는 유저 정보만 가진다
     //인증, 로그인 정보는 Auth에서 관리
@@ -18,8 +17,10 @@ public class User extends BaseEntity {
 
     private String email; // 유저 Email
 
+    @Column(nullable = true)
     private String name; // 유저 이름
 
+    @Column(nullable = true)
     private String phoneNumber; // 휴대폰번호
 
     @Enumerated(EnumType.STRING)
@@ -33,5 +34,14 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
         this.role = role;
     }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
 }
 

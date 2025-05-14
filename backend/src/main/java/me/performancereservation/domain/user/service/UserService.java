@@ -36,10 +36,10 @@ public class UserService {
     public void onboard(Long userId, UserOnboardingRequest request) {
         User user = getUserById(userId);
         if (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank()) {
-            user.setPhoneNumber(request.phoneNumber());
+            user.updatePhoneNumber(request.phoneNumber());
         }
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            user.setEmail(request.email());
+            user.updateEmail(request.email());
         }
         userRepository.save(user);
     }

@@ -6,8 +6,6 @@ import me.performancereservation.domain.auth.repository.AuthRepository;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
