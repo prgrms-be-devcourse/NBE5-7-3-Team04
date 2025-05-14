@@ -2,6 +2,7 @@ package me.performancereservation.domain.performance.dto.performance.response;
 
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /** 공연 관리자 자신의 공연 관리 상세 페이지 응답용
@@ -21,6 +22,8 @@ public record PerformanceManagerDetailResponse(
         String venue,
         String status,
         int totalSeats,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
         List<PerformanceScheduleResponse> schedules
         ) {
 }

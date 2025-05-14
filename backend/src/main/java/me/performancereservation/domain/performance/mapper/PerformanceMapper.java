@@ -54,6 +54,8 @@ public class PerformanceMapper {
                 performance.getDescription(),
                 performance.getStatus().toString(),
                 fileUrl,
+                performance.getStartDate(),
+                performance.getEndDate(),
                 schedules.stream().map(PerformanceScheduleMapper::toResponse).toList()
         );
     }
@@ -71,6 +73,7 @@ public class PerformanceMapper {
                 performance.getTitle(),
                 performance.getPrice(),
                 performance.getStartDate(),
+                performance.getEndDate(),
                 performance.getVenue()
         );
     }
@@ -87,6 +90,7 @@ public class PerformanceMapper {
                 fileUrl,
                 performance.getTitle(),
                 performance.getStartDate(),
+                performance.getEndDate(),
                 performance.getVenue(),
                 performance.getStatus().toString()
         );
@@ -108,6 +112,8 @@ public class PerformanceMapper {
                 performance.getVenue(),
                 performance.getStatus().toString(),
                 performance.getTotalSeats(),
+                performance.getStartDate(),
+                performance.getEndDate(),
                 schedules
         );
     }
