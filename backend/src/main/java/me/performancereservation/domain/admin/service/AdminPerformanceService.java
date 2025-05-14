@@ -184,8 +184,15 @@ public class AdminPerformanceService {
             throw ErrorCode.MANAGER_REQUEST_STATUS_NOT_PENDING.domainException("PENDING 상태의 공연 관리자 요청만 승인, 거부가 가능합니다.");
         }
 
+        // 요청자의 사용자 정보 조회
+        User user = userRepository.findById(managerRequest.getUserId())
+                .orElseThrow(() -> ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다. id=" + managerRequest.getUserId()));
+
         // 공연 관리자 요청 승인
         managerRequest.approve();
+
+        // 사용자 ROLE 변경
+        user.promoteManager();
     }
 
     /** 공연 관리자 요청을 거부
@@ -200,6 +207,10 @@ public class AdminPerformanceService {
         if(!managerRequest.isPending()) {
             throw ErrorCode.MANAGER_REQUEST_STATUS_NOT_PENDING.domainException("PENDING 상태의 공연 관리자 요청만 승인, 거부가 가능합니다.");
         }
+
+        // 요청자의 사용자 정보 조회
+        User user = userRepository.findById(managerRequest.getUserId())
+                .orElseThrow(() -> ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다. id=" + managerRequest.getUserId()));
 
         //공연 관리자 요청 거부
         managerRequest.reject();

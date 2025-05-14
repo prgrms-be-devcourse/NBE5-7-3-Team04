@@ -33,4 +33,8 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
         this.role = role;
     }
+
+    public void promoteManager() {
+        this.role = Role.MANAGER;
+    }
 }
