@@ -68,6 +68,7 @@ public class Performance extends BaseEntity {
 
     public void reject() {
         this.status = PerformanceStatus.REJECTED;
+    }
 
     public void updateFrom(PerformanceUpdateRequest request) {
         this.fileId = request.fileId();
