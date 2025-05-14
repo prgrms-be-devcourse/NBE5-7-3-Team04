@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.service.ReservationQueryService;
+import me.performancereservation.domain.reservation.service.redis.RedisReservationBulkCancelService;
 import me.performancereservation.domain.reservation.service.redis.RedisSeatReservationService;
 import me.performancereservation.domain.reservation.dto.ReservationRequest;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ReservationController {
     private final RedisSeatReservationService seatReservationService;
+    private final RedisReservationBulkCancelService bulkCancelService;
     private final ReservationQueryService reservationQueryService;
 
     @PostMapping
@@ -80,5 +82,14 @@ public class ReservationController {
 //                authentication.userId() // TODO Authentication 머지 되면 수정 예정
                 1L // TODO 수정 예정
         ));
+    }
+
+    // 공연 ID 기준으로 예약 일괄 취소를 수동으로 수행
+    @PostMapping("/cancel/{performanceId}")
+    // TODO 어드민 권한 부착하거나 어드민 컨트롤러 구현되면 그쪽으로 이동
+    public ResponseEntity<Void> bulkCancelByPerformanceId(@PathVariable Long performanceId) {
+        bulkCancelService.cancelAllByPerformanceId(performanceId);
+
+        return ResponseEntity.noContent().build();
     }
 }
