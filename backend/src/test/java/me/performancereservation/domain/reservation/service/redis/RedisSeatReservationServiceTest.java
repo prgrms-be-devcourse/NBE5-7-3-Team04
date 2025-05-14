@@ -42,6 +42,9 @@ class RedisSeatReservationServiceTest {
     
     @Mock
     private ReservationMapper reservationMapper;
+
+    @Mock
+    private RedisReservationCancelExecutor redisReservationCancelExecutor;
     
     @InjectMocks
     private RedisSeatReservationService reservationService;
@@ -169,9 +172,7 @@ class RedisSeatReservationServiceTest {
         reservationService.cancel(reservationId, userId);
         
         // then
-        assertEquals(ReservationStatus.CANCEL_CONFIRMED, reservation.getStatus());
-        verify(redisSeatService).safeIncrement(scheduleId, quantity);
-        verify(redisReservationService).removeFromPendingExpirationQueue(reservationId);
+        verify(redisReservationCancelExecutor).executeForUserCancel(reservation);
     }
     
     @Test
@@ -197,8 +198,7 @@ class RedisSeatReservationServiceTest {
         );
         
         assertEquals(ErrorCode.ALREADY_CANCELED_RESERVATION, exception.getErrorCode());
-        verify(redisSeatService, never()).safeIncrement(anyLong(), anyInt());
-        verify(redisReservationService, never()).removeFromPendingExpirationQueue(anyLong());
+        verify(redisReservationCancelExecutor, never()).executeForUserCancel(any(Reservation.class));
     }
     
     @Test
@@ -225,8 +225,7 @@ class RedisSeatReservationServiceTest {
         );
         
         assertEquals(ErrorCode.PERMISSION_DENIED, exception.getErrorCode());
-        verify(redisSeatService, never()).safeIncrement(anyLong(), anyInt());
-        verify(redisReservationService, never()).removeFromPendingExpirationQueue(anyLong());
+        verify(redisReservationCancelExecutor, never()).executeForUserCancel(any(Reservation.class));
     }
     
     @Test
@@ -246,8 +245,7 @@ class RedisSeatReservationServiceTest {
         );
         
         assertEquals(ErrorCode.RESERVATION_NOT_FOUND, exception.getErrorCode());
-        verify(redisSeatService, never()).safeIncrement(anyLong(), anyInt());
-        verify(redisReservationService, never()).removeFromPendingExpirationQueue(anyLong());
+        verify(redisReservationCancelExecutor, never()).executeForUserCancel(any(Reservation.class));
     }
     
     @Test
@@ -274,8 +272,6 @@ class RedisSeatReservationServiceTest {
         reservationService.cancel(reservationId, userId);
         
         // then
-        assertEquals(ReservationStatus.CANCEL_PENDING, reservation.getStatus());
-        verify(redisSeatService).safeIncrement(scheduleId, quantity);
-        verify(redisReservationService).removeFromPendingExpirationQueue(reservationId);
+        verify(redisReservationCancelExecutor).executeForUserCancel(reservation);
     }
 } 
