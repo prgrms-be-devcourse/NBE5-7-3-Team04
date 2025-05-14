@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -29,11 +28,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionHandlerFilter jwtExceptionHandlerFilter;
 
-    //비밀번호 암호화용 PasswordEncoder 빈 등록 : 소셜로그인만 써도 확장성/관례상 등록해주기!!
-//    @Bean("userPasswordEncoder")
-//    public PasswordEncoder userPasswordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
+    // 비밀번호 암호화용 PasswordEncoder 빈 등록 : 소셜로그인만 써도 확장성/관례상 등록해주기!!
+    // AdminSecurityConfig에서 등록한 passwordEncoder bean을 주입받아 사용
     private final PasswordEncoder passwordEncoder;
 
     //SecurityFilterChain : 인증/인가, OAuth2, JWT, CORS, CSRF 등 모든 정책을 한 곳에서 관리

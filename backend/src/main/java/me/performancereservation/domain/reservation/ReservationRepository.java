@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
@@ -18,4 +19,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         WHERE r.id IN :ids AND r.status = :status
     """)
     List<Reservation> findAllByIdsAndStatus(@Param("ids") List<Long> ids, @Param("status") ReservationStatus status);
+
+    Optional<Reservation> findByUserId(Long userId);
 }
