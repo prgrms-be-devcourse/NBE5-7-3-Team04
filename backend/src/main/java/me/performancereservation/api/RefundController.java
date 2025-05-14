@@ -6,12 +6,14 @@ import me.performancereservation.domain.refund.RefundService;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
 import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
 import me.performancereservation.global.exception.ErrorCode;
+import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -26,10 +28,12 @@ public class RefundController {
     /// 본인 id와 일치하는 모든 환불내역 리스트 반환
     @GetMapping("/me/{userId}")
     public ResponseEntity<Page<RefundDetailResponse>> getAllRefundDetailsWithUserId(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomOAuth2User authentication,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
     // TODO: 나중에 로그인 구현 후 security로 userid 받아오는 방식으로 수정
     //      Long userId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+
+        Long userId = authentication.getUser().getId();
 
         log.info("사용자 환불 내역 조회 요청: userId={}, page={}, size={}",
                 userId, pageable.getPageNumber(), pageable.getPageSize());
