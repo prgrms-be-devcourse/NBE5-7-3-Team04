@@ -70,7 +70,7 @@ public class ReservationQueryService {
     public ReservationResponse getByReservationId(Long reservationId, Long userId) {
         // 본인의 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.persistenceException("예약 ID: " + reservationId));
+                .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.domainException("예약 ID: " + reservationId));
 
         // 본인의 예약이 아니면 예외
         if (!reservation.getUserId().equals(userId)) {
@@ -79,7 +79,7 @@ public class ReservationQueryService {
 
         // SchedulePerformanceInfo 조회
         SchedulePerformanceInfo scheduleInfo = performanceScheduleRepository.findSchedulePerformanceInfoByScheduleId(reservation.getScheduleId())
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.persistenceException("공연 회차 ID: " + reservation.getId()));
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.domainException("공연 회차 ID: " + reservation.getScheduleId()));
 
         // ReservationResponseDto 매핑
         return reservationMapper.toResponseDto(reservation, scheduleInfo);
