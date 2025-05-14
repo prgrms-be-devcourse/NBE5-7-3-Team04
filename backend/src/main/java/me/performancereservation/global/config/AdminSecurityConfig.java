@@ -28,6 +28,10 @@ public class AdminSecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;            // 로그인이 안된 경우를 처리하는 핸들러
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;    // 로그인 실패 핸들러
 
+//    @Bean("adminPasswordEncoder")
+//    public PasswordEncoder adminPasswordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

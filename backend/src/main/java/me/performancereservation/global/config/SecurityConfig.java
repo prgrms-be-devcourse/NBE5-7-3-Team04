@@ -30,10 +30,11 @@ public class SecurityConfig {
     private final JwtExceptionHandlerFilter jwtExceptionHandlerFilter;
 
     //비밀번호 암호화용 PasswordEncoder 빈 등록 : 소셜로그인만 써도 확장성/관례상 등록해주기!!
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean("userPasswordEncoder")
+//    public PasswordEncoder userPasswordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+    private final PasswordEncoder passwordEncoder;
 
     //SecurityFilterChain : 인증/인가, OAuth2, JWT, CORS, CSRF 등 모든 정책을 한 곳에서 관리
     @Bean

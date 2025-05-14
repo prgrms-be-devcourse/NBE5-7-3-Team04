@@ -212,7 +212,7 @@ class AdminReservationControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void getReservationListPaging_Success() throws Exception {
-        mockMvc.perform(get("/admin/reservations")
+        mockMvc.perform(get("/api/v1//admin/reservations")
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
@@ -226,7 +226,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByName_Success() throws Exception {
         // 사용자1의 예약 수 = 50 / 4 = 12.5 → 13개
-        mockMvc.perform(get("/admin/reservations/search")
+        mockMvc.perform(get("/api/v1//admin/reservations/search")
                         .param("userName", "사용자1")
                         .param("page", "0")
                         .param("size", "10"))
@@ -240,7 +240,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByName_Failure() throws Exception {
         // 사용자1의 예약 수 = 50 / 4 = 12.5 → 13개
-        mockMvc.perform(get("/admin/reservations/search")
+        mockMvc.perform(get("/api/v1//admin/reservations/search")
                         .param("userName", "없는 사용자")
                         .param("page", "0")
                         .param("size", "10"))
@@ -254,7 +254,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByTitle_Success() throws Exception {
         // 사용자1의 예약 수 = 50 / 4 = 12.5 → 13개
-        mockMvc.perform(get("/admin/reservations/search")
+        mockMvc.perform(get("/api/v1//admin/reservations/search")
                         .param("performanceTitle", "오페라 갈라")
                         .param("page", "0")
                         .param("size", "10"))
@@ -268,7 +268,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByTitle_Failure() throws Exception {
         // 사용자1의 예약 수 = 50 / 4 = 12.5 → 13개
-        mockMvc.perform(get("/admin/reservations/search")
+        mockMvc.perform(get("/api/v1//admin/reservations/search")
                         .param("performanceTitle", "없는 공연")
                         .param("page", "0")
                         .param("size", "10"))
@@ -282,7 +282,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByStatus_PAYMENT_PENDING() throws Exception {
         // PAYMENTS_PENDING: 50 / 2 = 25개
-        mockMvc.perform(get("/admin/reservations/search")
+        mockMvc.perform(get("/api/v1//admin/reservations/search")
                         .param("reservationStatus", "PAYMENTS_PENDING")
                         .param("page", "0")
                         .param("size", "10"))
@@ -296,7 +296,7 @@ class AdminReservationControllerTest {
     @WithMockUser(roles = "ADMIN")
     void searchReservationByStatus_CANCELPENDING() throws Exception {
         // PAYMENTS_PENDING: 50 / 2 = 25개
-        mockMvc.perform(get("/admin/reservations/search")
+        mockMvc.perform(get("/api/v1//admin/reservations/search")
                         .param("reservationStatus", "CANCEL_PENDING")
                         .param("page", "0")
                         .param("size", "10"))
@@ -313,7 +313,7 @@ class AdminReservationControllerTest {
         LocalDateTime start = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
         LocalDateTime end = LocalDateTime.now().plusDays(1).toLocalDate().atTime(23, 59, 59);
 
-        mockMvc.perform(get("/admin/reservations/search")
+        mockMvc.perform(get("/api/v1/admin/reservations/search")
                         .param("startDate", start.toString())
                         .param("endDate", end.toString())
                         .param("page", "0")
@@ -331,7 +331,7 @@ class AdminReservationControllerTest {
         LocalDateTime start = LocalDateTime.now().minusDays(11).toLocalDate().atStartOfDay();
         LocalDateTime end = LocalDateTime.now().minusDays(10).toLocalDate().atTime(23, 59, 59);
 
-        mockMvc.perform(get("/admin/reservations/search")
+        mockMvc.perform(get("/api/v1//admin/reservations/search")
                         .param("startDate", start.toString())
                         .param("endDate", end.toString())
                         .param("page", "0")
@@ -348,7 +348,7 @@ class AdminReservationControllerTest {
         // 펜딩 상태 예약 확정 성공
         Reservation pending = reservationRepository.findById(user5.getId()).get();
 
-        mockMvc.perform(patch("/admin/reservations/" + pending.getId())
+        mockMvc.perform(patch("/api/v1//admin/reservations/" + pending.getId())
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
@@ -368,7 +368,7 @@ class AdminReservationControllerTest {
         // 이미 확정된 예약에 대해 확정 요청 시 409 CONFLICT
         Reservation confirmed = reservationRepository.findById(user6.getId()).get();
 
-        mockMvc.perform(patch("/admin/reservations/" + confirmed.getId())
+        mockMvc.perform(patch("/api/v1//admin/reservations/" + confirmed.getId())
                         .with(csrf()))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("이미 확정된 예약입니다."));
@@ -381,7 +381,7 @@ class AdminReservationControllerTest {
         Reservation cancelPending = reservationRepository.findById(user7.getId()).get();
         cancelPending.requestCancel();
 
-        mockMvc.perform(patch("/admin/reservations/" + cancelPending.getId())
+        mockMvc.perform(patch("/api/v1//admin/reservations/" + cancelPending.getId())
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("유효하지 않은 예약 상태입니다."));
@@ -389,7 +389,7 @@ class AdminReservationControllerTest {
         Reservation cancelConfirmed = reservationRepository.findById(user8.getId()).get();
         cancelConfirmed.cancelConfirm();
 
-        mockMvc.perform(patch("/admin/reservations/" + cancelConfirmed.getId())
+        mockMvc.perform(patch("/api/v1//admin/reservations/" + cancelConfirmed.getId())
                         .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("유효하지 않은 예약 상태입니다."));
