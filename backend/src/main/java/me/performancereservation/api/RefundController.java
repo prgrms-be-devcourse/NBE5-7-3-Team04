@@ -26,12 +26,10 @@ public class RefundController {
 
     /*--- USER 요청에 대응 ---*/
     /// 본인 id와 일치하는 모든 환불내역 리스트 반환
-    @GetMapping("/me/{userId}")
+    @GetMapping("/me")
     public ResponseEntity<Page<RefundDetailResponse>> getAllRefundDetailsWithUserId(
             @AuthenticationPrincipal CustomOAuth2User authentication,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    // TODO: 나중에 로그인 구현 후 security로 userid 받아오는 방식으로 수정
-    //      Long userId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
 
         Long userId = authentication.getUser().getId();
 
