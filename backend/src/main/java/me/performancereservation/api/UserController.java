@@ -8,6 +8,7 @@ import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,5 +24,11 @@ public class UserController {
     public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal CustomOAuth2User principal) {
         User user = principal.getUser();
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
+    }
+
+    @PostMapping("/manager-request")
+    public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal) {
+        userService.submitManagerRequest(principal);
+        return ResponseEntity.noContent().build();
     }
 }
