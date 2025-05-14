@@ -45,15 +45,15 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     AND p.status = 'CONFIRMED'
     AND (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
     AND (:venue IS NULL OR LOWER(p.venue) LIKE LOWER(CONCAT('%', :venue, '%')))
-    AND (:start IS NULL OR p.performanceDate >= :startDate)
-    AND (:end IS NULL OR p.performanceDate <= :endDate)
+    AND (:start IS NULL OR p.performanceDate >= :start)
+    AND (:end IS NULL OR p.performanceDate <= :end)
     ORDER BY p.performanceDate DESC
 """)
     Page<Performance> searchAvailablePerformances(
             @Param("title") String title,
             @Param("venue") String venue,
-            @Param("startDate") LocalDateTime start,
-            @Param("endDate") LocalDateTime end,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
             Pageable pageable
     );
 
@@ -76,8 +76,8 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     AND (:status IS NULL OR p.status = :status)
     AND (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
     AND (:venue IS NULL OR LOWER(p.venue) LIKE LOWER(CONCAT('%', :venue, '%')))
-    AND (:start IS NULL OR p.performanceDate >= :startDate)
-    AND (:end IS NULL OR p.performanceDate <= :endDate)
+    AND (:start IS NULL OR p.performanceDate >= :start)
+    AND (:end IS NULL OR p.performanceDate <= :end)
     ORDER BY p.performanceDate DESC
 """)
     Page<Performance> searchManagerPerformances(
@@ -85,8 +85,8 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
             @Param("status") PerformanceStatus status,
             @Param("title") String title,
             @Param("venue") String venue,
-            @Param("startDate") LocalDateTime start,
-            @Param("endDate") LocalDateTime end,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
             Pageable pageable
     );
 }
