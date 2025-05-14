@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class UserSecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtTokenProvider jwtTokenProvider;
@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final JwtExceptionHandlerFilter jwtExceptionHandlerFilter;
 
     //비밀번호 암호화용 PasswordEncoder 빈 등록 : 소셜로그인만 써도 확장성/관례상 등록해주기!!
-    @Bean
+    @Bean(name = "userPasswordEncoder")
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

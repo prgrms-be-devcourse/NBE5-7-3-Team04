@@ -5,6 +5,7 @@ import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.Role;
 import me.performancereservation.domain.user.repository.UserRepository;
 import me.performancereservation.global.exception.ErrorCode;
+import me.performancereservation.domain.auth.service.AuthService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
