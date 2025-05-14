@@ -87,7 +87,8 @@ class PerformanceServiceTest {
                 .price(120000)
                 .totalSeats(2000)
                 .category(PerformanceCategory.OPERA)
-                .performanceDate(LocalDateTime.of(2025, 12, 13, 0, 0))
+                .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
+                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
                 .description("한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!")
                 .fileId(FILE_ID1)
                 .managerId(MANAGER_ID)
@@ -101,7 +102,8 @@ class PerformanceServiceTest {
                 .price(5000)
                 .totalSeats(1000)
                 .category(PerformanceCategory.SINGING)
-                .performanceDate(LocalDateTime.of(2025, 5, 30, 0, 0))
+                .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
+                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
                 .description("--")
                 .fileId(FILE_ID2)
                 .managerId(MANAGER_ID)
@@ -115,7 +117,8 @@ class PerformanceServiceTest {
                 .price(77000)
                 .totalSeats(500)
                 .category(PerformanceCategory.SINGING)
-                .performanceDate(LocalDateTime.of(2025, 6, 1, 0, 0))
+                .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
+                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
                 .description("여름의 초입, LG아트센터 서울, U+ 스테이지에 피어나는 음악섬")
                 .fileId(FILE_ID3)
                 .managerId(MANAGER_ID)
@@ -206,6 +209,7 @@ class PerformanceServiceTest {
                 2000,
                 "OPERA",
                 LocalDateTime.of(2025,12,13, 0,0),
+                LocalDateTime.of(2025,12,14,0,0),
                 "한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!",
                 FILE_ID1
         );

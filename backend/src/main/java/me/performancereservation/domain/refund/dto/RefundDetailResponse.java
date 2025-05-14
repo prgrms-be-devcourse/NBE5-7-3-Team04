@@ -28,7 +28,7 @@ public record RefundDetailResponse(
         String venue, // 공연 장소
         Integer price, // 가격
         String category, // 공연 분류
-        LocalDateTime performance_date, // 공연 일시
+        LocalDateTime performanceDate, // 공연 일시
         String description // 설명
 ) {
     public static RefundDetailResponse fromEntity(Refund refund, Integer reservationQuantity, LocalDateTime startTime, Performance performance) {
@@ -49,7 +49,7 @@ public record RefundDetailResponse(
                 performance.getVenue(),
                 performance.getPrice(),
                 performance.getCategory().toString(),
-                performance.getPerformanceDate(),
+                performance.getStartDate(),
                 performance.getDescription()
         );
     }

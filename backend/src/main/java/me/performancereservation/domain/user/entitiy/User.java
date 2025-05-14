@@ -17,10 +17,8 @@ public class User extends BaseEntity {
 
     private String email; // 유저 Email
 
-    @Column(nullable = true)
     private String name; // 유저 이름
 
-    @Column(nullable = true)
     private String phoneNumber; // 휴대폰번호
 
     @Enumerated(EnumType.STRING)
@@ -43,5 +41,9 @@ public class User extends BaseEntity {
         this.email = email;
     }
 
+
+    public void promoteManager() {
+        this.role = Role.MANAGER;
+    }
 }
 
