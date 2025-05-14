@@ -294,4 +294,98 @@ class RedisReservationBulkCancelServiceTest {
         verify(redisReservationCancelExecutor).executeForPerformanceCancel(confirmedReservation);
         verify(redisReservationCancelExecutor, never()).executeForPerformanceCancel(canceledReservation);
     }
+
+    @Test
+    @DisplayName("특정 일정의 모든 예약 일괄 취소 성공")
+    void cancelAllByScheduleId_Success() {
+        // given
+        Long scheduleId = 1L;
+        
+        // 취소할 예약들
+        Reservation pendingReservation = Reservation.builder()
+            .id(1L)
+            .scheduleId(scheduleId)
+            .userId(1L)
+            .quantity(2)
+            .status(ReservationStatus.PAYMENTS_PENDING)
+            .build();
+            
+        Reservation confirmedReservation = Reservation.builder()
+            .id(2L)
+            .scheduleId(scheduleId)
+            .userId(2L)
+            .quantity(1)
+            .status(ReservationStatus.PAYMENTS_CONFIRMED)
+            .build();
+
+        List<Reservation> reservations = Arrays.asList(pendingReservation, confirmedReservation);
+
+        // when
+        when(reservationRepository.findAllByScheduleId(scheduleId))
+            .thenReturn(reservations);
+
+        bulkCancelService.cancelAllByScheduleId(scheduleId);
+
+        // then
+        verify(reservationRepository).findAllByScheduleId(scheduleId);
+        verify(redisSeatService).deleteSeatStock(scheduleId);
+        verify(redisReservationCancelExecutor, times(2)).executeForPerformanceCancel(any(Reservation.class));
+        verify(redisReservationCancelExecutor).executeForPerformanceCancel(pendingReservation);
+        verify(redisReservationCancelExecutor).executeForPerformanceCancel(confirmedReservation);
+    }
+
+    @Test
+    @DisplayName("특정 일정에 취소할 예약이 없는 경우")
+    void cancelAllByScheduleId_NoReservations() {
+        // given
+        Long scheduleId = 1L;
+
+        // when
+        when(reservationRepository.findAllByScheduleId(scheduleId))
+            .thenReturn(Collections.emptyList());
+
+        bulkCancelService.cancelAllByScheduleId(scheduleId);
+
+        // then
+        verify(reservationRepository).findAllByScheduleId(scheduleId);
+        verify(redisSeatService, never()).deleteSeatStock(anyLong());
+        verify(redisReservationCancelExecutor, never()).executeForPerformanceCancel(any(Reservation.class));
+    }
+
+    @Test
+    @DisplayName("특정 일정에 이미 취소된 예약만 있는 경우")
+    void cancelAllByScheduleId_AlreadyCanceled() {
+        // given
+        Long scheduleId = 1L;
+        
+        // 이미 취소된 예약들
+        Reservation canceledReservation1 = Reservation.builder()
+            .id(1L)
+            .scheduleId(scheduleId)
+            .userId(1L)
+            .quantity(2)
+            .status(ReservationStatus.CANCEL_CONFIRMED)
+            .build();
+
+        Reservation canceledReservation2 = Reservation.builder()
+            .id(2L)
+            .scheduleId(scheduleId)
+            .userId(2L)
+            .quantity(1)
+            .status(ReservationStatus.CANCEL_PENDING)
+            .build();
+
+        List<Reservation> reservations = Arrays.asList(canceledReservation1, canceledReservation2);
+
+        // when
+        when(reservationRepository.findAllByScheduleId(scheduleId))
+            .thenReturn(reservations);
+
+        bulkCancelService.cancelAllByScheduleId(scheduleId);
+
+        // then
+        verify(reservationRepository).findAllByScheduleId(scheduleId);
+        verify(redisSeatService).deleteSeatStock(scheduleId);
+        verify(redisReservationCancelExecutor, never()).executeForPerformanceCancel(any(Reservation.class));
+    }
 } 
