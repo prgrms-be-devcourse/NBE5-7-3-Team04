@@ -24,6 +24,13 @@ public class UserController {
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
     }
 
+
+    @PostMapping("/manager-request")
+    public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal) {
+        userService.submitManagerRequest(principal.getUser().getId());
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/onboarding")
     public ResponseEntity<UserResponse> onboard(@AuthenticationPrincipal CustomOAuth2User principal,
                                                 @RequestBody UserOnboardingRequest request) {
@@ -31,3 +38,4 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 }
+
