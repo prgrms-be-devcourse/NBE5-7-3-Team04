@@ -8,12 +8,14 @@ import me.performancereservation.domain.reservation.service.redis.RedisReservati
 import me.performancereservation.domain.reservation.service.redis.RedisSeatReservationService;
 import me.performancereservation.domain.reservation.dto.ReservationRequest;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
+import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,19 +28,13 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationResponse> reserve(
-            @RequestBody @Valid ReservationRequest request
-//            ,@AuthenticationPrincipal JwtAuthentication authentication TODO Authentication 구현 끝나면 주석 해제할 예정
+            @RequestBody @Valid ReservationRequest request,
+            @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
-//       TODO Authentication 구현 끝나면 주석 해제할 예정
-//        ReservationResponse result = reservationService.reserve(
-//                request.scheduleId(),
-//                authentication.userId(),
-//                request.quantity()
-//        );
 
         ReservationResponse result = seatReservationService.reserve(
                 request.scheduleId(),
-                request.userId(),
+                authentication.getUser().getId(),
                 request.quantity()
         );
 
@@ -47,13 +43,12 @@ public class ReservationController {
 
     @PostMapping("/{reservationId}/cancel")
     public ResponseEntity<Void> cancel(
-            @PathVariable Long reservationId
-            // @AuthenticationPrincipal Authentication authentication // TODO Authentication 머지 되면 수정 예정
+            @PathVariable Long reservationId,
+             @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
         seatReservationService.cancel(
                 reservationId,
-                1L // TODO 수정 예정
-                // authentication.userId() // TODO Authentication 머지 되면 수정 예정
+                authentication.getUser().getId()
         ) ;
 
         return ResponseEntity.noContent().build();
@@ -61,11 +56,10 @@ public class ReservationController {
 
     @GetMapping("/me")
     public ResponseEntity<Page<ReservationPageResponse>> getUserReservations(
-//            @AuthenticationPrincipal JwtAuthentication authentication,
+            @AuthenticationPrincipal CustomOAuth2User authentication,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<ReservationPageResponse> result = reservationQueryService.getAllByUserId(
-//                authentication.userId(), // TODO Authentication 머지 되면 수정 예정
-                1L, // TODO 수정 예정
+                authentication.getUser().getId(),
                 pageable
         );
 
@@ -74,13 +68,12 @@ public class ReservationController {
 
     @GetMapping("/me/{reservationId}")
     public ResponseEntity<ReservationResponse> getReservationById(
-//            @AuthenticationPrincipal JwtAuthentication authentication,
+            @AuthenticationPrincipal CustomOAuth2User authentication,
             @PathVariable Long reservationId
     ) {
         return ResponseEntity.ok(reservationQueryService.getByReservationId(
                 reservationId,
-//                authentication.userId() // TODO Authentication 머지 되면 수정 예정
-                1L // TODO 수정 예정
+                authentication.getUser().getId()
         ));
     }
 
