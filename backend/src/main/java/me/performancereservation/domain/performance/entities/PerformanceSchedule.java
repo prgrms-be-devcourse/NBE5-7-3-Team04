@@ -39,10 +39,14 @@ public class PerformanceSchedule extends BaseEntity {
     }
 
     public void cancel() {
-        if (this.canceled) {
-            throw ErrorCode.SCHEDULE_ALREADY_CANCELED.domainException("이미 취소된 회차입니다. id = " + this.id);
-        }
         this.canceled = true;
+    }
+
+    public void decreaseRemainingSeats(int quantity) {
+        if(this.remainingSeats < quantity) {
+            throw ErrorCode.NO_REMAINING_SEATS.domainException("잔여 좌석이 부족합니다. remainingSeats = " + this.remainingSeats);
+        }
+        this.remainingSeats -= quantity;
     }
 
     public boolean hasPermission(Long performanceId) {
