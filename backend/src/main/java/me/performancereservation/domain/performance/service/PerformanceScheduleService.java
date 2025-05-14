@@ -5,6 +5,7 @@ import me.performancereservation.domain.performance.event.PerformanceScheduleCre
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleRequest;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
+import me.performancereservation.domain.performance.event.ScheduleCanceledEvent;
 import me.performancereservation.domain.performance.mapper.PerformanceScheduleMapper;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
@@ -82,7 +83,7 @@ public class PerformanceScheduleService {
 
         schedule.cancel();
         // 예약 취소 이벤트 호출 처리
-//        eventPublisher.publishEvent(new ScheduleCanceledEvent(schedule.getId()));
+        eventPublisher.publishEvent(new ScheduleCanceledEvent(schedule.getId()));
         return schedule.getId();
     }
 }

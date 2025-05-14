@@ -14,6 +14,7 @@ import me.performancereservation.domain.performance.dto.performanceschedule.Perf
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
+import me.performancereservation.domain.performance.event.PerformanceCanceledEvent;
 import me.performancereservation.domain.performance.mapper.PerformanceMapper;
 import me.performancereservation.domain.performance.mapper.PerformanceScheduleMapper;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
@@ -97,7 +98,7 @@ public class PerformanceService {
                 .forEach(PerformanceSchedule::cancel);
 
         // 예약 취소 이벤트 호출
-//        eventPublisher.publishEvent(new PerformanceCanceledEvent(performance.getId()));
+        eventPublisher.publishEvent(new PerformanceCanceledEvent(performance.getId()));
 
         return performance.getId();
     }
