@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  */
 public record ReservationPageResponse(
         // Reservation
-        Long reservationId, // 예약 ID
+        long reservationId, // 예약 ID
         int quantity, // 티켓 수량
         ReservationStatus status, // 예약 상태
         LocalDateTime createdAt, // 예약 일시
