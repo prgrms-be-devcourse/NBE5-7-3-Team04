@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * @param bookmarked //북마크 되어있는지 여부
  */
 public record BookmarkedPerformancePageResponse(
-        Long id,
+        long id,
         String fileUrl,
         String title,
         int price,
