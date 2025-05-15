@@ -10,6 +10,7 @@ import me.performancereservation.global.security.oauth.handler.OAuth2SuccessHand
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -25,14 +26,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class UserSecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final JwtTokenProvider jwtTokenProvider;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionHandlerFilter jwtExceptionHandlerFilter;
 
-    // 비밀번호 암호화용 PasswordEncoder 빈 등록 : 소셜로그인만 써도 확장성/관례상 등록해주기!!
-    // AdminSecurityConfig에서 등록한 passwordEncoder bean을 주입받아 사용
-    private final PasswordEncoder passwordEncoder;
 
     //SecurityFilterChain : 인증/인가, OAuth2, JWT, CORS, CSRF 등 모든 정책을 한 곳에서 관리
     @Bean
@@ -42,8 +39,8 @@ public class UserSecurityConfig {
                 // token 사용 -> csrf 필요 없음
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .cors(cors ->{})
+                .formLogin(AbstractHttpConfigurer::disable) //폼로그인 끄기
+                .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**","swagger-ui/index.html#/","/v3/api-docs/**",
