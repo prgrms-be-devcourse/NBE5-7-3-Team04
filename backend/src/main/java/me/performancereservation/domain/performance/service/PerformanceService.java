@@ -2,6 +2,7 @@ package me.performancereservation.domain.performance.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.domain.bookmark.BookmarkRepository;
 import me.performancereservation.domain.file.File;
 import me.performancereservation.domain.file.FileRepository;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceCreateRequest;
@@ -13,6 +14,7 @@ import me.performancereservation.domain.performance.dto.performance.response.Per
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
+import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
 import me.performancereservation.domain.performance.event.PerformanceCanceledEvent;
 import me.performancereservation.domain.performance.mapper.PerformanceMapper;
@@ -39,6 +41,7 @@ public class PerformanceService {
 
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
+    private final BookmarkRepository bookmarkRepository;
     private final FileRepository fileRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -134,7 +137,7 @@ public class PerformanceService {
      * @return PerformanceDetailResponse
      */
     @Transactional(readOnly = true)
-    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
+    public PerformanceDetailResponse getPerformanceDetail(Long performanceId, Long userId) {
         // 공연 조회
         Performance performance = performanceRepository.findById(performanceId)
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
@@ -143,15 +146,19 @@ public class PerformanceService {
         List<PerformanceSchedule> schedules = performanceScheduleRepository
                 .findByPerformanceId(performance.getId());
 
+        boolean bookmarked = false;
+        if(userId != null) {
+            bookmarked = bookmarkRepository.existsByUserIdAndPerformanceId(userId, performanceId);
+        }
         // 파일이 존재하는지
         if (!performance.hasFile()) {
-            return PerformanceMapper.toDetailResponse(performance, null, schedules);
+            return PerformanceMapper.toDetailResponse(performance, null, bookmarked, schedules);
         } else {
             // 파일이 존재한다면 조회
             File file = fileRepository.findById(performance.getFileId())
                     .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
 
-            return PerformanceMapper.toDetailResponse(performance, file.getKey(), schedules);
+            return PerformanceMapper.toDetailResponse(performance, file.getKey(), bookmarked, schedules);
         }
     }
 
@@ -226,8 +233,9 @@ public class PerformanceService {
                                                             String venue,
                                                             LocalDateTime start,
                                                             LocalDateTime end,
+                                                            PerformanceCategory category,
                                                             Pageable pageable) {
-        Page<Performance> performances = performanceRepository.searchAvailablePerformances(title, venue, start, end, pageable);
+        Page<Performance> performances = performanceRepository.searchAvailablePerformances(title, venue, start, end, category, pageable);
 
         List<Long> fileIds = getFileIdList(performances);
 
@@ -264,6 +272,18 @@ public class PerformanceService {
 
         return performances.map(performance ->
                 PerformanceMapper.toManagerListResponse(performance, fileUrlMap.get(performance.getFileId())));
+    }
+
+    /** 매일 00시 정각에 스케줄러에 의해 실행되는 공연 종료 처리 메서드
+     *
+     */
+    @Transactional
+    public void completeEndedPerformances() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Performance> endedPerformances = performanceRepository.findByEndDateBeforeAndStatus(now, PerformanceStatus.CONFIRMED);
+
+        endedPerformances.forEach(Performance::completePerformance);
+
     }
 
     // 파일 Url 맵 변환 메서드

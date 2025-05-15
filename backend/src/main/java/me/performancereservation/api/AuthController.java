@@ -58,7 +58,7 @@ public class AuthController {
     }
 
     //가입된 유저의 테스트용 jwt 발급
-    @GetMapping("token-test")
+    @GetMapping("/token-test")
     public ResponseEntity<String> getTestToken(@AuthenticationPrincipal CustomOAuth2User principal) {
         User user = principal.getUser();
         String jwt = jwtTokenProvider.createAccessToken(user);
