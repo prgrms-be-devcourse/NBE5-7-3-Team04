@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.admin.dto.AdminReservationPageResponse;
 import me.performancereservation.domain.admin.service.AdminReservationService;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
+import me.performancereservation.domain.reservation.service.redis.RedisReservationBulkCancelService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 public class AdminReservationController {
 
     private final AdminReservationService adminReservationService;
+    private final RedisReservationBulkCancelService bulkCancelService;
 
     /** 예약 목록 조회 매핑
      *
@@ -67,4 +69,15 @@ public class AdminReservationController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * 공연 ID 기준으로 예약 일괄 취소를 수동으로 수행
+     *
+     * @param performanceId 공연 id
+     */
+    @PostMapping("/cancel/{performanceId}")
+    public ResponseEntity<Void> bulkCancelByPerformanceId(@PathVariable Long performanceId) {
+        bulkCancelService.cancelAllByPerformanceId(performanceId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

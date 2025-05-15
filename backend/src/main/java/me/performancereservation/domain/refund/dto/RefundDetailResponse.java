@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 
 public record RefundDetailResponse(
         // Refund에서 데이터 전달
-        Long refundId,
-        Long userId,
-        Long reservationId,
+        long refundId,
+        long userId,
+        long reservationId,
         String account,
         String bank,
         String depositorName,

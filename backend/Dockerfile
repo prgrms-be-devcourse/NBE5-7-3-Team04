@@ -14,6 +14,13 @@ RUN gradle build -x test --parallel
 FROM openjdk:21-jdk-slim
 WORKDIR /app
 
+# 불필요한 네트워크 툴 제거 (보안 강화)
+RUN apt-get update && \
+    apt-get remove -y curl wget || true && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # 빌더 이미지에서 jar 파일만 복사
 COPY --from=builder /build/build/libs/*-SNAPSHOT.jar ./app.jar
 

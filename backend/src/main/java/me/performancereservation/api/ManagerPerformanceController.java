@@ -6,6 +6,7 @@ import me.performancereservation.domain.performance.dto.performance.request.Perf
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerDetailResponse;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerPageResponse;
+import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleRequest;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
 import me.performancereservation.domain.performance.service.PerformanceScheduleService;
 import me.performancereservation.domain.performance.service.PerformanceService;
@@ -81,6 +82,21 @@ public class ManagerPerformanceController {
         Long managerId = principal.getUser().getId();
         Long performanceId = performanceService.createPerformance(request, managerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(performanceId);
+    }
+
+    /** 공연자 회차 등록 호출
+     *
+     * @param performanceId
+     * @param request
+     * @return 201 + scheduleId
+     */
+    @PostMapping("/performances/{performanceId}/register")
+    public ResponseEntity<Long> registerPerformanceSchedule(@PathVariable Long performanceId,
+                                                            @RequestBody PerformanceScheduleRequest request,
+                                                            @AuthenticationPrincipal CustomOAuth2User principal) {
+        Long managerId = principal.getUser().getId();
+        Long scheduleId = performanceScheduleService.createPerformanceSchedule(performanceId, request, managerId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(scheduleId);
     }
 
     /** 공연 수정 호출
