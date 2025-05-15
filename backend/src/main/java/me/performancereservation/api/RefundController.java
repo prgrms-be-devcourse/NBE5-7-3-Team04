@@ -73,15 +73,4 @@ public class RefundController {
         return ResponseEntity.noContent().build();
     }
 
-    ///  예: refunds/3?status=pending
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateRefundStatus(
-            @PathVariable Long id,
-            @RequestParam String status) {
-        if (status == null) {
-            throw ErrorCode.INVALID_REFUND_STATUS.domainException("변경할 환불 상태를 입력하지 않았습니다.");
-        }
-        refundService.updateRefundStatus(id, status);
-        return ResponseEntity.ok().build();
-    }
 }
