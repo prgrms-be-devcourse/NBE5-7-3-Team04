@@ -67,11 +67,13 @@ public enum ErrorCode {
     REFUND_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 환불ID입니다."),
     DUPLICATE_REFUND(HttpStatus.CONFLICT, "이미 존재하는 환불내역입니다."),
     INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 환불 상태입니다."),
+    UNAUTHORIZED_REFUND_UPDATE(HttpStatus.UNAUTHORIZED, "본인의 환불 내역만 변경할 수 있습니다."),
 
     // 정산 관련
     SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 정산입니다."),
     INVALID_SETTLEMENT_REQUEST(HttpStatus.BAD_REQUEST, "공연 종료 후 7일이 지나야 정산 신청이 가능합니다."),
     INVALID_SETTLEMENT_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 정산 상태입니다."),
+    UNAUTHORIZED_SETTLEMENT_UPDATE(HttpStatus.UNAUTHORIZED, "본인의 정산 내역만 변경할 수 있습니다."),
 
     // 리뷰 관련
     DUPLICATE_REVIEW(HttpStatus.CONFLICT,"이미 리뷰를 작성하셨습니다."),
