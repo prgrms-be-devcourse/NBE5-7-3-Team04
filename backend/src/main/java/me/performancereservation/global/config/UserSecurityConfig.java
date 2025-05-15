@@ -56,8 +56,8 @@ public class UserSecurityConfig {
                         .requestMatchers(
                                 "/api/v1/users/me", "/api/v1/users/manager-request", "/api/v1/users/onboarding",
                                 "/api/v1/reservations/**", "/api/v1/reviews/**", "/api/v1/bookmark/**", "/api/v1/files/**",
-                                "/api/v1/settlements/me", "/api/v1/refunds/me"
-                        ).authenticated()
+                                "/api/v1/settlements/me", "/api/v1/refunds/me", "/api/v1/managers/**"
+                 ).authenticated()
                         .anyRequest().permitAll() //나머지 공연 검색 등
                 )
                 .oauth2Login(oauth -> oauth
@@ -75,7 +75,7 @@ public class UserSecurityConfig {
                             //CustomAuthenticationEntryPoint로 정리해주는 방법도 있는데 나중에 리펙토링 시 해보겠습니다.
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
-                            response.getWriter().write("{\"error\": \"Unauthorized or Invalid Token\"}");
+                            response.getWriter().write("{\"error\": \"로그인을 해주세요.\"}");
                         })
                 );
         return http.build();
