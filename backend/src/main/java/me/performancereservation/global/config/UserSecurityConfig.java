@@ -67,12 +67,17 @@ public class UserSecurityConfig {
                         .successHandler(oAuth2SuccessHandler)
                 )
                 //JWT 인증 필터는 UsernamePasswordAuthenticationFilter 앞에
+                //토큰을 주입하는 역할. 인증에 성공하면 컨트롤러에서 사용 가능
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 //예외처리 필터는 JWT 인증 필터 앞에
+                //발급된 토큰의 인증 과정에서 유효한지 검사(만료, 변조 등등)
+                //안에서 try-catch문으로 확인하고 27번 줄에서 그 외의 예외인 경우 catch하지 않고 throws ServletException, IOException
+                //try-catch문으로 작성할 수도 있으며 catch로 오류를 잡을 경우 이후 exceptionHandling 작동 x, 정상 빌드로 넘어감
+                //throw 로 예외 발생 시 exceptionHandling으로 넘어가서 작동
                 .addFilterBefore(jwtExceptionHandlerFilter, JwtAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            //CustomAuthenticationEntryPoint로 정리해주는 방법도 있는데 나중에 리펙토링 시 해보겠습니다.
+                            //CustomAuthenticationEntryPoint로 보통 정리하지만 리팩토링 시 적용하겠습니다.
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\": \"로그인을 해주세요.\"}");
