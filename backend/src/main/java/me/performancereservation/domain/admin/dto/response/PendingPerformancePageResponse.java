@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record PendingPerformancePageResponse(
-        Long id,
+        long id,
         String fileUrl,
         String performanceManagerName,
         String title,

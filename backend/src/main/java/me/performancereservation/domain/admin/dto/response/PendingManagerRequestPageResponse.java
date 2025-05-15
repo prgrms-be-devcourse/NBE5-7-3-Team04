@@ -1,8 +1,8 @@
 package me.performancereservation.domain.admin.dto.response;
 
 public record PendingManagerRequestPageResponse(
-        Long id,
-        Long userId,
+        long id,
+        long userId,
         String userName,
         String phoneNumber
 ) {
