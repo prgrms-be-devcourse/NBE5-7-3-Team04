@@ -13,11 +13,11 @@ public class Refund extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 환불요청정보 id
+    private long id; // 환불요청정보 id
 
-    private Long reservationId; // (FK) 환불을 요청하는 예약 id
+    private long reservationId; // (FK) 환불을 요청하는 예약 id
 
-    private Long userId; // (FK) 환불을 요청한 유저의 id
+    private long userId; // (FK) 환불을 요청한 유저의 id
 
     private String account; // 환불 받을 계좌번호
 

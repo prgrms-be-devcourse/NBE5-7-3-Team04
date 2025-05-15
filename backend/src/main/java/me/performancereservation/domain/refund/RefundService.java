@@ -148,7 +148,7 @@ public class RefundService {
         List<Refund> foundRefunds = refundRepository.findAll();
         return foundRefunds.stream()
                 .map(RefundResponse::fromEntity) //RefundResponse 내부의 fromEntity 메서드로 각각 변환
-                .collect(Collectors.toList()); // stream-> list로 변환
+                .toList(); // stream-> list로 변환
     }
 
     /// 전체 refund 목록 상태별 조회 (간단한 내용)
@@ -157,7 +157,7 @@ public class RefundService {
         List<Refund> foundRefunds = refundRepository.findRefundByStatus(status);
         return foundRefunds.stream()
                 .map(RefundResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

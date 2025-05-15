@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.refund.RefundService;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
 import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
-import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -4,9 +4,9 @@ import me.performancereservation.domain.refund.Refund;
 import me.performancereservation.domain.refund.enums.RefundStatus;
 
 public record RefundResponse(
-    Long refundId, // 환불 id
-    Long reservationId, // 예약 id
-    Long userId, // 사용자 id
+    long refundId, // 환불 id
+    long reservationId, // 예약 id
+    long userId, // 사용자 id
     String account, // 계좌번호
     String bank, // 환불 상태
     String depositorName,

@@ -37,7 +37,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -84,7 +83,8 @@ class AdminPerformanceServiceTest {
                 .price(10000)
                 .totalSeats(100)
                 .category(PerformanceCategory.OPERA)
-                .performanceDate(LocalDateTime.now().plusDays(7))
+                .startDate(LocalDateTime.now().plusDays(7))
+                .endDate(LocalDateTime.now().plusDays(7))
                 .description("테스트 설명")
                 .status(PerformanceStatus.PENDING)
                 .build();
@@ -96,7 +96,7 @@ class AdminPerformanceServiceTest {
                 .startTime(LocalDateTime.now().plusDays(7))
                 .endTime(LocalDateTime.now().plusDays(7).plusHours(2))
                 .remainingSeats(100)
-                .is_canceled(false)
+                .canceled(false)
                 .build();
 
         // 파일 생성
@@ -130,6 +130,7 @@ class AdminPerformanceServiceTest {
                 10000,
                 100,
                 PerformanceCategory.OPERA,
+                LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(7),
                 "테스트 설명",
                 List.of(scheduleResponse)
