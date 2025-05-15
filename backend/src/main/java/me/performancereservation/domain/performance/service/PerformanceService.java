@@ -282,7 +282,7 @@ public class PerformanceService {
      */
     @Transactional
     public void completeEndedPerformances() {
-        // 공연 취소 상태로 변경
+        // 공연 완료 상태로 변경
         LocalDateTime now = LocalDateTime.now();
         List<Performance> endedPerformances = performanceRepository.findByEndDateBeforeAndStatus(now, PerformanceStatus.CONFIRMED);
 
