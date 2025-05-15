@@ -31,7 +31,6 @@ public class ReviewService {
     private final PerformanceRepository performanceRepository;
     private final ReservationRepository reservationRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
-    private Review review;
 
 
     /**
@@ -44,9 +43,9 @@ public class ReviewService {
 
         checkExistPerformance(request.performanceId());
         checkExistSchedule(request.performanceId(), request.scheduledId());
-        checkValidateUser(userId, request.performanceId());
+        checkValidateUser(userId, request.scheduledId());
 
-        reviewMapper.toEntity(userId, request);
+        Review review = reviewMapper.toEntity(userId, request);
         reviewRepository.save(review);
     }
 
@@ -74,7 +73,7 @@ public class ReviewService {
     }
 
     private void checkExistSchedule(Long performanceId, Long scheduleId) {
-        boolean exists = performanceScheduleRepository.existsByIdAndPerformanceId(performanceId, scheduleId);
+        boolean exists = performanceScheduleRepository.existsByIdAndPerformanceId(scheduleId, performanceId);
         if (!exists) {
             throw ErrorCode.INVALID_SCHEDULE.domainException("해당 공연에 속하지 않는 회차입니다.");
         }

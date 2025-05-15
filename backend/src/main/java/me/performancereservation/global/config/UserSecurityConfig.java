@@ -1,5 +1,6 @@
 package me.performancereservation.global.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.global.security.jwt.JwtAuthenticationFilter;
 import me.performancereservation.global.security.jwt.JwtExceptionHandlerFilter;
@@ -41,16 +42,23 @@ public class UserSecurityConfig {
                 // token 사용 -> csrf 필요 없음
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable) //폼로그인 끄기
+                .formLogin(AbstractHttpConfigurer::disable)
                 .cors(cors ->{})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**","swagger-ui/index.html#/","/v3/api-docs/**", "/swagger-resources/**").permitAll()
-                        .requestMatchers("/api/v1/users/sign-in","/api/v1/users/sign-up","/api/v1/auth/reissue").permitAll() //인증 없이 접근 허용(사이트 구경은 가능)
-                        .requestMatchers("/api/v1/reservation/**").authenticated() //JWT 인증 필요 : 예약은 회원만..
-                        .requestMatchers( "/oauth2/**","/oauth2/authorize/**", "/login/oauth2/code/**").permitAll()
-                        .anyRequest().permitAll() //테스트용으로 일단 전부 허용 이후 수정!!
-                        //.anyRequest().authenticated()
+                        .requestMatchers("/swagger-ui/**","swagger-ui/index.html#/","/v3/api-docs/**",
+                                "/api/v1/health-check", "/swagger-resources/**").permitAll()
+                        //공개되는 서비스
+                        .requestMatchers("/api/v1/users/sign-in","/api/v1/users/sign-up","/api/v1/auth/reissue",
+                                "/api/v1/auth/reissue", "/api/v1/auth/login", "/api/v1/auth/signup-test", "/api/v1/auth/token-test",
+                                "/oauth2/**", "/login/oauth2/code/**").permitAll()
+                        //인증이 필요한
+                        .requestMatchers(
+                                "/api/v1/users/me", "/api/v1/users/manager-request", "/api/v1/users/onboarding",
+                                "/api/v1/reservations/**", "/api/v1/reviews/**", "/api/v1/bookmark/**", "/api/v1/files/**",
+                                "/api/v1/settlements/me", "/api/v1/refunds/me"
+                        ).authenticated()
+                        .anyRequest().permitAll() //나머지 공연 검색 등
                 )
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
@@ -62,7 +70,14 @@ public class UserSecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 //예외처리 필터는 JWT 인증 필터 앞에
                 .addFilterBefore(jwtExceptionHandlerFilter, JwtAuthenticationFilter.class)
-        ;
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            //CustomAuthenticationEntryPoint로 정리해주는 방법도 있는데 나중에 리펙토링 시 해보겠습니다.
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Unauthorized or Invalid Token\"}");
+                        })
+                );
         return http.build();
     }
 
