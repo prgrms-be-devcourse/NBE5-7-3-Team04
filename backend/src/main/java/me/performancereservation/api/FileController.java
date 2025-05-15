@@ -19,7 +19,7 @@ public class FileController {
     @PostMapping
     public ResponseEntity<UploadFileResponse> uploadFile(
             @RequestParam("file") MultipartFile file
-    ) throws IOException {
+    ) {
         UploadFileResponse result = fileService.upload(file);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);

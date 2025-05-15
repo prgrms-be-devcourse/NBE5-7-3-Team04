@@ -3,14 +3,17 @@ package me.performancereservation.api;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceDetailResponse;
 import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
+import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.service.PerformanceScheduleService;
 import me.performancereservation.domain.performance.service.PerformanceService;
+import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -42,8 +45,14 @@ public class UserPerformanceController {
      * @return 200 + performanceResponse
      */
     @GetMapping("/performances/{performanceId}")
-    public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId) {
-        PerformanceDetailResponse performanceResponse = performanceService.getPerformanceDetail(performanceId);
+    public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId,
+                                                                          @AuthenticationPrincipal CustomOAuth2User principal) {
+        Long userId = null;
+        if(principal != null) {
+            userId = principal.getUser().getId();
+        }
+
+        PerformanceDetailResponse performanceResponse = performanceService.getPerformanceDetail(performanceId, userId);
         return ResponseEntity.ok(performanceResponse);
     }
 
@@ -62,9 +71,10 @@ public class UserPerformanceController {
                                                                                @RequestParam(required = false) String venue,
                                                                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
                                                                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+                                                                               @RequestParam(required = false) PerformanceCategory category,
                                                                                Pageable pageable
     ) {
-        Page<PerformancePageResponse> performancePageResponse = performanceService.searchPerformances(title, venue, start, end, pageable);
+        Page<PerformancePageResponse> performancePageResponse = performanceService.searchPerformances(title, venue, start, end, category, pageable);
         return ResponseEntity.ok(performancePageResponse);
     }
 

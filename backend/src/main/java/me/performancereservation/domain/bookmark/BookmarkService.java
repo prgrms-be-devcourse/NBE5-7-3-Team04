@@ -82,7 +82,7 @@ public class BookmarkService {
         // 북마크된 공연 ID 목록 추출
         List<Long> performanceIds = bookmarks.getContent().stream()
                 .map(Bookmark::getPerformanceId)
-                .collect(Collectors.toList());
+                .toList();
 
         // 공연 ID에 해당하는 공연 목록 조회
         List<Performance> performances = performanceRepository.findAllById(performanceIds);
@@ -95,7 +95,7 @@ public class BookmarkService {
         List<Long> fileIds = performances.stream()
                 .map(Performance::getFileId)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
 
         // 파일 ID로 조회한 파일 URL 매핑
         Map<Long, String> fileUrlMap = fileRepository.findAllById(fileIds).stream()
@@ -127,7 +127,6 @@ public class BookmarkService {
                 performance.getStartDate(),
                 performance.getEndDate(),
                 performance.getVenue(),
-                performance.getDescription(),
                 performance.getCategory(),
                 performance.getStatus(),
                 true // 북마크 목록이므로 모두 북마크되어 있음

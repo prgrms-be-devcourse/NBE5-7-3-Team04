@@ -101,4 +101,8 @@ public class Performance extends BaseEntity {
         return this.status == PerformanceStatus.CONFIRMED;
 
     }
+
+    public void completePerformance() {
+        this.status = PerformanceStatus.COMPLETED;
+    }
 }

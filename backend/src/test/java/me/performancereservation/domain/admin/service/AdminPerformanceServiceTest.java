@@ -84,7 +84,7 @@ class AdminPerformanceServiceTest {
                 .totalSeats(100)
                 .category(PerformanceCategory.OPERA)
                 .startDate(LocalDateTime.now().plusDays(7))
-                .endDate(LocalDateTime.now().plusDays(7))
+                .endDate(LocalDateTime.now().plusDays(8))
                 .description("테스트 설명")
                 .status(PerformanceStatus.PENDING)
                 .build();
@@ -131,7 +131,7 @@ class AdminPerformanceServiceTest {
                 100,
                 PerformanceCategory.OPERA,
                 LocalDateTime.now().plusDays(7),
-                LocalDateTime.now().plusDays(7),
+                LocalDateTime.now().plusDays(8),
                 "테스트 설명",
                 List.of(scheduleResponse)
         );
