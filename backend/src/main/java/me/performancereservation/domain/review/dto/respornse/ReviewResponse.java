@@ -1,8 +1,8 @@
 package me.performancereservation.domain.review.dto.respornse;
 
 public record ReviewResponse (
-        Long id,
+        long id,
         String userName,
-        Long scheduledId,
+        long scheduledId,
         String comment
 ){}
