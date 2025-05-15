@@ -45,7 +45,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     JOIN PerformanceSchedule ps ON p.id = ps.performanceId
     WHERE ps.remainingSeats > 0
     AND p.status = 'CONFIRMED'
-    AND (:category IS NULL OR p.status = :category)
+    AND (:category IS NULL OR p.category = :category)
     AND (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
     AND (:venue IS NULL OR LOWER(p.venue) LIKE LOWER(CONCAT('%', :venue, '%')))
     AND (:start IS NULL OR p.endDate >= :start)
