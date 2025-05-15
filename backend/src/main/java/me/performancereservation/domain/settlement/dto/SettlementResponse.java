@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public record SettlementResponse(
         // settlement 내용에서 가져옴
-        Long settlementId, // PK
+        long settlementId, // PK
         Integer totalAmount, // 계산
         LocalDateTime settledAt, // 처음에 null
         String account,
