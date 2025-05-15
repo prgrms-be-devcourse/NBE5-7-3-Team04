@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  * 예약 정보 응답 Dto
  */
 public record ReservationResponse(
-        Long reservationId, // 공연 예약 ID
+        long reservationId, // 공연 예약 ID
         String title, // 공연 제목
         String venue, // 공연 위치
         int quantity, // 티켓 수량

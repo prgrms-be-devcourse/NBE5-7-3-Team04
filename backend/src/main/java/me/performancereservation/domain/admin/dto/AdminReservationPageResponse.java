@@ -17,9 +17,9 @@ import java.time.LocalDateTime;
  * @param createdAt 예약 생성 일시
  */
 public record AdminReservationPageResponse(
-        Long reservationId,
-        Long performanceId,
-        Long performanceScheduleId,
+        long reservationId,
+        long performanceId,
+        long performanceScheduleId,
         String name,
         String title,
         int price,
