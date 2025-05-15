@@ -46,5 +46,5 @@ public interface PerformanceScheduleRepository extends JpaRepository<Performance
     // 공연 아이디로 모든 회차 가져오기
     List<PerformanceSchedule> findByPerformanceId(Long id);
 
-    boolean existsByIdAndPerformanceId(Long performanceId, Long scheduleId);
+    boolean existsByIdAndPerformanceId(Long id, Long performanceId);
 }

@@ -33,7 +33,7 @@ public class UserPerformanceController {
      *                 쿼리에서 바로 정렬하여 가져오도록 변경 (디폴트 페이징 정렬 설정 제거)
      * @return 200 + performanceResponses
      */
-    @GetMapping
+    @GetMapping("/performances")
     public ResponseEntity<Page<PerformancePageResponse>> getPerformanceList(Pageable pageable) {
         Page<PerformancePageResponse> performancePageResponse = performanceService.getPerformanceList(pageable);
         return ResponseEntity.ok(performancePageResponse);
