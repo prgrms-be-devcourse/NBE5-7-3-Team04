@@ -107,7 +107,7 @@ jobs:
                         - profile_nickname
           
           jwt:
-              secret: dummy-secret-for-test
+            secret: dummy-secret-for-test
             access-expiration: 3600000
             refresh-expiration: 36000000
 
