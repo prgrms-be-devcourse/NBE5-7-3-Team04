@@ -127,7 +127,6 @@ public class BookmarkService {
                 performance.getStartDate(),
                 performance.getEndDate(),
                 performance.getVenue(),
-                performance.getDescription(),
                 performance.getCategory(),
                 performance.getStatus(),
                 true // 북마크 목록이므로 모두 북마크되어 있음

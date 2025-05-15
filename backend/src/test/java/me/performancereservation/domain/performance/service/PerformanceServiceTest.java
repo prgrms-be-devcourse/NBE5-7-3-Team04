@@ -334,7 +334,7 @@ class PerformanceServiceTest {
         when(performanceScheduleRepository.findByPerformanceId(PERFORMANCE_ID1)).thenReturn(List.of(schedule1, schedule2, schedule3));
 
         //when
-        PerformanceDetailResponse response = performanceService.getPerformanceDetail(PERFORMANCE_ID1);
+        PerformanceDetailResponse response = performanceService.getPerformanceDetail(PERFORMANCE_ID1, null);
 
         //then
         assertThat(response.id()).isEqualTo(PERFORMANCE_ID1);
@@ -349,7 +349,7 @@ class PerformanceServiceTest {
         when(performanceRepository.findById(PERFORMANCE_ID1)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> performanceService.getPerformanceDetail(PERFORMANCE_ID1))
+        assertThatThrownBy(() -> performanceService.getPerformanceDetail(PERFORMANCE_ID1, null))
                 .isInstanceOf(AppException.class)
                 .hasMessageContaining("해당 공연을 찾을 수 없습니다.");
     }
