@@ -116,8 +116,12 @@ jobs:
             # .env 파일 권한 제한
             chmod 600 .env
             
-            echo "Stopping and removing existing Docker containers..."
-            sudo docker rm -f $(sudo docker ps -aq) || echo "No containers to remove"
+            # echo "Stopping and removing existing Docker containers..."
+            # sudo docker rm -f $(sudo docker ps -aq) || echo "No containers to remove"
+
+            # redis와 mysql docker-compose 분리로 백엔드만 내려서 배포 수행
+            echo "Stopping and removing backend Docker container..."
+            sudo docker rm -f killing04_backend || echo "No backend containers to remove"
             
             echo "Pulling the latest Docker image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
