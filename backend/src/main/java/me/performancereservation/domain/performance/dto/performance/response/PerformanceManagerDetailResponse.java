@@ -17,7 +17,7 @@ import java.util.List;
  * @param schedules
  */
 public record PerformanceManagerDetailResponse(
-        Long id,
+        long id,
         String fileUrl,
         String title,
         String venue,

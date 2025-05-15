@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * @param category
  */
 public record PerformancePageResponse(
-        Long id,
+        long id,
         String fileUrl,
         String title,
         int price,

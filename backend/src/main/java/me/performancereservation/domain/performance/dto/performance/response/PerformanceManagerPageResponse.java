@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * @param status    // 공연 등록 여부 (PENDING, CONFIRM 등)
  */
 public record PerformanceManagerPageResponse(
-        Long id,
+        long id,
         String fileUrl,
         String title,
         LocalDateTime startDate,

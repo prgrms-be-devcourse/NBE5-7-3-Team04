@@ -19,7 +19,7 @@ import java.util.List;
  * @param schedules     // 회차 정보
  */
 public record PerformanceDetailResponse(
-        Long id,
+        long id,
         String title,
         int price,
         int totalSeats,
