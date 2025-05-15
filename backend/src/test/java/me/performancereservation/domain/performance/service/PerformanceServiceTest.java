@@ -310,7 +310,7 @@ class PerformanceServiceTest {
         //when & then
         assertThatThrownBy(() -> performanceService.cancelPerformance(PERFORMANCE_ID1, MANAGER_ID))
                 .isInstanceOf(AppException.class)
-                .hasMessageContaining("해당 공연을 찾을 수 없습니다.");
+                .hasMessageContaining("존재하지 않는 공연입니다.");
     }
 
     @Test

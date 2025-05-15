@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.refund.RefundService;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
 import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
-import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -73,15 +72,4 @@ public class RefundController {
         return ResponseEntity.noContent().build();
     }
 
-    ///  예: refunds/3?status=pending
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateRefundStatus(
-            @PathVariable Long id,
-            @RequestParam String status) {
-        if (status == null) {
-            throw ErrorCode.INVALID_REFUND_STATUS.domainException("변경할 환불 상태를 입력하지 않았습니다.");
-        }
-        refundService.updateRefundStatus(id, status);
-        return ResponseEntity.ok().build();
-    }
 }

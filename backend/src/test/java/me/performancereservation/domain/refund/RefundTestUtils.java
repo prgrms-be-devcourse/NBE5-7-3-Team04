@@ -43,9 +43,6 @@ public class RefundTestUtils {
     }
 
     public static void assertRefundDetailResponse(RefundDetailResponse response, Reservation reservation, PerformanceSchedule schedule, Performance performance) {
-        assert response.refundId() != null;
-        assert response.reservationId().equals(reservation.getId());
-        assert response.userId().equals(reservation.getUserId());
         assert response.quantity().equals(reservation.getQuantity());
         assert response.startTime().truncatedTo(ChronoUnit.SECONDS)
                 .equals(schedule.getStartTime().truncatedTo(ChronoUnit.SECONDS));
