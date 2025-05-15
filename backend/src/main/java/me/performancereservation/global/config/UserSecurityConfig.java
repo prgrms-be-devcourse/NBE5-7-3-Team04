@@ -64,7 +64,7 @@ public class UserSecurityConfig {
                         // 모두 접근 가능 (공연 목록/상세/검색 등)
                         .requestMatchers("/api/v1/users/search", "/api/v1/users/performances/**", "/api/v1/reviews/**").permitAll()
 
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(userInfo -> userInfo
