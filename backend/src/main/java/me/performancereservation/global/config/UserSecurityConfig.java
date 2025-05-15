@@ -49,27 +49,23 @@ public class UserSecurityConfig {
                         .requestMatchers("/swagger-ui/**","swagger-ui/index.html#/","/v3/api-docs/**",
                                 "/api/v1/health-check", "/swagger-resources/**").permitAll()
 
-                        //공개되는 서비스
-                        .requestMatchers("/api/v1/users/sign-in","/api/v1/users/sign-up","/api/v1/auth/reissue",
-                                "/api/v1/auth/reissue", "/api/v1/auth/login", "/api/v1/auth/signup-test", "/api/v1/auth/token-test",
-                                "/oauth2/**", "/login/oauth2/code/**").permitAll()
+                        //공통 서비스
+                        .requestMatchers("/api/v1/auth/signup-test","/api/v1/auth/reissue","/api/v1/auth/logout",
+                                "/api/v1/auth/token-test", "/oauth2/**", "/login/oauth2/code/**").permitAll()
 
                         // 유저만
                         .requestMatchers("/api/v1/users/manager-request").hasRole("USER")
 
                         // 공연관리자만
-                        .requestMatchers("/api/v1/files/**", "/api/v1/managers/**", "/api/v1/settlements",
-                                "/api/v1/settlements/me").hasRole("MANAGER")
+                        .requestMatchers("/api/v1/files/**","/api/v1/managers/**").hasRole("MANAGER")
 
                         // 유저+공연관리자
-                        .requestMatchers(
-                                "/api/v1/reservations/**", "/api/v1/reviews/**", "/api/v1/users/me",
-                                "/api/v1/users/onboarding", "/api/v1/refunds/me", "/api/v1/refunds",
-                                "/api/v1/bookmark/**"
+                        .requestMatchers("/api/v1/users/me", "/api/v1/users/onboarding", "/api/v1/reviews",
+                                "/api/v1/reservations/**","/api/v1/bookmark/**","/api/v1/refunds/**"
                         ).hasAnyRole("USER", "MANAGER")
 
                         // 모두 접근 가능 (공연 목록/상세/검색 등)
-                        .requestMatchers("/api/v1/users/search", "/api/v1/users/performances/**").permitAll()
+                        .requestMatchers("/api/v1/users/search", "/api/v1/users/performances/**", "/api/v1/reviews/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
