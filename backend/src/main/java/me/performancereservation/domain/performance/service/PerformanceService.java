@@ -22,6 +22,7 @@ import me.performancereservation.domain.performance.mapper.PerformanceScheduleMa
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.global.exception.ErrorCode;
+import me.performancereservation.global.storage.redis.RedisSeatService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,8 @@ public class PerformanceService {
     private final BookmarkRepository bookmarkRepository;
     private final FileRepository fileRepository;
     private final ApplicationEventPublisher eventPublisher;
+
+    private final RedisSeatService redisSeatService;
 
     /** 공연 등록 요청
      *
@@ -279,10 +282,20 @@ public class PerformanceService {
      */
     @Transactional
     public void completeEndedPerformances() {
+        // 공연 취소 상태로 변경
         LocalDateTime now = LocalDateTime.now();
         List<Performance> endedPerformances = performanceRepository.findByEndDateBeforeAndStatus(now, PerformanceStatus.CONFIRMED);
 
-        endedPerformances.forEach(Performance::completePerformance);
+        // 레디스 회차별 좌석 정보 제거
+        endedPerformances.forEach(performance ->{
+            performance.completePerformance();
+
+            List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
+
+            schedules.forEach(schedule -> {
+                redisSeatService.deleteSeatStock(schedule.getId());
+            });
+        });
 
     }
 
