@@ -76,13 +76,4 @@ public class ReservationController {
                 authentication.getUser().getId()
         ));
     }
-
-    // 공연 ID 기준으로 예약 일괄 취소를 수동으로 수행
-    @PostMapping("/cancel/{performanceId}")
-    // TODO 어드민 권한 부착하거나 어드민 컨트롤러 구현되면 그쪽으로 이동
-    public ResponseEntity<Void> bulkCancelByPerformanceId(@PathVariable Long performanceId) {
-        bulkCancelService.cancelAllByPerformanceId(performanceId);
-
-        return ResponseEntity.noContent().build();
-    }
 }
