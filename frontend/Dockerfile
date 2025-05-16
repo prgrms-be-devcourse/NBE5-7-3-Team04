@@ -1,16 +1,18 @@
-# Vite 앱 빌드
-FROM node:20 AS build  # 18에서 20으로 변경
+# 빌드
+FROM node:18 AS builder
 WORKDIR /app
 COPY . .
-RUN npm install --legacy-peer-deps  # legacy-peer-deps 플래그 추가
-
+RUN npm install --legacy-peer-deps
 RUN npm run build
 
-# nginx로 정적 파일 서빙
-FROM nginx:stable-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+# 실행
+FROM node:18-alpine AS runner
+WORKDIR /app
 
-# nginx 설정 추가
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/.next .next
+COPY --from=builder /app/public public
+COPY --from=builder /app/node_modules node_modules
+
+EXPOSE 3000
+CMD ["npm", "run", "start"]
