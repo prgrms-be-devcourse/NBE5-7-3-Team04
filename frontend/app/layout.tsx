@@ -1,16 +1,16 @@
-import type React from "react"
+import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata = {
-  title: "티켓-4-U | 공연예약 사이트",
-  description: "공연 예약 및 관리를 위한 종합 플랫폼",
-    generator: 'v0.dev'
+export const metadata: Metadata = {
+  title: "TICKET4U",
+  description: "공연 예매 플랫폼",
 }
 
 export default function RootLayout({
@@ -27,6 +27,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

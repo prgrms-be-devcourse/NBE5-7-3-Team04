@@ -48,12 +48,12 @@ interface Performance {
 
 interface ReservationCalendarModalFixedProps {
   performanceId: number | string
+  selectedDate?: Date
 }
 
-export function ReservationCalendarModalFixed({ performanceId }: ReservationCalendarModalFixedProps) {
+export function ReservationCalendarModalFixed({ performanceId, selectedDate: initialSelectedDate }: ReservationCalendarModalFixedProps) {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1)
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | undefined>(undefined)
   const [quantity, setQuantity] = useState(1)
   const [paymentMethod, setPaymentMethod] = useState("bank")
@@ -113,7 +113,7 @@ export function ReservationCalendarModalFixed({ performanceId }: ReservationCale
   })
 
   // 선택한 날짜에 해당하는 세션들
-  const sessionsForSelectedDate = selectedDate ? sessionsByDate[format(selectedDate, "yyyy-MM-dd")] || [] : []
+  const sessionsForSelectedDate = initialSelectedDate ? sessionsByDate[format(initialSelectedDate, "yyyy-MM-dd")] || [] : []
 
   // 선택한 세션
   const selectedSchedule = selectedScheduleId
@@ -152,8 +152,7 @@ export function ReservationCalendarModalFixed({ performanceId }: ReservationCale
   }
 
   const nextStep = () => {
-    if (step === 1 && !selectedDate) return
-    if (step === 2 && !selectedScheduleId) return
+    if (step === 1 && !selectedScheduleId) return
     setStep(step + 1)
   }
 
@@ -163,26 +162,35 @@ export function ReservationCalendarModalFixed({ performanceId }: ReservationCale
 
   const resetModal = () => {
     setStep(1)
-    setSelectedDate(undefined)
     setSelectedScheduleId(undefined)
     setQuantity(1)
     setPaymentMethod("bank")
   }
 
   const handleOpenModal = () => {
+    if (!initialSelectedDate) {
+      toast({
+        title: "날짜를 선택해주세요",
+        description: "예매하실 날짜를 먼저 선택해주세요.",
+        variant: "destructive",
+      })
+      return
+    }
     resetModal()
     setOpen(true)
   }
 
   // 시간 포맷팅 함수
   const formatTime = (timeString: string) => {
-    return format(parseISO(timeString), "HH:mm", { locale: ko })
+    const date = parseISO(timeString)
+    return format(date, "HH:mm", { locale: ko })
   }
 
   // 날짜 포맷팅 함수 개선
   const formatDateSafely = (dateString: string) => {
     try {
-      return format(parseISO(dateString), "yyyy년 MM월 dd일")
+      const date = parseISO(dateString)
+      return format(date, "yyyy년 MM월 dd일 (eee)", { locale: ko })
     } catch (error) {
       console.error("Invalid date format:", dateString)
       return "날짜 정보 없음"
@@ -206,9 +214,8 @@ export function ReservationCalendarModalFixed({ performanceId }: ReservationCale
           <DialogHeader>
             <DialogTitle>{performance?.title || "공연"} 예매하기</DialogTitle>
             <DialogDescription>
-              {step === 1 && "공연 날짜를 선택해주세요."}
-              {step === 2 && "회차를 선택해주세요."}
-              {step === 3 && "예매 수량과 결제 방법을 선택해주세요."}
+              {step === 1 && "회차를 선택해주세요."}
+              {step === 2 && "예매 수량과 결제 방법을 선택해주세요."}
             </DialogDescription>
           </DialogHeader>
 
@@ -245,44 +252,16 @@ export function ReservationCalendarModalFixed({ performanceId }: ReservationCale
                   >
                     2
                   </div>
-                  <div className={cn("h-0.5 w-8", step >= 3 ? "bg-primary" : "bg-muted")} />
-                  <div
-                    className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-full border text-xs font-medium",
-                      step >= 3
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-muted text-muted-foreground",
-                    )}
-                  >
-                    3
-                  </div>
                 </div>
               </div>
 
-              {/* 스텝 1: 날짜 선택 */}
-              {step === 1 && (
-                <div className="py-4">
-                  <CustomCalendar
-                    selectedDate={selectedDate}
-                    onSelect={setSelectedDate}
-                    availableDates={sessionDates}
-                    className="mx-auto"
-                  />
-                  <p className="text-center text-sm text-muted-foreground mt-2">
-                    {sessionDates.length > 0
-                      ? "초록색으로 표시된 날짜만 공연이 있습니다."
-                      : "예매 가능한 공연이 없습니다."}
-                  </p>
-                </div>
-              )}
-
-              {/* 스텝 2: 회차 선택 */}
-              {step === 2 && (
+              {/* 스텝 1: 회차 선택 */}
+              {step === 1 && initialSelectedDate && (
                 <div className="py-4">
                   <div className="flex items-center gap-2 mb-4">
                     <CalendarIcon className="h-5 w-5 text-muted-foreground" />
                     <span className="font-medium">
-                      {selectedDate && format(selectedDate, "PPP (eee)", { locale: ko })}
+                      {formatDateSafely(initialSelectedDate.toISOString())}
                     </span>
                   </div>
 
@@ -318,7 +297,7 @@ export function ReservationCalendarModalFixed({ performanceId }: ReservationCale
                                 <span className="text-sm font-medium">{performance?.price?.toLocaleString()}원</span>
                               </div>
                               <div className="text-xs text-muted-foreground flex justify-between items-center mt-1">
-                                <span>{format(parseISO(schedule.startTime), "yyyy-MM-dd")}</span>
+                                <span>{formatDateSafely(schedule.startTime)}</span>
                                 <div className="flex items-center gap-1">
                                   {soldOut ? (
                                     <Badge variant="destructive">매진</Badge>
@@ -342,14 +321,14 @@ export function ReservationCalendarModalFixed({ performanceId }: ReservationCale
                 </div>
               )}
 
-              {/* 스텝 3: 수량 및 결제 방법 선택 */}
-              {step === 3 && selectedSchedule && (
+              {/* 스텝 2: 수량 및 결제 방법 선택 */}
+              {step === 2 && selectedSchedule && (
                 <div className="py-4 space-y-4">
                   <div className="rounded-md bg-muted p-3 space-y-2">
                     <div className="flex items-center gap-2 text-sm">
                       <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">
-                        {format(parseISO(selectedSchedule.startTime), "PPP (eee)", { locale: ko })}
+                        {formatDateSafely(selectedSchedule.startTime)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
@@ -432,17 +411,17 @@ export function ReservationCalendarModalFixed({ performanceId }: ReservationCale
                   <div></div>
                 )}
 
-                {step < 3 ? (
+                {step < 2 ? (
                   <Button
                     type="button"
                     onClick={nextStep}
-                    disabled={(step === 1 && !selectedDate) || (step === 2 && !selectedScheduleId)}
+                    disabled={!selectedScheduleId}
                   >
                     다음
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
-                  <Button type="button" onClick={handleSubmit} disabled={isSubmitting || !selectedScheduleId}>
+                  <Button type="button" onClick={handleSubmit} disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
