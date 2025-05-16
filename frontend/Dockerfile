@@ -1,12 +1,12 @@
 # 빌드
-FROM node:18 AS builder
+FROM node:20 AS builder
 WORKDIR /app
 COPY . .
 RUN npm install --legacy-peer-deps
 RUN npm run build
 
 # 실행
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 COPY --from=builder /app/package.json .
