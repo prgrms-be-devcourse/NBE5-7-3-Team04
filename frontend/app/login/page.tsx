@@ -40,7 +40,7 @@ export default function LoginPage() {
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/40 py-12">
       <Card className="mx-auto w-full max-w-md">
         <CardHeader className="space-y-2 text-center">
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-2">
             <Image src="/logo-icon.png" alt="TICKET4U" width={48} height={48} />
           </div>
           <CardTitle className="text-2xl font-bold">로그인</CardTitle>
@@ -78,13 +78,12 @@ export default function LoginPage() {
 
           <Button
             variant="outline"
-            className="w-full h-12 relative"
+            className="w-full h-12 relative bg-[#03C75A] hover:bg-[#02b351] text-white border-none"
             onClick={() => handleSocialLogin("naver")}
             disabled={isLoading}
           >
-            <div className="absolute left-4 flex items-center justify-center">
-              <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <rect width="24" height="24" fill="#03C75A" />
+            <div className="absolute left-5 flex items-center justify-center">
+              <svg width="17" height="17" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16.273 12.845L7.376 0H0V24H7.727V11.155L16.624 24H24V0H16.273V12.845Z" fill="white" />
               </svg>
             </div>
@@ -93,13 +92,12 @@ export default function LoginPage() {
 
           <Button
             variant="outline"
-            className="w-full h-12 relative"
+            className="w-full h-12 relative bg-[#FEE500] hover:bg-[#f4dc00] text-[#3A1D1D] border-none"
             onClick={() => handleSocialLogin("kakao")}
             disabled={isLoading}
           >
             <div className="absolute left-4 flex items-center justify-center">
               <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <rect width="24" height="24" fill="#FEE500" />
                 <path
                   d="M12 5.5C7.03125 5.5 3 8.7207 3 12.7083C3 15.3136 4.79799 17.5783 7.47396 18.7803C7.30078 19.3807 6.60677 21.8698 6.54818 22.1647C6.47786 22.5246 6.75 22.5246 6.91146 22.4219C7.03646 22.3444 9.95833 20.3438 10.8333 19.7656C11.2161 19.8099 11.6068 19.8333 12 19.8333C16.9688 19.8333 21 16.6126 21 12.625C21 8.7207 16.9688 5.5 12 5.5Z"
                   fill="#3A1D1D"
