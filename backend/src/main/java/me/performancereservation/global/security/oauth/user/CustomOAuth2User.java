@@ -29,13 +29,17 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        //Spring Security의 권한 정보 반환(Role을 SimpleGrantedAuthority로 변환)
-        return List.of(new SimpleGrantedAuthority(user.getRole().toString()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     @Override
     public String getName() {
         return user.getName(); // 고유 식별자 역할
+    }
+
+    @Override
+    public Object getAttribute(String name) {
+        return attributes.get(name);
     }
 
     public User getUser() {
