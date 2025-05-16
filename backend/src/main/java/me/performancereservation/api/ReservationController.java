@@ -2,6 +2,7 @@ package me.performancereservation.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.api.docs.ReservationApiDocs;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.service.ReservationQueryService;
 import me.performancereservation.domain.reservation.service.redis.RedisReservationBulkCancelService;
@@ -21,17 +22,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/reservations")
 @RequiredArgsConstructor
-public class ReservationController {
+public class ReservationController implements ReservationApiDocs {
     private final RedisSeatReservationService seatReservationService;
     private final RedisReservationBulkCancelService bulkCancelService;
     private final ReservationQueryService reservationQueryService;
 
+    @Override
     @PostMapping
     public ResponseEntity<ReservationResponse> reserve(
             @RequestBody @Valid ReservationRequest request,
             @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
-
         ReservationResponse result = seatReservationService.reserve(
                 request.scheduleId(),
                 authentication.getUser().getId(),
@@ -41,19 +42,21 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
+    @Override
     @PostMapping("/{reservationId}/cancel")
     public ResponseEntity<Void> cancel(
             @PathVariable Long reservationId,
-             @AuthenticationPrincipal CustomOAuth2User authentication
+            @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
         seatReservationService.cancel(
                 reservationId,
                 authentication.getUser().getId()
-        ) ;
+        );
 
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<Page<ReservationPageResponse>> getUserReservations(
             @AuthenticationPrincipal CustomOAuth2User authentication,
@@ -66,6 +69,7 @@ public class ReservationController {
         return ResponseEntity.ok(result);
     }
 
+    @Override
     @GetMapping("/me/{reservationId}")
     public ResponseEntity<ReservationResponse> getReservationById(
             @AuthenticationPrincipal CustomOAuth2User authentication,

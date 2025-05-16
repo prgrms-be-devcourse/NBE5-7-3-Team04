@@ -2,6 +2,7 @@ package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.api.docs.AdminSettlementApiDocs;
 import me.performancereservation.domain.settlement.SettlementService;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
 import org.springframework.data.domain.Page;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/settlements")
 @RequiredArgsConstructor
-public class AdminSettlementController {
+public class AdminSettlementController implements AdminSettlementApiDocs {
 
     private final SettlementService settlementService;
 
@@ -24,12 +25,12 @@ public class AdminSettlementController {
      * @param settlementId 승인할 정산 id
      * @return ResponseEntity<SettlementResponse> 필드 변경된 정산 결과
      */
+    @Override
     @PatchMapping("/{settlementId}/confirm")
     public ResponseEntity<SettlementResponse> confirmSettlement(@PathVariable Long settlementId) {
         SettlementResponse response = settlementService.confirmSettlement(settlementId);
         return ResponseEntity.ok(response);
     }
-
 
     /**
      * api/v1/admin/settlements?status=__ 으로 모든 유저의 정산 조회.
@@ -39,6 +40,7 @@ public class AdminSettlementController {
      * @return ResponseEntity<Page<SettlementResponse>> status로 필터링한 모든 유저의 정산목록 Page
      */
     @GetMapping()
+    @Override
     public ResponseEntity<Page<SettlementResponse>> getAllSettlementsWithStatus(
             @RequestParam(required = false) String status,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {

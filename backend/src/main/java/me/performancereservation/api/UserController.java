@@ -1,6 +1,7 @@
 package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.api.docs.UserApiDocs;
 import me.performancereservation.domain.user.dto.UserOnboardingRequest;
 import me.performancereservation.domain.user.dto.UserResponse;
 import me.performancereservation.domain.user.entitiy.User;
@@ -13,24 +14,26 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserApiDocs {
 
     private final UserService userService;
     //http://localhost:8080/oauth2/authorization/google 로그인 테스트
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal CustomOAuth2User principal) {
         User user = principal.getUser();
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
     }
 
-
+    @Override
     @PostMapping("/manager-request")
     public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal) {
         userService.submitManagerRequest(principal.getUser().getId());
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PostMapping("/onboarding")
     public ResponseEntity<UserResponse> onboard(@AuthenticationPrincipal CustomOAuth2User principal,
                                                 @RequestBody UserOnboardingRequest request) {
