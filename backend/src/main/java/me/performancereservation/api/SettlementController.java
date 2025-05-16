@@ -2,6 +2,7 @@ package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.api.docs.SettlementApiDocs;
 import me.performancereservation.domain.settlement.SettlementService;
 import me.performancereservation.domain.settlement.dto.SettlementRequest;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/managers/settlements")
 @RequiredArgsConstructor
-public class SettlementController {
+public class SettlementController implements SettlementApiDocs {
 
     private final SettlementService settlementService;
 
@@ -28,6 +29,7 @@ public class SettlementController {
      * @param request SettlementRequest DTO
      * @return 생성된 정산 Long id
      */
+    @Override
     @PostMapping("/register")
     public ResponseEntity<Long> createSettlement(@RequestBody SettlementRequest request) {
         Long settlementId = settlementService.createSettlement(request);
@@ -44,6 +46,7 @@ public class SettlementController {
      * @param pageable 조회할 페이지
      * @return ResponseEntity<Page<SettlementResponse>> 유저id로 조회한 정산목록 Page
      */
+    @Override
     @GetMapping("/me")
     public ResponseEntity<Page<SettlementResponse>> getAllSettlementsWithUserId(
             @AuthenticationPrincipal CustomOAuth2User authentication,

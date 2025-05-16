@@ -2,6 +2,7 @@ package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.api.docs.AdminRefundApiDocs;
 import me.performancereservation.domain.refund.RefundService;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
 import org.springframework.data.domain.Page;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/refunds")
-public class AdminRefundController {
+public class AdminRefundController implements AdminRefundApiDocs {
 
     private final RefundService refundService;
 
@@ -28,6 +29,7 @@ public class AdminRefundController {
      * @param pageable 기본값 page 1 size 10
      * @return ResponseEntity<Page<RefundDetailResponse>>
      */
+    @Override
     @GetMapping
     public ResponseEntity<Page<RefundDetailResponse>> getAllRefundDetailsByRefundStatus(
             @RequestParam(required = false) String status,
@@ -47,6 +49,7 @@ public class AdminRefundController {
      * @param refundId CONFIRMED로 만들 환불 id
      * @return ResponseEntity<Void>
      */
+    @Override
     @PatchMapping("/{refundId}/confirm")
     public ResponseEntity<Void> confirmRefund(@PathVariable Long refundId) {
         log.info("환불 승인 요청: refundId={}", refundId);

@@ -1,6 +1,7 @@
 package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.api.docs.AuthApiDocs;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.Role;
 import me.performancereservation.domain.user.service.UserService;
@@ -15,16 +16,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthApiDocs {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
 
     //리프레쉬 토큰으로 엑세스 토큰 재발급 (리프레쉬가 유효할 때)
+    @Override
     @PostMapping("/reissue")
     public ResponseEntity<String> reissue(@RequestParam String refreshToken) { //리프레쉬 토큰에서 uerId 추출
-
         jwtTokenProvider.validateToken(refreshToken, ErrorCode.INVALID_REFRESH_TOKEN);
 
         Long userId = jwtTokenProvider.getUserId(refreshToken);
@@ -40,6 +41,7 @@ public class AuthController {
         return ResponseEntity.ok(newAccessToken);
     }
 
+    @Override
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestParam Long userId) {
         refreshTokenService.deleteRefreshToken(userId);
@@ -47,6 +49,7 @@ public class AuthController {
     }
 
     //이메일로 회원가입 + 토큰 발급을 테스트
+    @Override
     @PostMapping("/signup-test")
     public ResponseEntity<String> testSignUp(
             @RequestParam String email, @RequestParam String name) {
@@ -58,6 +61,7 @@ public class AuthController {
     }
 
     //가입된 유저의 테스트용 jwt 발급
+    @Override
     @GetMapping("/token-test")
     public ResponseEntity<String> getTestToken(@AuthenticationPrincipal CustomOAuth2User principal) {
         User user = principal.getUser();

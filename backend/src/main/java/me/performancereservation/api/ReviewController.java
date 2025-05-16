@@ -1,6 +1,7 @@
 package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.api.docs.ReviewApiDocs;
 import me.performancereservation.domain.review.dto.request.ReviewCreateRequest;
 import me.performancereservation.domain.review.dto.respornse.ReviewResponse;
 import me.performancereservation.domain.review.service.ReviewService;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/reviews")
 @RequiredArgsConstructor
-public class ReviewController {
+public class ReviewController implements ReviewApiDocs {
 
     private final ReviewService reviewService;
 
@@ -26,6 +27,7 @@ public class ReviewController {
      * @param request 리뷰 작성 요청 DTO
      * @return 200 OK
      */
+    @Override
     @PostMapping
     public ResponseEntity<Void> createReview(@AuthenticationPrincipal CustomOAuth2User principal,
                                              @RequestBody ReviewCreateRequest request) {
@@ -38,6 +40,7 @@ public class ReviewController {
      * @param performanceId 공연 ID
      * @return 리뷰 응답 DTO 리스트
      */
+    @Override
     @GetMapping("/{performanceId}")
     public ResponseEntity<Page<ReviewResponse>> getReviews(
             @PathVariable Long performanceId,

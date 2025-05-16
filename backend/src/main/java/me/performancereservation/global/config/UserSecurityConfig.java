@@ -43,7 +43,7 @@ public class UserSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**","swagger-ui/index.html#/","/v3/api-docs/**",
+                        .requestMatchers("/swagger-ui/**","swagger-ui/index.html#/","/v3/api-docs/**", "/docs",
                                 "/api/v1/health-check", "/swagger-resources/**").permitAll()
 
                         //공통 서비스

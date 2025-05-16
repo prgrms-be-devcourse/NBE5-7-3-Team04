@@ -2,6 +2,7 @@ package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.api.docs.RefundApiDocs;
 import me.performancereservation.domain.refund.RefundService;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
 import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/refunds")
-public class RefundController {
+public class RefundController implements RefundApiDocs {
 
     private final RefundService refundService;
 
@@ -32,6 +33,7 @@ public class RefundController {
      * @param pageable 기본값
      * @return ResponseEntity<Page<RefundDetailResponse>>
      */
+    @Override
     @GetMapping("/me")
     public ResponseEntity<Page<RefundDetailResponse>> getAllRefundDetailsWithUserId(
             @AuthenticationPrincipal CustomOAuth2User authentication,
@@ -52,6 +54,7 @@ public class RefundController {
      * @param request
      * @return
      */
+    @Override
     @PatchMapping
     public ResponseEntity<Void> updateBankInfo(
             @AuthenticationPrincipal CustomOAuth2User authentication,
