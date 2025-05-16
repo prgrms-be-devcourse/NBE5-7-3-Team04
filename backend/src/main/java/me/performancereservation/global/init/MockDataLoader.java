@@ -1,6 +1,7 @@
 package me.performancereservation.global.init;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.bookmark.Bookmark;
 import me.performancereservation.domain.bookmark.BookmarkRepository;
 import me.performancereservation.domain.performance.entities.Performance;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MockDataLoader implements CommandLineRunner {
@@ -387,10 +389,10 @@ public class MockDataLoader implements CommandLineRunner {
                     .build());
         }
 
-        // CANCEL_CONFIRMED 상태 예약 3개
-        for (int i = 0; i < 3 && i + 9 < normalUsers.size() && i < availableSchedules.size(); i++) {
-            User user = normalUsers.get(i + 9 < normalUsers.size() ? i + 9 : i);
-            PerformanceSchedule schedule = availableSchedules.get((i + 3) % availableSchedules.size());
+        // CANCEL_CONFIRMED 상태 예약 6개
+        for (int i = 0; i < 6 && i < normalUsers.size() && i < availableSchedules.size(); i++) {
+            User user = normalUsers.get(i);
+            PerformanceSchedule schedule = availableSchedules.get(i % availableSchedules.size());
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
@@ -412,51 +414,39 @@ public class MockDataLoader implements CommandLineRunner {
                 .filter(r -> r.getId() != null) // null ID 체크 추가
                 .toList();
 
+        log.info("====================== refundableReservation 크기 : {}", refundableReservations.size());
+
         if (refundableReservations.isEmpty()) {
             return refunds;
         }
 
-        // PENDING 상태 환불 3개
-        for (int i = 0; i < 3 && i < refundableReservations.size(); i++) {
-            Reservation reservation = refundableReservations.get(i);
+        // 각 상태별로 3개씩 환불 생성
+        for (int i = 0; i < refundableReservations.size(); i++) {
+            Reservation reservation = refundableReservations.get(i % refundableReservations.size());
+            RefundStatus status;
+            
+            if (i < 3) {
+                status = RefundStatus.PENDING;
+            } else if (i < 6) {
+                status = RefundStatus.READY;
+            } else {
+                status = RefundStatus.CONFIRMED;
+            }
 
             Refund refund = Refund.builder()
-                    .id(null) // ID는 null로 설정 (자동 생성)
+                    .id(null)
                     .reservationId(reservation.getId())
                     .userId(reservation.getUserId())
-                    .status(RefundStatus.PENDING)
+                    .status(status)
                     .build();
 
-            refunds.add(refund);
-        }
+            if (status == RefundStatus.READY || status == RefundStatus.CONFIRMED) {
+                String bankName = status == RefundStatus.READY ? "신한은행" : "국민은행";
+                String accountNumber = status == RefundStatus.READY ? "110-123-456789" : "110-456-789012";
+                String accountHolder = status == RefundStatus.READY ? "환불자" + i : "환불완료자" + i;
+                refund.updateBankInfo(accountNumber, bankName, accountHolder);
+            }
 
-        // READY 상태 환불 3개
-        for (int i = 3; i < 6 && i < refundableReservations.size(); i++) {
-            Reservation reservation = refundableReservations.get(i);
-
-            Refund refund = Refund.builder()
-                    .id(null) // ID는 null로 설정 (자동 생성)
-                    .reservationId(reservation.getId())
-                    .userId(reservation.getUserId())
-                    .status(RefundStatus.READY)
-                    .build();
-
-            refund.updateBankInfo("110-123-456789", "신한은행", "환불자" + i);
-            refunds.add(refund);
-        }
-
-        // CONFIRMED 상태 환불 3개
-        for (int i = 6; i < 9 && i < refundableReservations.size(); i++) {
-            Reservation reservation = refundableReservations.get(i);
-
-            Refund refund = Refund.builder()
-                    .id(null) // ID는 null로 설정 (자동 생성)
-                    .reservationId(reservation.getId())
-                    .userId(reservation.getUserId())
-                    .status(RefundStatus.CONFIRMED)
-                    .build();
-
-            refund.updateBankInfo("110-456-789012", "국민은행", "환불완료자" + i);
             refunds.add(refund);
         }
 
