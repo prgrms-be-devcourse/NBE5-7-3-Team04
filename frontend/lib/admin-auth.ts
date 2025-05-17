@@ -12,7 +12,7 @@ export function useAdminAuth() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/v1/admin/check-auth`, {
+      const response = await fetch(`${API_URL}/admin/check-auth`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -47,9 +47,9 @@ export function useAdminAuth() {
 }
 
 // CSRF 토큰 가져오기
-async function getCsrfToken() {
+export async function getCsrfToken() {
   try {
-    const response = await fetch(`${API_URL}/api/v1/admin/csrf`, {
+    const response = await fetch(`${API_URL}/admin/csrf`, {
       method: 'GET',
       credentials: 'include'
     })
@@ -73,7 +73,7 @@ export async function adminLogout() {
       return
     }
     
-    const response = await fetch(`${API_URL}/api/v1/admin/logout`, {
+    const response = await fetch(`${API_URL}/admin/logout`, {
       method: 'POST',
       credentials: 'include',
       headers: {

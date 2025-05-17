@@ -15,6 +15,7 @@ import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "Admin Performance API", description = "관리자용 공연 관련 API")
 public interface AdminPerformanceApiDocs {
@@ -31,6 +32,7 @@ public interface AdminPerformanceApiDocs {
     })
     @PageableAsQueryParam
     ResponseEntity<Page<PendingPerformancePageResponse>> performances(
+            @RequestParam(required = false) String status,
         @ParameterObject Pageable pageable
     );
 

@@ -14,7 +14,7 @@ export function useAdminAuth() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/v1/admin/check-auth`, {
+        const response = await fetch(`${API_URL}/admin/check-auth`, {
           credentials: 'include'
         })
         
@@ -55,7 +55,7 @@ export function useAdminAuth() {
 
 export async function adminLogout() {
   try {
-    const response = await fetch(`${API_URL}/api/v1/admin/logout`, {
+    const response = await fetch(`${API_URL}/admin/logout`, {
       method: 'POST',
       credentials: 'include'
     })
