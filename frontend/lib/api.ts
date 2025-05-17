@@ -1,5 +1,6 @@
 // API 기본 URL
-const API_BASE_URL = "http://43.201.79.165:8080/api/v1"
+// const API_BASE_URL = "http://43.201.79.165:8080/api/v1"
+const API_BASE_URL = "http://localhost:8080/api/v1"
 
 // 개발 환경에서 API 요청 실패 시 사용할 모의 데이터
 const MOCK_DATA_ENABLED = true
