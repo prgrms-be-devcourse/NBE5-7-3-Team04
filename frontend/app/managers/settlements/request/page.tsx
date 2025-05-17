@@ -9,9 +9,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getManagerPerformances, createSettlement } from "@/lib/api-manager"
+import { getManagerPerformances, createSettlement } from "@/src/api/api"
 import { Loader2 } from "lucide-react"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/src/auth/user"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function SettlementRequestPage() {

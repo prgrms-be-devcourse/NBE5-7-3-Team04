@@ -48,14 +48,9 @@ export function PerformanceCard({ performance }: PerformanceCardProps) {
             <Badge variant="outline" className="px-2 py-0 text-xs">
               {performance.category}
             </Badge>
-            <span className="text-sm font-medium">{performance.price.toLocaleString()}원</span>
           </div>
           <h3 className="line-clamp-1 text-base font-bold">{performance.title}</h3>
           <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              <span>{performance.date}</span>
-            </div>
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               <span>{performance.time}</span>

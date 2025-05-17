@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { getSocialLoginUrl } from "@/src/api/api"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,7 +15,10 @@ export default function LoginPage() {
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(true)
     try {
-      const redirectUrl = `/api/auth/${provider}`
+      // 소셜 로그인 리다이렉트 URL 가져오기
+      const redirectUrl = getSocialLoginUrl(provider)
+
+      // 소셜 로그인 페이지로 리다이렉트
       window.location.href = redirectUrl
     } catch (error) {
       console.error("로그인 오류:", error)

@@ -24,7 +24,9 @@ public class AdminPerformanceController implements AdminPerformanceApiDocs {
      */
     @Override
     @GetMapping("/performances")
-    public ResponseEntity<Page<PendingPerformancePageResponse>> performances(Pageable pageable) {
+    public ResponseEntity<Page<PendingPerformancePageResponse>> performances(
+            @RequestParam(required = false) String status,
+            Pageable pageable) {
         Page<PendingPerformancePageResponse> pendingPerformanceList = adminPerformanceService.getPendingPerformanceList(pageable);
         return ResponseEntity.ok(pendingPerformanceList);
     }

@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getManagerPerformances, searchManagerPerformances } from "@/lib/api-manager"
+import { getManagerPerformances, searchManagerPerformances } from "@/src/api/api"
 import { Loader2, Search, Plus, Calendar, MapPin } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
-import { useAuth } from "@/lib/auth"
-import { useRouter } from "next/navigation"
+import { useAuth } from "@/src/auth/user"
 
 export default function ManagerPerformancesPage() {
   const searchParams = useSearchParams()

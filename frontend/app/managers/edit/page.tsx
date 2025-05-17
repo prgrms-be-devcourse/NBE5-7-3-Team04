@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Upload } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { getManagerPerformanceDetails, updatePerformance, uploadFile } from "@/lib/api-manager"
-import { useAuth } from "@/lib/auth"
+import { getManagerPerformanceDetails, updatePerformance, uploadFile } from "@/src/api/api"
+import { useAuth } from "@/src/auth/user"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function EditPerformancePage() {

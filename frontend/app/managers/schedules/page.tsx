@@ -11,9 +11,11 @@ import {
 import {
     getManagerPerformances,
     getManagerPerformanceDetails,
-} from "@/lib/api-manager";
+    registerPerformanceSchedule,
+    cancelPerformanceSchedule,
+} from "@/src/api/api";
 import { format, parseISO } from "date-fns";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/src/auth/user";
 import { useRouter } from "next/navigation";
 
 export default function SchedulesPage() {

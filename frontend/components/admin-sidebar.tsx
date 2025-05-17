@@ -47,10 +47,19 @@ export function AdminSidebar() {
           </SidebarMenuItem>
 
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname?.startsWith("/admin/approve")}>
+            <SidebarMenuButton asChild isActive={pathname === "/admin/approve/roles"}>
               <Link href="/admin/approve/roles">
                 <CheckSquare className="h-4 w-4" />
-                <span>승인 관리</span>
+                <span>매니저 승인</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname?.startsWith("/admin/approve/performances")}>
+              <Link href="/admin/approve/performances">
+                <CheckSquare className="h-4 w-4" />
+                <span>공연 승인</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -82,23 +91,14 @@ export function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname?.startsWith("/admin/users")}>
-              <Link href="/admin/users">
-                <Users className="h-4 w-4" />
-                <span>회원 관리</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
+          {/* <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname?.startsWith("/admin/settings")}>
               <Link href="/admin/settings">
                 <Settings className="h-4 w-4" />
                 <span>시스템 설정</span>
               </Link>
             </SidebarMenuButton>
-          </SidebarMenuItem>
+          </SidebarMenuItem> */}
         </SidebarMenu>
       </SidebarContent>
 

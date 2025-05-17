@@ -20,13 +20,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
-import { useAuth, logout } from "@/lib/auth"
+import { useAuth, logout } from "@/src/auth/user"
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
   const router = useRouter()
-  const { isAuthenticated, userRole } = useAuth()
+  const { isAuthenticated, userRole, user } = useAuth()
 
   // 검색 기능
   const handleSearch = async (e: React.FormEvent) => {
@@ -196,15 +196,15 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg" alt="사용자" />
+                    <AvatarImage src={user?.profileImage || "/default-avatar.png"} alt={user?.name || "사용자"} />
                     <AvatarFallback>
-                      <User className="h-4 w-4" />
+                      {user?.name?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>내 계정</DropdownMenuLabel>
+                <DropdownMenuLabel>{user?.name || "내 계정"}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/users/mypage/reservations">예매 내역</Link>
@@ -225,13 +225,15 @@ export function Navbar() {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  로그아웃
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button size="sm" asChild>
+            <Button asChild variant="ghost" size="sm" className="gap-2">
               <Link href="/login">
-                <LogIn className="mr-2 h-4 w-4" />
+                <LogIn className="h-4 w-4" />
                 로그인
               </Link>
             </Button>

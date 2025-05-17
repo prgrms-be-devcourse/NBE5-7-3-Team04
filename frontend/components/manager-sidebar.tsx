@@ -16,7 +16,7 @@ import {
   SidebarGroupContent,
 } from "@/components/ui/sidebar"
 import { LayoutDashboard, CalendarDays, ListPlus, FileEdit, CreditCard, History, LogOut, ListMusic } from "lucide-react"
-import { logout } from "@/lib/auth"
+import { logout } from "@/src/auth/user"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 

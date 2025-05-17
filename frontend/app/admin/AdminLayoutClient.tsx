@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import type React from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAdminAuth } from "@/lib/admin-auth"
@@ -12,43 +12,40 @@ interface AdminLayoutClientProps {
 }
 
 export default function AdminLayoutClient({ children }: AdminLayoutClientProps) {
-  const { isAuthenticated, isLoading } = useAdminAuth()
+  const { requireAdminAuth } = useAdminAuth()
   const router = useRouter()
   const pathname = usePathname()
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Skip redirect for login page
-    if (pathname === "/admin/login") return
-
-    // Redirect to login if not authenticated
-    if (!isLoading && !isAuthenticated) {
-      router.push("/admin/login")
+    const checkAuth = async () => {
+      const isAuth = await requireAdminAuth()
+      setIsLoading(false)
     }
-  }, [isAuthenticated, isLoading, router, pathname])
+    checkAuth()
+  }, [requireAdminAuth])
 
-  // Show nothing while checking authentication
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">로딩 중...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
   }
 
-  // For login page, just render the children without the admin layout
+  // 로그인 페이지면 레이아웃 없이 렌더링
   if (pathname === "/admin/login") {
     return <>{children}</>
   }
 
-  // If not authenticated and not on login page, don't render anything
-  // (useEffect will handle the redirect)
-  if (!isAuthenticated && pathname !== "/admin/login") {
-    return null
-  }
-
+  // 관리자 레이아웃으로 렌더링
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
+      <div className="flex h-screen">
         <AdminSidebar />
-        <div className="flex-1">
-          <main className="container mx-auto p-4 md:p-6">{children}</main>
-        </div>
+        <main className="flex-1 overflow-y-auto p-8">
+          {children}
+        </main>
       </div>
     </SidebarProvider>
   )

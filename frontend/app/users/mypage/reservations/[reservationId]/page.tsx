@@ -5,11 +5,18 @@ import { Calendar, Clock, MapPin, ArrowLeft, Ticket, CreditCard, AlertTriangle }
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import { CancelReservationDialog } from "@/components/cancel-reservation-dialog"
+import { PageProps } from "@/types/route"
 
-export default function ReservationDetailPage({ params }: { params: { reservationId: string } }) {
-  // 실제 구현에서는 params.reservationId를 사용하여 API에서 데이터를 가져옵니다
+interface ReservationParams {
+  reservationId: string
+}
+
+export default async function ReservationDetailPage({ params }: PageProps<ReservationParams>) {
+  const { reservationId } = await params
+  
+  // 실제 구현에서는 reservationId를 사용하여 API에서 데이터를 가져옵니다
   const reservation = {
-    id: params.reservationId,
+    id: reservationId,
     performance: {
       id: "1",
       title: "2023 여름 재즈 페스티벌",
