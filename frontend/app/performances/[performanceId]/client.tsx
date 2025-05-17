@@ -15,11 +15,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/src/auth/user"
 import { ko } from "date-fns/locale"
 import { CustomCalendar } from "@/components/custom-calendar"
 import { cn, getPerformanceImageUrl } from "@/lib/utils"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 interface PerformanceSchedule {
   id: number
@@ -47,12 +50,9 @@ interface Performance {
 
 interface Review {
   id: number
-  userId: number
   userName: string
-  userProfileImage?: string
-  rating: number
+  scheduledId: number
   comment: string
-  createdAt: string
 }
 
 interface ReviewsResponse {
@@ -80,6 +80,9 @@ export default function PerformanceDetailClient({ performanceId }: { performance
   const { isAuthenticated } = useAuth()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const [selectedSchedule, setSelectedSchedule] = useState<PerformanceSchedule | null>(null)
+  const [step, setStep] = useState<'schedule' | 'payment'>('schedule')
+  const router = useRouter()
 
   useEffect(() => {
     const fetchPerformance = async () => {
@@ -156,11 +159,11 @@ export default function PerformanceDetailClient({ performanceId }: { performance
         title: "리뷰가 등록되었습니다",
         description: "소중한 의견 감사합니다.",
       })
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error submitting review:", err)
       toast({
         title: "리뷰 등록 실패",
-        description: "리뷰를 등록하는 중 오류가 발생했습니다. 다시 시도해주세요.",
+        description: err.message || "리뷰를 등록하는 중 오류가 발생했습니다. 다시 시도해주세요.",
         variant: "destructive",
       })
     } finally {
@@ -204,6 +207,22 @@ export default function PerformanceDetailClient({ performanceId }: { performance
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date)
+    setIsCalendarOpen(true)
+  }
+
+  const handleScheduleSelect = (schedule: PerformanceSchedule) => {
+    setSelectedSchedule(schedule)
+    setStep('payment')
+  }
+
+  const handlePayment = () => {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
+    if (!selectedSchedule) return
+    // 결제 페이지로 이동
+    router.push(`/reservations/new?performanceId=${performanceId}&scheduleId=${selectedSchedule.id}`)
   }
 
   if (loading) {
@@ -221,9 +240,10 @@ export default function PerformanceDetailClient({ performanceId }: { performance
     return (
       <div className="container py-8 flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center">
-          <p className="text-destructive font-medium">{error || "공연 정보를 불러올 수 없습니다."}</p>
+          <AlertCircle className="h-8 w-8 text-destructive" />
+          <p className="mt-4 text-destructive font-medium">{error || "공연 정보를 불러올 수 없습니다."}</p>
           <Button variant="outline" className="mt-4" asChild>
-            <Link href="/">홈으로 돌아가기</Link>
+            <Link href="/performances">목록으로 돌아가기</Link>
           </Button>
         </div>
       </div>
@@ -563,19 +583,12 @@ export default function PerformanceDetailClient({ performanceId }: { performance
                           <div key={review.id} className="pb-4 border-b last:border-0">
                             <div className="flex items-start gap-3">
                               <Avatar className="h-8 w-8">
-                                <AvatarImage
-                                  src={review.userProfileImage || "/placeholder.svg"}
-                                  alt={review.userName}
-                                />
                                 <AvatarFallback>{review.userName.substring(0, 2)}</AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
                                 <div className="flex items-center justify-between">
                                   <div>
                                     <p className="text-sm font-medium">{review.userName}</p>
-                                    <span className="text-xs text-muted-foreground">
-                                      {formatReviewDate(review.createdAt)}
-                                    </span>
                                   </div>
                                 </div>
                                 <p className="mt-2 text-sm">{review.comment}</p>
@@ -632,12 +645,14 @@ export default function PerformanceDetailClient({ performanceId }: { performance
       </div>
 
       <ReservationCalendarModalFixed
+        performanceId={performanceId}
+        selectedDate={selectedDate}
         isOpen={isCalendarOpen}
         onClose={() => setIsCalendarOpen(false)}
         onDateSelect={handleDateSelect}
         availableDates={performance.schedules
           .filter(schedule => !schedule.isCanceled)
-          .map(schedule => new Date(schedule.startTime))}
+          .map(schedule => parseISO(schedule.startTime))}
       />
     </>
   )

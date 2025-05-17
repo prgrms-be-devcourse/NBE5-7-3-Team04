@@ -19,6 +19,20 @@ export const api = axios.create({
   timeout: 10000, // 10초 타임아웃 설정
 })
 
+// API 요청을 위한 유틸리티 함수
+async function fetchAPI(endpoint: string, options?: { method?: string; body?: string }) {
+  if (options?.method === 'POST') {
+    const response = await api.post(endpoint, options.body)
+    return response.data
+  } else if (options?.method === 'PATCH') {
+    const response = await api.patch(endpoint, options.body)
+    return response.data
+  } else {
+    const response = await api.get(endpoint)
+    return response.data
+  }
+}
+
 // 요청 인터셉터
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -141,23 +155,44 @@ export async function removeBookmark(performanceId: number | string) {
   return response.data
 }
 
-export async function createReview(data: {
+export const getReviews = async (performanceId: string, page: number = 0, size: number = 20) => {
+  const response = await fetch(
+    `${API_BASE_URL}/reviews/${performanceId}?page=${page}&size=${size}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+
+  if (!response.ok) {
+    throw new Error("리뷰를 불러오는데 실패했습니다.")
+  }
+
+  return response.json()
+}
+
+export const createReview = async (data: {
   performanceId: number
   scheduledId: number
   comments: string
-  rating?: number
-}) {
-  const response = await api.post(`/users/performances/${data.performanceId}/reviews`, {
-    scheduledId: data.scheduledId,
-    comments: data.comments,
-    rating: data.rating
+}) => {
+  const response = await fetch(`${API_BASE_URL}/reviews`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(data),
   })
-  return response.data
-}
 
-export async function getReviews(performanceId: number | string, page = 0, size = 5) {
-  const response = await api.get(`/users/performances/${performanceId}/reviews?page=${page}&size=${size}`)
-  return response.data
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.message || "리뷰 작성에 실패했습니다.")
+  }
+
+  return response.json()
 }
 
 export async function getUserInfo() {
@@ -177,4 +212,142 @@ export async function userOnboarding(data: { phoneNumber: string; email: string 
 
 export const getSocialLoginUrl = (provider: string) => {
   return `${AUTH_API_URL}/oauth2/authorization/${provider}`
+}
+
+// Manager API functions
+export async function getManagerPerformances(page = 0, size = 10) {
+  return fetchAPI(`/managers/performances?page=${page}&size=${size}`)
+}
+
+export async function searchManagerPerformances(params: {
+  title?: string
+  venue?: string
+  start?: string
+  end?: string
+  status?: string
+  page?: number
+  size?: number
+}) {
+  const queryParams = new URLSearchParams()
+
+  if (params.title) queryParams.append("title", params.title)
+  if (params.venue) queryParams.append("venue", params.venue)
+  if (params.start) queryParams.append("start", params.start)
+  if (params.end) queryParams.append("end", params.end)
+  if (params.status) queryParams.append("status", params.status)
+  queryParams.append("page", String(params.page || 0))
+  queryParams.append("size", String(params.size || 10))
+
+  return fetchAPI(`/managers/performances/search?${queryParams.toString()}`)
+}
+
+export async function getManagerPerformanceDetails(performanceId: number | string) {
+  return fetchAPI(`/managers/performances/${performanceId}`)
+}
+
+export async function registerPerformance(data: {
+  title: string
+  venue: string
+  price: number
+  totalSeats: number
+  category: string
+  startDate: string
+  endDate: string
+  description: string
+  fileId?: number
+}) {
+  return fetchAPI("/managers/register", {
+    method: "POST",
+    body: JSON.stringify(data),
+  })
+}
+
+export async function registerPerformanceSchedule(
+  performanceId: number | string,
+  data: {
+    startTime: string
+    endTime: string
+  },
+) {
+  return fetchAPI(`/managers/performances/${performanceId}/register`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updatePerformance(
+  performanceId: number | string,
+  data: {
+    fileId: number
+    description: string
+  },
+) {
+  return fetchAPI(`/managers/performance/${performanceId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  })
+}
+
+export async function cancelPerformance(performanceId: number | string) {
+  return fetchAPI(`/managers/performances/${performanceId}/cancel`, {
+    method: "PATCH",
+  })
+}
+
+export async function cancelPerformanceSchedule(performanceId: number | string, scheduleId: number | string) {
+  return fetchAPI(`/managers/performances/${performanceId}/schedules/${scheduleId}`, {
+    method: "PATCH",
+  })
+}
+
+export async function getManagerSettlements(page = 0, size = 10) {
+  return fetchAPI(`/managers/settlements/me?page=${page}&size=${size}`)
+}
+
+export async function createSettlement(data: {
+  performanceId: number
+  account: string
+  bank: string
+}) {
+  return fetchAPI("/managers/settlements/register", {
+    method: "POST",
+    body: JSON.stringify(data),
+  })
+}
+
+// 토큰 가져오기
+function getToken() {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('token')
+  }
+  return null
+}
+
+// File upload function
+export async function uploadFile(file: File) {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const token = getToken()
+  const headers = {
+    Authorization: token ? `Bearer ${token}` : "",
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/files`, {
+      method: "POST",
+      headers,
+      body: formData,
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}))
+      throw new Error(error.message || `API 요청 실패: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error("파일 업로드 오류:", error)
+    throw error
+  }
 } 

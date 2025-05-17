@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
-import { useAuth, logout } from "@/lib/auth"
+import { useAuth, logout } from "@/src/auth/user"
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("")

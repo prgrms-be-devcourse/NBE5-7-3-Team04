@@ -22,7 +22,6 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { CustomCalendar } from "@/components/custom-calendar"
 import { createReservation, getPerformanceDetail } from "@/src/api/api"
-import { Calendar } from "@/components/ui/calendar"
 
 interface PerformanceSchedule {
   id: number
@@ -48,67 +47,396 @@ interface Performance {
 }
 
 interface ReservationCalendarModalFixedProps {
+  performanceId: number | string
+  selectedDate?: Date
   isOpen: boolean
   onClose: () => void
   onDateSelect: (date: Date) => void
-  availableDates?: Date[]
+  availableDates: Date[]
 }
 
-export function ReservationCalendarModalFixed({
-  isOpen,
-  onClose,
-  onDateSelect,
-  availableDates = []
-}: ReservationCalendarModalFixedProps) {
-  const [selectedDate, setSelectedDate] = useState<Date>()
+export function ReservationCalendarModalFixed({ performanceId, selectedDate: initialSelectedDate, isOpen, onClose, onDateSelect, availableDates }: ReservationCalendarModalFixedProps) {
+  const [step, setStep] = useState(1)
+  const [selectedScheduleId, setSelectedScheduleId] = useState<number | undefined>(undefined)
+  const [quantity, setQuantity] = useState(1)
+  const [paymentMethod, setPaymentMethod] = useState("bank")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [performance, setPerformance] = useState<Performance | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
+  const router = useRouter()
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date)
+  // 공연 정보 가져오기
+  useEffect(() => {
+    if (isOpen) {
+      fetchPerformanceDetail()
+    }
+  }, [isOpen, performanceId])
+
+  // 에러 처리 부분 개선
+  const fetchPerformanceDetail = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const data = await getPerformanceDetail(performanceId)
+      setPerformance(data)
+    } catch (err) {
+      console.error("Error fetching performance details:", err)
+      setError("공연 정보를 불러오는 중 오류가 발생했습니다.")
+      toast({
+        title: "오류",
+        description: "공연 정보를 불러오는 중 오류가 발생했습니다.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleConfirm = () => {
-    if (selectedDate) {
-      onDateSelect(selectedDate)
+  // 날짜별로 세션 그룹화
+  const sessionsByDate = performance?.schedules.reduce((acc, schedule) => {
+    if (schedule.isCanceled) return acc
+    const dateStr = format(parseISO(schedule.startTime), "yyyy-MM-dd")
+    console.log('Processing schedule date:', dateStr)
+    if (!acc[dateStr]) {
+      acc[dateStr] = []
+    }
+    acc[dateStr].push(schedule)
+    return acc
+  }, {} as Record<string, PerformanceSchedule[]>) || {}
+
+  // 캘린더에 표시할 날짜들 (세션이 있는 날짜만)
+  const sessionDates = Object.keys(sessionsByDate).map((dateStr) => {
+    return parseISO(dateStr)
+  })
+
+  // 선택한 날짜에 해당하는 세션들
+  const selectedDateStr = initialSelectedDate ? format(initialSelectedDate, "yyyy-MM-dd") : null
+  console.log('Selected date string:', selectedDateStr)
+  console.log('Available dates:', Object.keys(sessionsByDate))
+  
+  const sessionsForSelectedDate = selectedDateStr ? sessionsByDate[selectedDateStr] || [] : []
+
+  console.log('Selected Date:', initialSelectedDate)
+  console.log('Formatted Selected Date:', initialSelectedDate ? format(initialSelectedDate, "yyyy-MM-dd") : null)
+  console.log('Sessions By Date:', sessionsByDate)
+  console.log('Sessions For Selected Date:', sessionsForSelectedDate)
+
+  // 선택한 세션
+  const selectedSchedule = selectedScheduleId
+    ? performance?.schedules.find((s) => s.id === selectedScheduleId)
+    : undefined
+
+  const totalPrice = performance?.price && selectedSchedule ? performance.price * quantity : 0
+
+  const handleSubmit = async () => {
+    if (!selectedScheduleId) return
+
+    setIsSubmitting(true)
+
+    try {
+      await createReservation({
+        scheduleId: selectedScheduleId,
+        quantity,
+      })
+
+      toast({
+        title: "예약이 완료되었습니다!",
+        description: "예약 내역은 마이페이지에서 확인하실 수 있습니다.",
+      })
+
       onClose()
+      router.push("/users/mypage/reservations")
+    } catch (error) {
+      toast({
+        title: "예약 중 오류가 발생했습니다.",
+        description: "잠시 후 다시 시도해주세요.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const nextStep = () => {
+    if (step === 1 && !selectedScheduleId) return
+    setStep(step + 1)
+  }
+
+  const prevStep = () => {
+    setStep(step - 1)
+  }
+
+  const resetModal = () => {
+    setStep(1)
+    setSelectedScheduleId(undefined)
+    setQuantity(1)
+    setPaymentMethod("bank")
+  }
+
+  // 시간 포맷팅 함수
+  const formatTime = (timeString: string) => {
+    const date = parseISO(timeString)
+    return format(date, "HH:mm", { locale: ko })
+  }
+
+  // 날짜 포맷팅 함수 개선
+  const formatDateSafely = (dateString: string) => {
+    try {
+      const date = parseISO(dateString)
+      return format(date, "yyyy년 MM월 dd일 (eee)", { locale: ko })
+    } catch (error) {
+      console.error("Invalid date format:", dateString)
+      return "날짜 정보 없음"
     }
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>공연 날짜 선택</DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={handleDateSelect}
-            disabled={(date) => {
-              const today = new Date()
-              today.setHours(0, 0, 0, 0)
-              return date < today || !availableDates.some(
-                availableDate => 
-                  availableDate.getFullYear() === date.getFullYear() &&
-                  availableDate.getMonth() === date.getMonth() &&
-                  availableDate.getDate() === date.getDate()
-              )
-            }}
-            locale={ko}
-            className="rounded-md border"
-          />
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>
-            취소
-          </Button>
-          <Button onClick={handleConfirm} disabled={!selectedDate}>
-            선택
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Button className="w-full" onClick={() => onDateSelect(initialSelectedDate || new Date())}>
+        예매하기
+      </Button>
+
+      <Dialog
+        open={isOpen}
+        onOpenChange={(newOpen) => {
+          if (!newOpen) {
+            onClose()
+            resetModal()
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{performance?.title || "공연"} 예매하기</DialogTitle>
+            <DialogDescription>
+              {step === 1 && "회차를 선택해주세요."}
+              {step === 2 && "예매 수량과 결제 방법을 선택해주세요."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2">공연 정보를 불러오는 중...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-destructive">{error}</div>
+          ) : (
+            <>
+              {/* 스텝 인디케이터 */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-full border text-xs font-medium",
+                      step >= 1
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-muted text-muted-foreground",
+                    )}
+                  >
+                    1
+                  </div>
+                  <div className={cn("h-0.5 w-8", step >= 2 ? "bg-primary" : "bg-muted")} />
+                  <div
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-full border text-xs font-medium",
+                      step >= 2
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-muted text-muted-foreground",
+                    )}
+                  >
+                    2
+                  </div>
+                </div>
+              </div>
+
+              {/* 스텝 1: 회차 선택 */}
+              {step === 1 && (
+                <div className="py-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+                    <span className="font-medium">
+                      {initialSelectedDate ? formatDateSafely(initialSelectedDate.toISOString()) : "날짜를 선택해주세요"}
+                    </span>
+                  </div>
+
+                  {sessionsForSelectedDate.length > 0 ? (
+                    <RadioGroup
+                      value={selectedScheduleId?.toString()}
+                      onValueChange={(value) => setSelectedScheduleId(Number(value))}
+                      className="space-y-3"
+                    >
+                      {sessionsForSelectedDate.map((schedule) => {
+                        const soldOut = schedule.remainingSeats === 0
+                        const almostSoldOut = schedule.remainingSeats <= (performance?.totalSeats || 100) * 0.1
+
+                        return (
+                          <div
+                            key={schedule.id}
+                            className={cn(
+                              "flex items-center space-x-2 rounded-md border p-3",
+                              soldOut ? "opacity-50" : "",
+                              selectedScheduleId === schedule.id ? "border-primary" : "",
+                            )}
+                          >
+                            <RadioGroupItem
+                              value={schedule.id.toString()}
+                              id={`session-${schedule.id}`}
+                              disabled={soldOut}
+                            />
+                            <Label htmlFor={`session-${schedule.id}`} className="flex-1 cursor-pointer">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">
+                                  {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
+                                </span>
+                                <span className="text-sm font-medium">{performance?.price?.toLocaleString()}원</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground flex justify-between items-center mt-1">
+                                <span>{formatDateSafely(schedule.startTime)}</span>
+                                <div className="flex items-center gap-1">
+                                  {soldOut ? (
+                                    <Badge variant="destructive">매진</Badge>
+                                  ) : almostSoldOut ? (
+                                    <Badge variant="secondary">매진임박</Badge>
+                                  ) : (
+                                    <Badge variant="outline">잔여: {schedule.remainingSeats}석</Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </Label>
+                          </div>
+                        )
+                      })}
+                    </RadioGroup>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      선택한 날짜에 예매 가능한 회차가 없습니다.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 스텝 2: 수량 및 결제 방법 선택 */}
+              {step === 2 && selectedSchedule && (
+                <div className="py-4 space-y-4">
+                  <div className="rounded-md bg-muted p-3 space-y-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">
+                        {formatDateSafely(selectedSchedule.startTime)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">
+                        {formatTime(selectedSchedule.startTime)} - {formatTime(selectedSchedule.endTime)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="quantity">예매 수량</Label>
+                    <Select
+                      value={quantity.toString()}
+                      onValueChange={(value) => setQuantity(Number.parseInt(value))}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger id="quantity">
+                        <SelectValue placeholder="수량 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: Math.min(5, selectedSchedule.remainingSeats) }, (_, i) => i + 1).map(
+                          (num) => (
+                            <SelectItem key={num} value={num.toString()}>
+                              {num}매
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="payment">결제 방법</Label>
+                    <Select value={paymentMethod} onValueChange={setPaymentMethod} disabled={isSubmitting}>
+                      <SelectTrigger id="payment">
+                        <SelectValue placeholder="결제 방법 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bank">무통장 입금</SelectItem>
+                        <SelectItem value="card">신용카드</SelectItem>
+                        <SelectItem value="phone">휴대폰 결제</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {paymentMethod === "bank" && (
+                    <div className="rounded-md bg-muted p-3 text-sm">
+                      <p className="font-medium">입금 계좌 정보</p>
+                      <p className="text-muted-foreground">신한은행 123-456-789012</p>
+                      <p className="text-muted-foreground">예금주: 티켓-4-U</p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        * 입금 후 자동으로 확인되며, 24시간 이내 미입금 시 자동 취소됩니다.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="rounded-md bg-muted p-3">
+                    <div className="flex items-center justify-between">
+                      <span>티켓 가격</span>
+                      <span>
+                        {performance?.price?.toLocaleString()}원 x {quantity}매
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between font-bold">
+                      <span>총 결제 금액</span>
+                      <span>{totalPrice.toLocaleString()}원</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <DialogFooter className="flex items-center justify-between">
+                {step > 1 ? (
+                  <Button type="button" variant="outline" onClick={prevStep}>
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    이전
+                  </Button>
+                ) : (
+                  <div></div>
+                )}
+
+                {step < 2 ? (
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    disabled={!selectedScheduleId}
+                  >
+                    다음
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button type="button" onClick={handleSubmit} disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        예매 처리 중...
+                      </>
+                    ) : (
+                      <>
+                        <Ticket className="mr-2 h-4 w-4" />
+                        예매하기
+                      </>
+                    )}
+                  </Button>
+                )}
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

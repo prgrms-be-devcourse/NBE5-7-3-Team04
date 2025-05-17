@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { saveToken } from '@/lib/auth'
+import { saveToken } from '@/src/auth/user'
 
 export default function OAuthCallback() {
   const router = useRouter()
@@ -11,6 +11,7 @@ export default function OAuthCallback() {
   useEffect(() => {
     const accessToken = searchParams.get('accessToken')
     const refreshToken = searchParams.get('refreshToken')
+    const isNewUser = searchParams.get('isNewUser') === 'true'
 
     if (accessToken && refreshToken) {
       // 토큰 저장
@@ -37,14 +38,18 @@ export default function OAuthCallback() {
           // 필요한 경우 추가 정보는 API를 통해 가져올 수 있습니다
         }))
 
-        // 홈으로 리다이렉션
-        router.push('/')
+        // 가입 여부에 따라 리다이렉션
+        if (isNewUser) {
+          router.replace('/onboard')
+        } else {
+          router.replace('/')
+        }
       } catch (error) {
         console.error('Error parsing token:', error)
-        router.push('/login?error=invalid_token')
+        router.replace('/login?error=invalid_token')
       }
     } else {
-      router.push('/login?error=missing_token')
+      router.replace('/login?error=missing_token')
     }
   }, [router, searchParams])
 

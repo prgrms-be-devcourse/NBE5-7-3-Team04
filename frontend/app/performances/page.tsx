@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { searchPerformances, getPerformances } from "@/src/api/api"
-import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Loader2, Search, ChevronLeft, ChevronRight, MapPin, Calendar } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { getPerformanceImageUrl } from "@/lib/utils"
 import type { PerformancePageResponse } from "../../src/types/performance"
@@ -142,6 +142,11 @@ export default function PerformancesPage() {
     }
   }
 
+  const formatDate = (date: string) => {
+    const formattedDate = new Date(date).toLocaleDateString()
+    return formattedDate.split(', ').join(' ')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white">
       <div className="container py-12 px-4 md:px-6">
@@ -222,16 +227,18 @@ export default function PerformancesPage() {
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <h3 className="text-xl font-bold mb-2 line-clamp-2">{performance.title}</h3>
-                        <div className="flex items-center gap-2 text-sm mb-2">
-                          <span>{performance.venue}</span>
-                          <span>•</span>
-                          <span>
-                            {new Date(performance.startDate).toLocaleDateString()} ~ {new Date(performance.endDate).toLocaleDateString()}
-                          </span>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          <div className="flex items-center">
+                            <MapPin className="mr-1 h-3.5 w-3.5" />
+                            <span className="text-white">{performance.venue}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="mr-1 h-3.5 w-3.5" />
+                            <span className="text-white">
+                              {formatDate(performance.startDate)} ~ {formatDate(performance.endDate)}
+                            </span>
+                          </div>
                         </div>
-                        <p className="text-sm text-white/90 line-clamp-3">
-                          {`${performance.venue}에서 펼쳐지는 특별한 공연`}
-                        </p>
                       </div>
                     </div>
                     <CardContent className="p-4">

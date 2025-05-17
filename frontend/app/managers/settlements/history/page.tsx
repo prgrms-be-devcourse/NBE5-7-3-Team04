@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getManagerSettlements } from "@/lib/api-manager"
+import { getManagerSettlements } from "@/src/api/api"
 import { Loader2, AlertCircle, CreditCard, Calendar } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/src/auth/user"
 
 export default function SettlementHistoryPage() {
   const [settlements, setSettlements] = useState<any[]>([])
