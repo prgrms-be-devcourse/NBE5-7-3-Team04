@@ -1,68 +1,93 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 // Check if admin is authenticated
 export function useAdminAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
-  const pathname = usePathname()
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem("adminToken")
-      if (!token) {
-        setIsAuthenticated(false)
-        setIsLoading(false)
-
-        // Redirect to login if on admin page
-        if (pathname?.startsWith("/admin") && pathname !== "/admin/login") {
-          router.push("/admin/login")
+  const checkAuth = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/admin/check-auth`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json'
         }
-        return
+      })
+
+      if (response.ok) {
+        setIsAuthenticated(true)
+        return true
+      } else {
+        setIsAuthenticated(false)
+        return false
       }
-
-      // In a real app, you would verify the token with the server
-      setIsAuthenticated(true)
-      setIsLoading(false)
-    }
-
-    checkAuth()
-
-    // Listen for storage events (e.g., if token is removed in another tab)
-    const handleStorageChange = () => {
-      checkAuth()
-    }
-
-    window.addEventListener("storage", handleStorageChange)
-    return () => {
-      window.removeEventListener("storage", handleStorageChange)
-    }
-  }, [pathname, router])
-
-  const requireAdminAuth = (callback?: () => void) => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/admin/login")
+    } catch (error) {
+      console.error("Auth check error:", error)
+      setIsAuthenticated(false)
       return false
     }
-
-    if (callback && !isLoading && isAuthenticated) {
-      callback()
-    }
-
-    return isAuthenticated
   }
 
-  return { isAuthenticated, isLoading, requireAdminAuth }
+  const requireAdminAuth = async () => {
+    const isAuth = await checkAuth()
+    if (!isAuth) {
+      router.replace("/admin/login")
+      return false
+    }
+    return true
+  }
+
+  return { isAuthenticated, requireAdminAuth, checkAuth }
+}
+
+// CSRF 토큰 가져오기
+async function getCsrfToken() {
+  try {
+    const response = await fetch(`${API_URL}/api/v1/admin/csrf`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+    if (response.ok) {
+      const token = await response.json()
+      return token.token
+    }
+    return null
+  } catch (error) {
+    console.error('CSRF 토큰 가져오기 실패:', error)
+    return null
+  }
 }
 
 // Admin logout function
-export function adminLogout() {
-  localStorage.removeItem("adminToken")
-  localStorage.removeItem("adminInfo")
+export async function adminLogout() {
+  try {
+    const csrfToken = await getCsrfToken()
+    if (!csrfToken) {
+      console.error('CSRF 토큰을 가져올 수 없습니다')
+      return
+    }
+    
+    const response = await fetch(`${API_URL}/api/v1/admin/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'X-XSRF-TOKEN': csrfToken
+      }
+    })
 
-  // Trigger storage event for other tabs
-  window.dispatchEvent(new Event("storage"))
+    if (response.ok) {
+      window.location.href = '/admin/login'
+    } else {
+      console.error('로그아웃 실패')
+    }
+  } catch (error) {
+    console.error('로그아웃 중 오류 발생:', error)
+  }
 }
