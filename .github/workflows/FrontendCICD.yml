@@ -36,6 +36,9 @@ jobs:
               run: |
                   cd frontend
                   npm run build
+              env:
+                  NEXT_PUBLIC_CLOUDFRONT_URL: ${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}
+                  NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
             - name: Login to Docker Hub
               uses: docker/login-action@v2
