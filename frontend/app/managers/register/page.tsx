@@ -15,8 +15,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns"
 import { CalendarIcon, Loader2, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { registerPerformance, uploadFile } from "@/lib/api-manager"
-import { useAuth } from "@/lib/auth"
+import { registerPerformance, uploadFile } from "@/src/api/api"
+import { useAuth } from "@/src/auth/user"
 import { useEffect } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 

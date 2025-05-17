@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getManagerPerformances } from "@/lib/api-manager"
+import { getManagerPerformances } from "@/src/api/api"
 import { Loader2, AlertCircle, Calendar, Users, Ticket, CreditCard } from "lucide-react"
 import Link from "next/link"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/src/auth/user"
 
 export default function ManagerDashboardPage() {
   const [performances, setPerformances] = useState<any[]>([])

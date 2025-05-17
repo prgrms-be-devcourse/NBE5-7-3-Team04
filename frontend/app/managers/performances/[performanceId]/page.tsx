@@ -21,11 +21,11 @@ import {
   cancelPerformance,
   cancelPerformanceSchedule,
   registerPerformanceSchedule,
-} from "@/lib/api-manager"
+} from "@/src/api/api"
 import { format, parseISO } from "date-fns"
 import { Loader2, AlertCircle, Calendar, Users, Clock, ArrowLeft, Plus, Ban, AlertTriangle } from "lucide-react"
 import Link from "next/link"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/src/auth/user"
 import { ScheduleForm } from "@/components/schedule-form"
 
 export default function PerformanceDetailPage({ params }: { params: { performanceId: string } }) {
