@@ -2,8 +2,8 @@
 import { fetchAPI, getToken } from "./api"
 
 // Base URL for API
-// const API_BASE_URL = "http://43.201.79.165:8080/api/v1"
-const API_BASE_URL = "http://localhost:8080/api/v1"
+ const API_BASE_URL = "http://43.201.79.165:8080/api/v1"
+//const API_BASE_URL = "http://localhost:8080/api/v1"
 
 // Performance Manager API functions
 
