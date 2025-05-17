@@ -14,13 +14,13 @@ export function Footer() {
 
   return (
     <footer className="w-full border-t bg-background py-8">
-      <div className="container px-8 mx-8 md:px-6">
+      <div className="container px-8 mx-auto md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center">
               <div className="flex items-center">
                 <Image src="/logo-icon.png" alt="TICKET4U" width={32} height={32} />
-                <Image src="/logo-text.png" alt="TICKET4U" width={120} height={24} className="ml-1" />
+                <Image src="/logo-text.png" alt="TICKET4U" width={124} height={40} className="ml-1" />
               </div>
             </Link>
             <p className="text-sm text-muted-foreground">

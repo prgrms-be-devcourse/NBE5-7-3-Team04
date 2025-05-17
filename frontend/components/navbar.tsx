@@ -71,7 +71,7 @@ export function Navbar() {
                 <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
                   <div className="flex items-center">
                     <Image src="/logo-icon.png" alt="TICKET4U" width={32} height={32} className="w-8 h-8" />
-                    <Image src="/logo-text.png" alt="TICKET4U" width={120} height={32} className="w-[120px] h-8 ml-1" />
+                    <Image src="/logo-text.png" alt="TICKET4U" width={124} height={40} className="w-[124px] h-10 ml-1" />
                   </div>
                 </Link>
                 <Link
@@ -120,7 +120,7 @@ export function Navbar() {
           <Link href="/" className="flex items-center gap-2">
             <div className="flex items-center">
               <Image src="/logo-icon.png" alt="TICKET4U" width={32} height={32} className="w-8 h-8" />
-              <Image src="/logo-text.png" alt="TICKET4U" width={120} height={32} className="w-[120px] h-8 ml-1" />
+              <Image src="/logo-text.png" alt="TICKET4U" width={124} height={40} className="w-[124px] h-10 ml-1" />
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm ml-8">

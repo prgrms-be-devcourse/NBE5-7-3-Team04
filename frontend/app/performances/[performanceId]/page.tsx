@@ -21,6 +21,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import type { Performance } from "@/types"
 
 interface PerformanceSchedule {
   id: number
@@ -28,22 +29,6 @@ interface PerformanceSchedule {
   endTime: string
   remainingSeats: number
   isCanceled: boolean
-}
-
-interface Performance {
-  id: number
-  title: string
-  price: number
-  totalSeats: number
-  venue: string
-  description: string
-  status: string
-  fileUrl: string
-  startDate: string
-  endDate: string
-  bookmarked: boolean
-  schedules: PerformanceSchedule[]
-  category?: string
 }
 
 interface Review {
@@ -65,6 +50,7 @@ interface ReviewsResponse {
 }
 
 export default function PerformanceDetailPage({ params }: { params: { performanceId: string } }) {
+  const unwrappedParams = use(params)
   const [performance, setPerformance] = useState<Performance | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -84,25 +70,25 @@ export default function PerformanceDetailPage({ params }: { params: { performanc
       try {
         setLoading(true)
         setError(null)
-        const data = await getPerformanceDetail(params.performanceId)
+        const data = await getPerformanceDetail(unwrappedParams.performanceId)
         setPerformance(data)
       } catch (err) {
         console.error("Error fetching performance:", err)
-        setError("공연 정보를 불러오는 중 오류가 발생했습니다.")
+        setError("공연 정보를 불러오는데 실패했습니다.")
       } finally {
         setLoading(false)
       }
     }
 
     fetchPerformance()
-  }, [params.performanceId])
+  }, [unwrappedParams.performanceId])
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         setReviewsLoading(true)
         setReviewsError(null)
-        const data = await getReviews(params.performanceId, reviewsPage)
+        const data = await getReviews(unwrappedParams.performanceId, reviewsPage)
         setReviews(data.content)
         setReviewsTotal(data.totalElements)
         setReviewsTotalPages(data.totalPages)
@@ -117,7 +103,7 @@ export default function PerformanceDetailPage({ params }: { params: { performanc
     if (!loading && performance) {
       fetchReviews()
     }
-  }, [params.performanceId, reviewsPage, loading, performance])
+  }, [unwrappedParams.performanceId, reviewsPage, loading, performance])
 
   const handleReviewSubmit = async () => {
     if (!reviewComment.trim()) {
@@ -136,7 +122,7 @@ export default function PerformanceDetailPage({ params }: { params: { performanc
       const scheduleId = performance?.schedules[0]?.id || 0
 
       await createReview({
-        performanceId: Number(params.performanceId),
+        performanceId: Number(unwrappedParams.performanceId),
         scheduledId: scheduleId,
         comments: reviewComment,
         // API에 따라 rating 필드가 필요할 수 있음
@@ -144,7 +130,7 @@ export default function PerformanceDetailPage({ params }: { params: { performanc
       })
 
       // 리뷰 작성 성공 후 리뷰 목록 새로고침
-      const data = await getReviews(params.performanceId, 0)
+      const data = await getReviews(unwrappedParams.performanceId, 0)
       setReviews(data.content)
       setReviewsTotal(data.totalElements)
       setReviewsTotalPages(data.totalPages)
