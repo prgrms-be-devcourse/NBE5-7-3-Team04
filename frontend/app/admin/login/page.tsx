@@ -1,9 +1,8 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useAdminAuth } from "@/lib/admin-auth"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,106 +11,108 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 
-export default function AdminLoginPage() {
-  const router = useRouter()
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+export default function AdminLogin() {
   const [adminId, setAdminId] = useState("")
   const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const { checkAuth } = useAdminAuth()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  useEffect(() => {
+    const checkSession = async () => {
+      const isAuth = await checkAuth()
+      if (isAuth) {
+        router.replace("/admin")
+      }
+    }
+    checkSession()
+  }, [checkAuth, router])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+    setError("")
 
     try {
-      // In a real implementation, this would call your API
-      // const response = await fetch('/api/admin/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ adminId, password }),
-      // })
+      const response = await fetch(`${API_URL}/admin/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          adminId: adminId,
+          password: password
+        })
+      })
 
-      // For demo purposes, we'll simulate a successful login with mock data
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Mock validation
-      if (adminId === "admin" && password === "password") {
-        // Store admin token and info
-        localStorage.setItem("adminToken", "admin_mock_token_" + Math.random().toString(36).substring(2, 15))
-        localStorage.setItem(
-          "adminInfo",
-          JSON.stringify({
-            id: "admin1",
-            name: "관리자",
-            role: "ADMIN",
-          }),
-        )
-
-        // Redirect to admin dashboard
-        router.push("/admin")
+      if (response.ok) {
+        router.replace("/admin")
       } else {
-        setError("관리자 아이디 또는 비밀번호가 올바르지 않습니다.")
+        setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.")
       }
-    } catch (err) {
-      console.error("Login error:", err)
-      setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.")
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      setError("로그인 중 오류가 발생했습니다.")
     }
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/40 py-12">
-      <Card className="mx-auto w-full max-w-md">
-        <CardHeader className="space-y-2 text-center">
-          <div className="flex justify-center mb-4">
-            <Image src="/logo-icon.png" alt="TICKET4U" width={48} height={48} />
-          </div>
-          <CardTitle className="text-2xl font-bold">관리자 로그인</CardTitle>
-          <CardDescription>관리자 계정으로 로그인하세요.</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="adminId">관리자 아이디</Label>
-              <Input
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            관리자 로그인
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="adminId" className="sr-only">
+                아이디
+              </label>
+              <input
                 id="adminId"
+                name="adminId"
                 type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="아이디"
                 value={adminId}
                 onChange={(e) => setAdminId(e.target.value)}
-                placeholder="관리자 아이디를 입력하세요"
-                required
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">비밀번호</Label>
-              <Input
+            <div>
+              <label htmlFor="password" className="sr-only">
+                비밀번호
+              </label>
+              <input
                 id="password"
+                name="password"
                 type="password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="비밀번호"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="비밀번호를 입력하세요"
-                required
               />
             </div>
-          </CardContent>
+          </div>
 
-          <CardFooter>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "로그인 중..." : "로그인"}
-            </Button>
-          </CardFooter>
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              로그인
+            </button>
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   )
 }

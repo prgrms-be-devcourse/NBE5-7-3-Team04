@@ -1,173 +1,320 @@
-import { Button } from "@/components/ui/button"
+"use client"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Search, Eye } from "lucide-react"
-import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DatePicker } from "@/components/ui/date-picker"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useToast } from "@/components/ui/use-toast"
+import { getCsrfToken } from "@/lib/admin-auth"
+import Image from "next/image"
+
+interface RefundDetail {
+  refundId: number
+  userId: number
+  reservationId: number
+  account: string
+  bank: string
+  depositorName: string
+  refundStatus: 'PENDING' | 'READY' | 'CONFIRMED'
+  quantity: number
+  startTime: string
+  fileId: number
+  title: string
+  venue: string
+  price: number
+  category: string
+  performanceDate: string
+  description: string
+}
+
+const statusMap: Record<string, string> = {
+  'PENDING': '계좌입력대기',
+  'READY': '환불대기',
+  'CONFIRMED': '환불완료'
+}
 
 export default function RefundsPage() {
+  const [refunds, setRefunds] = useState<RefundDetail[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [selectedStatus, setSelectedStatus] = useState<string>("ALL")
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedRefund, setSelectedRefund] = useState<RefundDetail | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { toast } = useToast()
+
+  const fetchRefunds = async (page: number, status?: string) => {
+    try {
+      const statusQuery = status && status !== "ALL" ? `status=${status}&` : ''
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/refunds?${statusQuery}page=${page}&size=5`,
+        { credentials: 'include' }
+      )
+      
+      if (!response.ok) throw new Error('환불 데이터를 가져오는데 실패했습니다')
+      
+      const data = await response.json()
+      setRefunds(data.content)
+      setTotalCount(data.totalElements)
+    } catch (error) {
+      console.error('Error fetching refunds:', error)
+      toast({
+        title: "오류",
+        description: "환불 목록을 가져오는데 실패했습니다",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value)
+    setCurrentPage(0)
+    fetchRefunds(0, value || undefined)
+  }
+
+  const handleConfirmRefund = async (refundId: number) => {
+    try {
+      const csrfToken = await getCsrfToken()
+      if (!csrfToken) {
+        console.error('CSRF 토큰을 가져올 수 없습니다')
+        return
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/refunds/${refundId}/confirm`,
+        {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+            'X-XSRF-TOKEN': csrfToken
+          }
+        }
+      )
+
+      if (!response.ok) throw new Error('환불 승인에 실패했습니다')
+
+      toast({
+        title: "성공",
+        description: "환불이 승인되었습니다"
+      })
+      
+      setIsModalOpen(false)
+      fetchRefunds(currentPage, selectedStatus || undefined)
+    } catch (error) {
+      console.error('Error confirming refund:', error)
+      toast({
+        title: "오류",
+        description: "환불 승인에 실패했습니다",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(prev => prev - 1)
+    }
+  }
+
+  const handleNextPage = () => {
+    if ((currentPage + 1) * 5 < totalCount) {
+      setCurrentPage(prev => prev + 1)
+    }
+  }
+
+  useEffect(() => {
+    fetchRefunds(currentPage, selectedStatus || undefined)
+  }, [currentPage])
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">환불 처리</h1>
-        <p className="text-muted-foreground">환불 요청을 확인하고 처리할 수 있습니다.</p>
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-wrap">
-        <div className="relative flex-1 w-full sm:max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input type="search" placeholder="예약번호 또는 사용자 검색..." className="pl-8 w-full" />
-        </div>
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="환불 상태" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">모든 상태</SelectItem>
-              <SelectItem value="pending">환불 대기중</SelectItem>
-              <SelectItem value="processing">처리중</SelectItem>
-              <SelectItem value="completed">환불 완료</SelectItem>
-              <SelectItem value="rejected">환불 거절</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="공연 선택" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">모든 공연</SelectItem>
-              <SelectItem value="1">2023 여름 재즈 페스티벌</SelectItem>
-              <SelectItem value="2">클래식 오케스트라 공연</SelectItem>
-              <SelectItem value="3">인디 밴드 콘서트</SelectItem>
-              <SelectItem value="4">국악 한마당</SelectItem>
-              <SelectItem value="5">팝 콘서트</SelectItem>
-            </SelectContent>
-          </Select>
-          <DatePicker />
-          <Button variant="outline">검색</Button>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight">환불 관리</h1>
+        <p className="text-muted-foreground">환불 요청을 관리하고 승인할 수 있습니다.</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>환불 요청 목록</CardTitle>
-          <CardDescription>총 32개의 환불 요청이 있습니다.</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>환불 목록</CardTitle>
+              <CardDescription>총 {totalCount}개의 환불 요청이 있습니다.</CardDescription>
+            </div>
+            <Select value={selectedStatus} onValueChange={handleStatusChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="상태 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">전체</SelectItem>
+                <SelectItem value="PENDING">계좌입력대기</SelectItem>
+                <SelectItem value="READY">환불대기</SelectItem>
+                <SelectItem value="CONFIRMED">환불완료</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>환불 ID</TableHead>
-                <TableHead>예약번호</TableHead>
-                <TableHead>사용자</TableHead>
                 <TableHead>공연명</TableHead>
-                <TableHead>요청일</TableHead>
-                <TableHead>금액</TableHead>
+                <TableHead>예매자</TableHead>
                 <TableHead>상태</TableHead>
-                <TableHead className="text-right">작업</TableHead>
+                <TableHead>금액</TableHead>
+                <TableHead>신청일</TableHead>
+                <TableHead className="text-right">상세</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {[
-                {
-                  id: "RF-2023-1001",
-                  reservationId: "R-2023-2001",
-                  user: "김환불",
-                  performance: "2023 여름 재즈 페스티벌",
-                  date: "2023-05-15",
-                  amount: 50000,
-                  status: "환불 대기중",
-                },
-                {
-                  id: "RF-2023-1002",
-                  reservationId: "R-2023-2002",
-                  user: "이취소",
-                  performance: "클래식 오케스트라 공연",
-                  date: "2023-05-16",
-                  amount: 70000,
-                  status: "처리중",
-                },
-                {
-                  id: "RF-2023-1003",
-                  reservationId: "R-2023-2003",
-                  user: "박환불",
-                  performance: "인디 밴드 콘서트",
-                  date: "2023-05-17",
-                  amount: 35000,
-                  status: "환불 완료",
-                },
-                {
-                  id: "RF-2023-1004",
-                  reservationId: "R-2023-2004",
-                  user: "최취소",
-                  performance: "국악 한마당",
-                  date: "2023-05-18",
-                  amount: 40000,
-                  status: "환불 대기중",
-                },
-                {
-                  id: "RF-2023-1005",
-                  reservationId: "R-2023-2005",
-                  user: "정환불",
-                  performance: "팝 콘서트",
-                  date: "2023-05-19",
-                  amount: 60000,
-                  status: "환불 거절",
-                },
-              ].map((refund) => (
-                <TableRow key={refund.id}>
-                  <TableCell className="font-medium">{refund.id}</TableCell>
-                  <TableCell>{refund.reservationId}</TableCell>
-                  <TableCell>{refund.user}</TableCell>
-                  <TableCell>{refund.performance}</TableCell>
-                  <TableCell>{refund.date}</TableCell>
-                  <TableCell>{refund.amount.toLocaleString()}원</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        refund.status === "환불 완료"
-                          ? "success"
-                          : refund.status === "환불 대기중"
-                            ? "outline"
-                            : refund.status === "처리중"
-                              ? "secondary"
-                              : refund.status === "환불 거절"
-                                ? "destructive"
-                                : "default"
-                      }
-                    >
-                      {refund.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" asChild>
-                      <Link href={`/admin/refunds/${refund.id}`}>
-                        <Eye className="h-4 w-4" />
-                        <span className="sr-only">상세보기</span>
-                      </Link>
-                    </Button>
-                  </TableCell>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">로딩 중...</TableCell>
                 </TableRow>
-              ))}
+              ) : refunds.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">환불 요청이 없습니다</TableCell>
+                </TableRow>
+              ) : (
+                refunds.map((refund) => (
+                  <TableRow key={refund.refundId}>
+                    <TableCell className="font-medium">{refund.title}</TableCell>
+                    <TableCell>{refund.depositorName}</TableCell>
+                    <TableCell>
+                      <Badge variant={
+                        refund.refundStatus === 'CONFIRMED' ? 'default' :
+                        refund.refundStatus === 'READY' ? 'outline' : 'secondary'
+                      }>
+                        {statusMap[refund.refundStatus]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{(refund.price * refund.quantity).toLocaleString()}원</TableCell>
+                    <TableCell>{new Date(refund.startTime).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedRefund(refund)
+                          setIsModalOpen(true)
+                        }}
+                      >
+                        상세보기
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
         <CardFooter className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">총 32개 중 1-5 표시</div>
+          <div className="text-sm text-muted-foreground">
+            총 {totalCount}개 중 {refunds.length}개 표시
+          </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+            >
               이전
             </Button>
-            <Button variant="outline" size="sm">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={(currentPage + 1) * 5 >= totalCount}
+            >
               다음
             </Button>
           </div>
         </CardFooter>
       </Card>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        {selectedRefund && (
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>환불 상세 정보</DialogTitle>
+              <DialogDescription>
+                환불 신청 번호: {selectedRefund.refundId}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-6">
+              <div className="flex gap-6">
+                <div className="flex-shrink-0">
+                  <div className="relative w-40 h-40 bg-white rounded-md overflow-hidden border">
+                    <Image
+                      src={`/api/files/${selectedRefund.fileId}`}
+                      alt={selectedRefund.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold">{selectedRefund.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{selectedRefund.description}</p>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <p className="text-sm font-medium">공연 장소</p>
+                      <p className="text-sm text-muted-foreground">{selectedRefund.venue}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">공연 일시</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(selectedRefund.performanceDate).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">예매 수량</p>
+                      <p className="text-sm text-muted-foreground">{selectedRefund.quantity}매</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">환불 금액</p>
+                      <p className="text-sm text-muted-foreground">
+                        {(selectedRefund.price * selectedRefund.quantity).toLocaleString()}원
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium">환불 계좌</p>
+                  <p className="text-sm text-muted-foreground">{selectedRefund.bank} {selectedRefund.account}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">예금주</p>
+                  <p className="text-sm text-muted-foreground">{selectedRefund.depositorName}</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  닫기
+                </Button>
+                {selectedRefund.refundStatus === 'READY' && (
+                  <Button
+                    onClick={() => handleConfirmRefund(selectedRefund.refundId)}
+                  >
+                    환불 승인
+                  </Button>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
     </div>
   )
 }

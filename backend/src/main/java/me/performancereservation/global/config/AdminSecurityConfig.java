@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
@@ -42,10 +43,10 @@ public class AdminSecurityConfig {
                         .ignoringRequestMatchers("/api/v1/admin/login") // 로그인은 csrf 설정 제외
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 쿠키로 제공
                 )
-                .cors(cors -> cors.disable())           // 배포시 프론트 주소로 설정 필요
+                .cors(Customizer.withDefaults())  // 전역 CORS 설정 사용
                 .securityMatcher("/api/v1/admin/**") // 어드민 기능에만 AdminSecurity 를 적용하여 사용자와 분리
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/admin/login")
+                        .requestMatchers("/api/v1/admin/login", "/api/v1/admin/check-auth")
                         .permitAll()
                         .requestMatchers("/api/v1/admin/**")
                         .hasRole("ADMIN")
