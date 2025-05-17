@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { ReservationCalendarModalFixed } from "@/components/reservation-calendar-modal-fixed"
-import { getPerformanceDetail, getReviews, createReview } from "@/lib/api"
+import { getPerformanceDetail, getReviews, createReview } from "@/src/api/api"
 import { format, parseISO, addHours } from "date-fns"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
@@ -18,7 +18,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { useAuth } from "@/lib/auth"
 import { ko } from "date-fns/locale"
 import { CustomCalendar } from "@/components/custom-calendar"
-import { cn } from "@/lib/utils"
+import { cn, getPerformanceImageUrl } from "@/lib/utils"
 import Image from "next/image"
 
 interface PerformanceSchedule {
@@ -79,6 +79,7 @@ export default function PerformanceDetailClient({ performanceId }: { performance
   const [isBookmarked, setIsBookmarked] = useState(false)
   const { isAuthenticated } = useAuth()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   useEffect(() => {
     const fetchPerformance = async () => {
@@ -107,6 +108,7 @@ export default function PerformanceDetailClient({ performanceId }: { performance
         setReviewsLoading(true)
         setReviewsError(null)
         const data = await getReviews(performanceId, reviewsPage)
+        console.log('받아온 리뷰 데이터:', data)
         setReviews(data.content)
         setReviewsTotal(data.totalElements)
         setReviewsTotalPages(data.totalPages)
@@ -200,6 +202,10 @@ export default function PerformanceDetailClient({ performanceId }: { performance
     }
   }
 
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date)
+  }
+
   if (loading) {
     return (
       <div className="container py-8 flex items-center justify-center min-h-[50vh]">
@@ -269,11 +275,22 @@ export default function PerformanceDetailClient({ performanceId }: { performance
   }
 
   // 리뷰 날짜 포맷팅
-  const formatReviewDate = (dateString: string) => {
+  const formatReviewDate = (dateString: string | undefined) => {
+    console.log('리뷰 날짜 원본:', dateString)
+    
+    if (!dateString) {
+      console.log('날짜 문자열이 없음')
+      return "날짜 정보 없음"
+    }
+
     try {
       const date = parseISO(dateString)
-      return format(date, "yyyy.MM.dd", { locale: ko })
+      console.log('파싱된 날짜:', date)
+      const formattedDate = format(date, "yyyy년 MM월 dd일", { locale: ko })
+      console.log('포맷된 날짜:', formattedDate)
+      return formattedDate
     } catch (error) {
+      console.error("날짜 파싱 오류:", error)
       return "날짜 정보 없음"
     }
   }
@@ -302,9 +319,9 @@ export default function PerformanceDetailClient({ performanceId }: { performance
   // 랜덤 이미지 URL 생성
   const getRandomImage = () => {
     const images = [
-      "/placeholder-ssak2.png",
-      "/lively-jazz-concert.png",
-      "/classical-orchestra-concert.png"
+      "/placeholder-1.jpg",
+      "/placeholder-2.jpg",
+      "/placeholder-3.jpg",
     ]
     return images[Math.floor(Math.random() * images.length)]
   }
@@ -320,12 +337,16 @@ export default function PerformanceDetailClient({ performanceId }: { performance
               {/* 좌측 섹션 - 이미지 */}
               <div className="w-[300px] flex-shrink-0">
                 <div className="relative aspect-[2/3] w-full">
-                  <Image
-                    src={performance.fileUrl || getRandomImage()}
+                  {(() => {
+                    console.log('Performance fileUrl:', performance.fileUrl);
+                    console.log('CloudFront URL:', process.env.NEXT_PUBLIC_CLOUDFRONT_URL);
+                    console.log('Final image URL:', getPerformanceImageUrl(performance.fileUrl));
+                    return null;
+                  })()}
+                  <img
+                    src={getPerformanceImageUrl(performance.fileUrl)}
                     alt={performance.title}
-                    fill
-                    className="object-cover rounded-lg"
-                    priority
+                    className="object-cover rounded-lg w-full h-full"
                   />
                 </div>
               </div>
@@ -591,10 +612,13 @@ export default function PerformanceDetailClient({ performanceId }: { performance
                   </div>
 
                   {performance.status === "CONFIRMED" ? (
-                    <ReservationCalendarModalFixed 
-                      performanceId={performance.id} 
-                      selectedDate={selectedDate}
-                    />
+                    <Button 
+                      className="w-full" 
+                      onClick={() => setIsCalendarOpen(true)}
+                      disabled={!selectedDate}
+                    >
+                      {selectedDate ? "예매하기" : "날짜를 선택해주세요"}
+                    </Button>
                   ) : (
                     <Button className="w-full" disabled>
                       {performance.status === "COMPLETED" ? "종료된 공연" : "예매 불가능한 공연"}
@@ -606,6 +630,15 @@ export default function PerformanceDetailClient({ performanceId }: { performance
           </div>
         </div>
       </div>
+
+      <ReservationCalendarModalFixed
+        isOpen={isCalendarOpen}
+        onClose={() => setIsCalendarOpen(false)}
+        onDateSelect={handleDateSelect}
+        availableDates={performance.schedules
+          .filter(schedule => !schedule.isCanceled)
+          .map(schedule => new Date(schedule.startTime))}
+      />
     </>
   )
 } 

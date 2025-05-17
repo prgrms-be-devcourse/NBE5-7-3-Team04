@@ -4,50 +4,51 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
+interface User {
+  id: number
+  name: string
+  email: string
+  role: string
+  profileImage?: string
+}
+
 // Check if user is authenticated
-export function useAuth() {
+export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
 
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem("token")
-      if (!token) {
-        setIsAuthenticated(false)
-        setUserRole(null)
-        setIsLoading(false)
-        return
-      }
-
-      // In a real app, you would verify the token with the server
-      // For now, we'll just check if it exists and parse the user role from it
-      try {
-        // Mock implementation - in a real app, you would decode the JWT
-        // This is just for demonstration purposes
-        const userInfo = localStorage.getItem("userInfo")
-        if (userInfo) {
-          const user = JSON.parse(userInfo)
-          setUserRole(user.role || "USER")
-        } else {
-          // Default to USER role if no specific role is found
-          setUserRole("USER")
+      const userInfo = localStorage.getItem("userInfo")
+      
+      if (token && userInfo) {
+        try {
+          const parsedUser = JSON.parse(userInfo)
+          setUser(parsedUser)
+          setUserRole(parsedUser.role || "USER")
+          setIsAuthenticated(true)
+        } catch (error) {
+          console.error("Error parsing user info:", error)
+          setUser(null)
+          setUserRole(null)
+          setIsAuthenticated(false)
         }
-
-        setIsAuthenticated(true)
-      } catch (error) {
-        console.error("Error parsing user info:", error)
-        setIsAuthenticated(false)
+      } else {
+        setUser(null)
         setUserRole(null)
+        setIsAuthenticated(false)
       }
-
       setIsLoading(false)
     }
 
+    // 초기 체크
     checkAuth()
 
-    // Listen for storage events (e.g., if token is removed in another tab)
+    // storage 이벤트 리스너
     const handleStorageChange = () => {
       checkAuth()
     }
@@ -92,7 +93,7 @@ export function useAuth() {
     return hasRole
   }
 
-  return { isAuthenticated, isLoading, userRole, requireAuth, requireRole }
+  return { isAuthenticated, isLoading, userRole, user, requireAuth, requireRole }
 }
 
 // Mock login function for testing
@@ -105,6 +106,7 @@ export function mockLogin(role = "USER") {
       name: "사용자" + Math.floor(Math.random() * 100),
       email: "user" + Math.floor(Math.random() * 100) + "@example.com",
       role: role,
+      profileImage: "/default-avatar.png"
     }),
   )
 
@@ -113,10 +115,44 @@ export function mockLogin(role = "USER") {
 }
 
 // Logout function
-export function logout() {
+export const logout = () => {
   localStorage.removeItem("token")
   localStorage.removeItem("userInfo")
 
   // Trigger storage event for other tabs
   window.dispatchEvent(new Event("storage"))
+
+  window.location.href = "/login"
+}
+
+// 토큰 저장 함수
+export const saveToken = (token: string) => {
+  localStorage.setItem("token", token)
+}
+
+// 토큰 가져오기 함수
+export const getToken = () => {
+  return localStorage.getItem("token")
+}
+
+// 토큰이 유효한지 확인하는 함수
+export const isTokenValid = (token: string) => {
+  try {
+    // JWT 토큰 디코딩
+    const base64Url = token.split(".")[1]
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    )
+
+    const { exp } = JSON.parse(jsonPayload)
+    const currentTime = Math.floor(Date.now() / 1000)
+
+    return exp > currentTime
+  } catch {
+    return false
+  }
 }

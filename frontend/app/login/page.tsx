@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { getSocialLoginUrl } from "@/src/api/api"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,21 +15,11 @@ export default function LoginPage() {
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(true)
     try {
-      // 실제 구현에서는 백엔드 API 호출
-      // 예: window.location.href = `http://43.201.79.165:8080/oauth2/authorization/${provider}`
-
-      // 소셜 로그인 리다이렉트 URL (실제 API에 맞게 수정 필요)
-      const redirectUrl = `/api/auth/${provider}`
-
-      // 실제 구현에서는 아래 주석을 해제하고 리다이렉트 처리
-      // window.location.href = redirectUrl
-
-      // 데모 목적으로 로그인 성공 시뮬레이션
-      console.log(`${provider} 로그인 시도`)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // 로그인 성공 후 홈페이지로 리다이렉트
-      router.push("/")
+      // 소셜 로그인 리다이렉트 URL 가져오기
+      const redirectUrl = getSocialLoginUrl(provider)
+      
+      // 소셜 로그인 페이지로 리다이렉트
+      window.location.href = redirectUrl
     } catch (error) {
       console.error("로그인 오류:", error)
     } finally {

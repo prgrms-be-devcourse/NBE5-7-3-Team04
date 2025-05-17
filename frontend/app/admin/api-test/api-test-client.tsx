@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, AlertCircle, CheckCircle, Copy, Check } from "lucide-react"
-import { fetchAPI } from "@/lib/api"
+import { api } from "@/src/api/api"
 import { ApiEndpointSelector } from "@/components/api-endpoint-selector"
 
 // 미리 정의된 API 엔드포인트 목록 부분에서 중복된 키를 수정합니다.
@@ -207,7 +207,12 @@ export default function ApiTestClient() {
       }
 
       // API 요청 실행
-      const result = await fetchAPI(finalEndpoint, options)
+      const result = await api.request({
+        url: finalEndpoint,
+        method: options.method || 'GET',
+        headers: options.headers,
+        data: options.body
+      })
       setResponse(result)
       setSuccess(true)
       setActiveTab("response") // 응답 탭으로 자동 전환

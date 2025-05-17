@@ -8,7 +8,7 @@ interface GetReservationsParams {
 export const getReservations = async ({ page = 0, size = 10 }: GetReservationsParams = {}) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/reservations?page=${page}&size=${size}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/users/reservations?page=${page}&size=${size}`,
       {
         method: 'GET',
         headers: {

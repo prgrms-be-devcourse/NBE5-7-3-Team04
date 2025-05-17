@@ -1,37 +1,64 @@
-import { PerformancePageResponse } from '../types/performance';
+import { api } from "./api"
+import { AxiosError } from "axios"
 
-interface GetPerformancesParams {
-  page?: number;
-  size?: number;
+export interface Performance {
+  id: number
+  title: string
+  category: string
+  venue: string
+  startDate: string
+  endDate: string
+  price: number
+  fileUrl: string | null
+  image: string
 }
 
-interface GetPerformancesResponse {
-  content: PerformancePageResponse[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
+export interface PerformancePageResponse {
+  content: Performance[]
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
 }
 
-export const getPerformances = async ({ page = 0, size = 20 }: GetPerformancesParams = {}) => {
+export async function getPerformances(page = 0, size = 10): Promise<PerformancePageResponse> {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/performances?page=${page}&size=${size}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch performances: ${response.statusText}`);
+    console.log('Fetching performances with params:', { page, size })
+    const response = await api.get(`/users/performances?page=${page}&size=${size}`)
+    console.log('API Response:', response.data)
+    
+    if (!response.data || !Array.isArray(response.data.content)) {
+      console.error('Invalid response format:', response.data)
+      throw new Error('Invalid response format from server')
     }
-
-    return response.json() as Promise<GetPerformancesResponse>;
+    
+    return response.data
   } catch (error) {
-    console.error('Error fetching performances:', error);
-    throw error;
+    console.error('Error in getPerformances:', error)
+    if (error instanceof AxiosError && error.response) {
+      console.error('Server response:', {
+        status: error.response.status,
+        data: error.response.data
+      })
+    }
+    throw error
   }
-};
+}
+
+export async function getPerformanceDetail(id: string | number): Promise<Performance> {
+  try {
+    console.log('Fetching performance detail for id:', id)
+    const response = await api.get(`/users/performances/${id}`)
+    console.log('Performance detail response:', response.data)
+    return response.data
+  } catch (error) {
+    console.error('Error in getPerformanceDetail:', error)
+    if (error instanceof AxiosError && error.response) {
+      console.error('Server response:', {
+        status: error.response.status,
+        data: error.response.data
+      })
+    }
+    throw error
+  }
+}

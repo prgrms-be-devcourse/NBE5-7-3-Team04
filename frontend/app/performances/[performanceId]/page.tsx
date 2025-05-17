@@ -1,28 +1,28 @@
 import { Suspense } from "react"
-import dynamic from "next/dynamic"
+import PerformanceDetailClient from "./client"
+import { Metadata } from "next"
 
-const PerformanceDetailClient = dynamic(() => import("./client"), {
-  loading: () => (
-    <div className="container py-8 flex items-center justify-center min-h-[50vh]">
-      <div className="flex flex-col items-center">
-        <p className="text-muted-foreground">공연 정보를 불러오는 중...</p>
-      </div>
-    </div>
-  ),
-})
+interface Props {
+  params: { performanceId: string }
+}
 
-export default async function PerformanceDetailPage({ params }: { params: { performanceId: string } }) {
-  const performanceId = await Promise.resolve(params.performanceId)
-  
-  return (
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return {
+    title: `공연 상세 정보`,
+  }
+}
+
+export default function PerformanceDetailPage({ params }: Props) {
+    return (
     <Suspense fallback={
       <div className="container py-8 flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center">
-          <p className="text-muted-foreground">공연 정보를 불러오는 중...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+          <p className="mt-4 text-gray-600">공연 정보를 불러오고 있습니다...</p>
         </div>
       </div>
     }>
-      <PerformanceDetailClient performanceId={performanceId} />
+      <PerformanceDetailClient performanceId={params.performanceId} />
     </Suspense>
   )
 }

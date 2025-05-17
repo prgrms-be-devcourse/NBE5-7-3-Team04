@@ -7,11 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { searchPerformances } from "@/lib/api"
-import { getPerformances } from "../../src/lib/api"
+import { searchPerformances, getPerformances } from "@/src/api/api"
 import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { getImageUrl } from "../../src/utils/image"
+import { getPerformanceImageUrl } from "@/lib/utils"
 import type { PerformancePageResponse } from "../../src/types/performance"
 
 export default function PerformancesPage() {
@@ -117,7 +116,7 @@ export default function PerformancesPage() {
       setLoading(true)
       setError(null)
 
-      const data = await getPerformances({ page: pageNum, size: 12 })
+      const data = await getPerformances(pageNum, 12)
 
       setPerformances(data.content || [])
       setTotalPages(data.totalPages || 1)
@@ -154,56 +153,56 @@ export default function PerformancesPage() {
             <p className="text-lg text-muted-foreground">
               다양한 공연을 검색하고 예매하세요
             </p>
-          </div>
+        </div>
 
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
-            <CardHeader className="pb-3">
+          <CardHeader className="pb-3">
               <CardTitle className="text-xl">검색</CardTitle>
-              <CardDescription>공연명, 장소, 카테고리로 검색할 수 있습니다.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
+            <CardDescription>공연명, 장소, 카테고리로 검색할 수 있습니다.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    placeholder="공연명 검색..."
+                <Input
+                  type="search"
+                  placeholder="공연명 검색..."
                     className="pl-10 h-12 text-lg"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <Select value={category} onValueChange={setCategory}>
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger className="w-[180px] h-12 text-lg">
-                    <SelectValue placeholder="카테고리" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">모든 카테고리</SelectItem>
-                    <SelectItem value="SINGING">콘서트</SelectItem>
-                    <SelectItem value="DANCING">무용</SelectItem>
-                    <SelectItem value="OPERA">오페라</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <SelectValue placeholder="카테고리" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">모든 카테고리</SelectItem>
+                  <SelectItem value="SINGING">콘서트</SelectItem>
+                  <SelectItem value="DANCING">무용</SelectItem>
+                  <SelectItem value="OPERA">오페라</SelectItem>
+                </SelectContent>
+              </Select>
                 <Button type="submit" className="h-12 px-8 text-lg bg-purple-600 hover:bg-purple-700">
                   검색
                 </Button>
-              </form>
-            </CardContent>
-          </Card>
+            </form>
+          </CardContent>
+        </Card>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
               <span className="ml-2 text-lg">공연 정보를 불러오는 중...</span>
-            </div>
-          ) : error ? (
+          </div>
+        ) : error ? (
             <div className="text-center py-12 text-red-500 text-lg">{error}</div>
-          ) : performances.length === 0 ? (
+        ) : performances.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground text-lg">
-              검색 결과가 없습니다. 다른 검색어로 시도해보세요.
-            </div>
-          ) : (
-            <>
+            검색 결과가 없습니다. 다른 검색어로 시도해보세요.
+          </div>
+        ) : (
+          <>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {performances.map((performance) => (
                   <Card 
@@ -213,7 +212,7 @@ export default function PerformancesPage() {
                   >
                     <div className="aspect-[3/4] relative overflow-hidden">
                       <img
-                        src={getImageUrl(performance.fileUrl)}
+                        src={getPerformanceImageUrl(performance.fileUrl)}
                         alt={performance.title}
                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                       />
@@ -247,11 +246,11 @@ export default function PerformancesPage() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+              ))}
+            </div>
 
-              {totalPages > 1 && (
-                <div className="flex justify-center mt-8 gap-2">
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8 gap-2">
                   <Button 
                     variant="outline" 
                     onClick={() => handlePageChange(page - 1)} 
@@ -259,17 +258,17 @@ export default function PerformancesPage() {
                     className="h-10 w-10 p-0"
                   >
                     <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  {Array.from({ length: totalPages }, (_, i) => (
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => (
                     <Button 
                       key={i} 
                       variant={i === page ? "default" : "outline"} 
                       onClick={() => handlePageChange(i)}
                       className={`h-10 w-10 p-0 ${i === page ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
                     >
-                      {i + 1}
-                    </Button>
-                  ))}
+                    {i + 1}
+                  </Button>
+                ))}
                   <Button 
                     variant="outline" 
                     onClick={() => handlePageChange(page + 1)} 
@@ -277,11 +276,11 @@ export default function PerformancesPage() {
                     className="h-10 w-10 p-0"
                   >
                     <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
         </div>
       </div>
     </div>
