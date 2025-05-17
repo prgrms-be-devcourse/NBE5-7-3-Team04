@@ -179,7 +179,7 @@ export function Navbar() {
           {userRole === 'USER' && (
             <Button size="sm" variant="outline" onClick={async () => {
               try {
-                await import("@/lib/api-admin").then(mod => mod.approveMe());
+                await import("@/src/api/api-admin").then(mod => mod.approveMe());
                 window.location.reload();
               } catch (e: any) {
                 alert("승인 실패: " + (e?.message || e));

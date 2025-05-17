@@ -15,12 +15,14 @@ interface ManagerLayoutClientProps {
 
 export function ManagerLayoutClient({ children }: ManagerLayoutClientProps) {
   const router = useRouter()
-  const { isLoading, requireRole } = useAuth()
+  const { isLoading, requireRole, isAuthenticated, user } = useAuth()
 
   // Check if user has MANAGER role
   useEffect(() => {
-    requireRole("MANAGER")
-  }, [requireRole])
+    if (!isLoading) {
+      requireRole("MANAGER")
+    }
+  }, [isLoading, isAuthenticated, user, requireRole])
 
   if (isLoading) {
     return (
@@ -35,7 +37,7 @@ export function ManagerLayoutClient({ children }: ManagerLayoutClientProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-[calc(100vh-4rem)] mt-16">
         <ManagerSidebar />
         <main className="flex-1 overflow-auto">{children}</main>
       </div>

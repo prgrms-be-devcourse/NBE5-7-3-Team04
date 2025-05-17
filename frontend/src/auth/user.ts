@@ -44,9 +44,31 @@ export function useAuth() {
   }
 
   useEffect(() => {
+    console.log('useAuth useEffect 시작')
+    // localStorage에서 userInfo 먼저 확인
+    const userInfo = localStorage.getItem('userInfo')
+    console.log('localStorage userInfo:', userInfo)
+    
+    if (userInfo) {
+      try {
+        const parsedUser = JSON.parse(userInfo)
+        console.log('parsed userInfo:', parsedUser)
+        setIsAuthenticated(true)
+        setUser(parsedUser)
+        setIsLoading(false)
+        return
+      } catch (error) {
+        console.error('Error parsing userInfo:', error)
+      }
+    }
+
+    // userInfo가 없으면 토큰 확인
     const token = getToken()
+    console.log('token:', token)
+    
     if (token) {
       const userData = parseToken(token)
+      console.log('parsed token data:', userData)
       if (userData) {
         setIsAuthenticated(true)
         setUser(userData)
@@ -58,6 +80,22 @@ export function useAuth() {
 
     // 인증 상태 변경 이벤트 리스너
     const handleAuthChange = () => {
+      console.log('Auth state changed')
+      const userInfo = localStorage.getItem('userInfo')
+      console.log('handleAuthChange userInfo:', userInfo)
+      
+      if (userInfo) {
+        try {
+          const parsedUser = JSON.parse(userInfo)
+          console.log('handleAuthChange parsed user:', parsedUser)
+          setIsAuthenticated(true)
+          setUser(parsedUser)
+          return
+        } catch (error) {
+          console.error('Error parsing userInfo:', error)
+        }
+      }
+
       const token = getToken()
       if (token) {
         const userData = parseToken(token)
@@ -76,10 +114,13 @@ export function useAuth() {
   }, [])
 
   const requireRole = (role: string) => {
+    console.log('requireRole 호출:', { role, isAuthenticated, user })
     if (!isAuthenticated || !user || user.role !== role) {
+      console.log('권한 없음, 로그인 페이지로 이동')
       router.push("/login")
       return false
     }
+    console.log('권한 있음')
     return true
   }
 
