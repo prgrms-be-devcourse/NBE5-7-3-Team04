@@ -14,10 +14,6 @@ export default function LoginPage() {
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(true)
     try {
-      // 실제 구현에서는 백엔드 API 호출
-      // 예: window.location.href = `http://43.201.79.165:8080/oauth2/authorization/${provider}`
-
-      // 소셜 로그인 리다이렉트 URL (실제 API에 맞게 수정 필요)
       const redirectUrl = `/api/auth/${provider}`
       window.location.href = redirectUrl
     } catch (error) {
@@ -44,8 +40,8 @@ export default function LoginPage() {
             <CardDescription>아래 소셜 계정 중 하나를 선택하여 로그인하세요</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button
-              className="w-full bg-[#4285F4] hover:bg-[#4285F4]/90"
+            <Button 
+              className="w-full bg-[#4285F4] hover:bg-[#4285F4]/90" 
               onClick={() => handleSocialLogin('google')}
               disabled={isLoading}
             >
@@ -59,16 +55,16 @@ export default function LoginPage() {
               </div>
               구글로 로그인
             </Button>
-            <Button
-              className="w-full bg-[#03C75A] hover:bg-[#03C75A]/90"
+            <Button 
+              className="w-full bg-[#03C75A] hover:bg-[#03C75A]/90" 
               onClick={() => handleSocialLogin('naver')}
               disabled={isLoading}
             >
               <div className="mr-2 text-white font-bold">N</div>
               네이버로 로그인
             </Button>
-            <Button
-              className="w-full bg-[#FEE500] hover:bg-[#FEE500]/90 text-black"
+            <Button 
+              className="w-full bg-[#FEE500] hover:bg-[#FEE500]/90 text-black" 
               onClick={() => handleSocialLogin('kakao')}
               disabled={isLoading}
             >

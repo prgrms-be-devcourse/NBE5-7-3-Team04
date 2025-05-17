@@ -17,9 +17,6 @@ const config = {
         "2xl": "1400px",
       },
     },
-    fontFamily: {
-      sans: ["'Pretendard-Regular'"],
-    },
     extend: {
       colors: {
         border: "hsl(var(--border))",

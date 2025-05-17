@@ -277,138 +277,139 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-8">
       {/* 히어로 섹션 */}
-      <section className="relative w-full py-[30px] overflow-hidden">
-        {/* 흰색+연한 분홍/보라 그라데이션 배경 */}
-        {/* <div className="absolute inset-0 bg-white z-0" /> */}
-        {/* <div className="absolute inset-0 bg-gradient-to-tr from-white via-[#fff0f3] to-[#f3e8ff] z-10" /> */}
-        {/* (포인트) 좌하단/우상단 원형 그라데이션 */}
-        <div
-          className="absolute left-[-200px] bottom-[-150px] w-[600px] h-[500px] rounded-full opacity-60 blur-3xl pointer-events-none z-0"
-          style={{ background: 'radial-gradient(circle,rgb(215, 210, 232),rgb(164, 138, 210),rgb(109, 49, 199))' }}
-        />
-        <div
-          className="absolute right-[-150px] top-[-110px] w-[600px] h-[500px] rounded-full opacity-40 blur-3xl pointer-events-none z-0"
-          style={{ background: 'radial-gradient(circle,rgb(213, 190, 229),rgb(200, 158, 216),rgb(134, 53, 168))' }}
-        />
-        <div className="container relative flex flex-col md:flex-row items-center justify-center gap-8 z-10" style={{ fontFamily: 'Pretendard' }}>
-          
-          {/* 캐러셀 */}
-          <div className="flex-[4] min-w-[320px] w-full max-w-[800px] mx-auto my-0">
-            <div className="relative w-full aspect-[16/9] bg-gray-200 flex items-center justify-center overflow-hidden rounded-xl shadow-lg backdrop-blur-lg bg-white/10" style={{ maxWidth: '800px', minHeight: '300px' }}>
-              {sliderData.map((slide, index) => (
-                <div
-                  key={slide.id}
-                  className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
-                    index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
-                  }`}
-                >
-                  <Link href={`/performances/${slide.id}`} className="block w-full h-full">
-                    <Image
-                      src={slide.image || "/placeholder.svg"}
-                      alt={slide.title}
-                      width={800}
-                      height={450}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/70 to-transparent">
-                      <div className="bg-purple-500 text-white text-[10px] px-2 py-1 rounded-md w-fit mb-1">
-                        {slide.category}
-                      </div>
-                      <h2 className="text-xl font-bold text-white mb-1">{slide.title}</h2>
-                      <p className="text-xs text-white mb-1">
-                        {slide.venue} | {slide.date}
-                      </p>
-                      <p className="text-xs text-white mb-2">{slide.description}</p>
-                      <Button className="w-fit text-xs py-1 px-3 h-7">예매하기</Button>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-              {/* 캐러셀 인디케이터 */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                {sliderData.map((_, index) => (
-                  <button
-                    key={index}
-                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                      index === currentSlide ? "bg-white" : "bg-white/40"
+      <section className="relative h-[600px] w-full overflow-hidden bg-purple-600">
+        <div className="absolute inset-0 bg-gradient-to-tr from-purple-900/90 to-indigo-950/80"></div>
+        <div className="container relative z-10 flex h-full flex-col items-center justify-center gap-4 text-white px-4 md:px-6">
+          <h1 className="text-4xl font-bold sm:text-5xl md:text-6xl text-center">TICKET4U</h1>
+          <p className="text-lg sm:text-xl text-center mb-8">당신의 특별한 순간을 위한 티켓 예매 서비스</p>
+
+          <div className="w-full max-w-4xl bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden">
+            <div className="relative">
+              <div className="aspect-[16/9] bg-gray-200 flex items-center justify-center overflow-hidden">
+                {sliderData.map((slide, index) => (
+                  <div
+                    key={slide.id}
+                    className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+                      index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
                     }`}
-                    onClick={() => setCurrentSlide(index)}
-                    aria-label={`슬라이드 ${index + 1}로 이동`}
-                  />
+                  >
+                    <Link href={`/performances/${slide.id}`} className="block w-full h-full">
+                      <Image
+                        src={slide.image || "/placeholder.svg"}
+                        alt={slide.title}
+                        width={900}
+                        height={500}
+                        className="w-full h-full object-cover"
+                      />
+
+                      <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-black/70 to-transparent">
+                        <div className="bg-purple-500 text-white text-xs px-2 py-1 rounded-md w-fit mb-2">
+                          {slide.category}
+                        </div>
+                        <h2 className="text-3xl font-bold text-white mb-2">{slide.title}</h2>
+                        <p className="text-sm text-white mb-2">
+                          {slide.venue} | {slide.date}
+                        </p>
+                        <p className="text-sm text-white mb-4">{slide.description}</p>
+                        <Button className="w-fit">예매하기</Button>
+                      </div>
+                    </Link>
+                  </div>
                 ))}
               </div>
+
+              <div className="absolute top-1/2 -translate-y-1/2 left-0 flex justify-between w-full px-4">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="bg-black/20 border-white/20 text-white rounded-full h-10 w-10"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    prevSlide()
+                  }}
+                  disabled={isAnimating}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5"
+                  >
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                  <span className="sr-only">이전</span>
+                </Button>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="bg-black/20 border-white/20 text-white rounded-full h-10 w-10"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    nextSlide()
+                  }}
+                  disabled={isAnimating}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5"
+                  >
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                  <span className="sr-only">다음</span>
+                </Button>
+              </div>
             </div>
-          </div>
-          {/* 캐러셀 버튼 */}
-          <div className="absolute top-1/2 -translate-y-1/2 left-0 flex justify-between w-full px-4">
-            <Button
-              size="icon"
-              variant="outline"
-              className="bg-black/20 border-white/20 text-white rounded-full h-8 w-8"
-              onClick={(e) => {
-                e.stopPropagation()
-                prevSlide()
-              }}
-              disabled={isAnimating}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-              >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-              <span className="sr-only">이전</span>
-            </Button>
-            <Button
-              size="icon"
-              variant="outline"
-              className="bg-black/20 border-white/20 text-white rounded-full h-8 w-8"
-              onClick={(e) => {
-                e.stopPropagation()
-                nextSlide()
-              }}
-              disabled={isAnimating}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-              >
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-              <span className="sr-only">다음</span>
-            </Button>
+
+            <div className="flex justify-center py-4 gap-2">
+              {sliderData.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentSlide ? "bg-white" : "bg-white/40"
+                  }`}
+                  onClick={() => setCurrentSlide(index)}
+                  aria-label={`슬라이드 ${index + 1}로 이동`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
+
       {/* 추천 공연 섹션 */}
       <section className="container py-8 px-4 md:px-6">
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold tracking-tight">추천 공연</h2>
             <div className="flex gap-2">
-              <Button size="icon" variant="outline" className="rounded-full" onClick={() => scrollCarousel("left")}> <ChevronLeft className="h-4 w-4" /> <span className="sr-only">이전</span> </Button>
-              <Button size="icon" variant="outline" className="rounded-full" onClick={() => scrollCarousel("right")}> <ChevronRight className="h-4 w-4" /> <span className="sr-only">다음</span> </Button>
+              <Button size="icon" variant="outline" className="rounded-full" onClick={() => scrollCarousel("left")}>
+                <ChevronLeft className="h-4 w-4" />
+                <span className="sr-only">이전</span>
+              </Button>
+              <Button size="icon" variant="outline" className="rounded-full" onClick={() => scrollCarousel("right")}>
+                <ChevronRight className="h-4 w-4" />
+                <span className="sr-only">다음</span>
+              </Button>
             </div>
           </div>
+
           <div
             ref={carouselRef}
-            className={`flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+            className={`flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -419,23 +420,16 @@ export default function Home() {
             onTouchEnd={handleTouchEnd}
           >
             {recommendedPerformances.map((performance) => (
-              <div
-                key={performance.id}
-                className="min-w-[280px] snap-start"
-                onClick={(e) => {
-                  if (isDragging) {
-                    e.preventDefault()
-                  }
-                }}
-              >
+              <div key={performance.id} className="min-w-[280px] snap-start">
                 <PerformanceCard performance={performance} />
               </div>
             ))}
           </div>
         </div>
       </section>
+
       {/* 공연 목록 섹션 */}
-      <section className="container py-8 px-4 md:px-6 pb-0">
+      <section className="container py-8 px-4 md:px-6">
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold tracking-tight">공연 목록</h2>
@@ -443,6 +437,7 @@ export default function Home() {
               <Link href="/performances">모든 공연 보기</Link>
             </Button>
           </div>
+
           <Tabs defaultValue="all" className="w-full">
             <TabsList className="mb-6">
               <TabsTrigger value="all">전체</TabsTrigger>
@@ -497,26 +492,25 @@ export default function Home() {
           </Tabs>
         </div>
       </section>
+
       {/* 공연 관리자 신청 섹션 */}
-      <section className="py-12 pt-0">
+      <section className="bg-gray-50 py-12">
         <div className="container px-4 md:px-6">
-          <div className="bg-gray-50 rounded-xl p-[40px]">
-            <div className="bg-white rounded-lg p-8 shadow-sm">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2">공연 관리자가 되어보세요</h2>
-                  <p className="text-muted-foreground">
-                    당신의 공연을 TICKET4U에서 홍보하고 티켓을 판매하세요. 간단한 신청 절차를 통해 시작할 수 있습니다.
-                  </p>
-                </div>
-                <Button className="whitespace-nowrap bg-[#894def] hover:bg-[#7a3fd8]" asChild>
-                  <Link href="/users/mypage/register">지금 신청하기</Link>
-                </Button>
+          <div className="bg-white rounded-lg p-8 shadow-sm">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">공연 관리자가 되어보세요</h2>
+                <p className="text-muted-foreground">
+                  당신의 공연을 TICKET4U에서 홍보하고 티켓을 판매하세요. 간단한 신청 절차를 통해 시작할 수 있습니다.
+                </p>
               </div>
+              <Button className="whitespace-nowrap bg-purple-500 hover:bg-purple-600" asChild>
+                <Link href="/users/mypage/register">지금 신청하기</Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
     </div>
-  );
+  )
 }
