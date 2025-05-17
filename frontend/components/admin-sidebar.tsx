@@ -14,7 +14,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { adminLogout } from "@/lib/admin-auth"
+import { useAdminAuth } from "@/src/auth/admin"
 import { useRouter } from "next/navigation"
 
 export function AdminSidebar() {
