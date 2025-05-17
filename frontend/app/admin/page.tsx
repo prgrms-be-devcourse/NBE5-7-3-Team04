@@ -1,10 +1,10 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CreditCard, Ticket, RotateCcw, FileCheck } from "lucide-react"
-import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import { FileCheck, CreditCard, RotateCcw } from "lucide-react"
 import Link from "next/link"
 
 interface Performance {
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
               <Card className="transition-colors hover:bg-muted/50">
                 <CardHeader>
                   <CardTitle>최근 승인 대기 공연</CardTitle>
-                  <CardDescription>최근 승인 대기 공연</CardDescription>
+                  <CardDescription>최근 2개의 승인 대기 공연</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 min-h-[90px]">
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
               <Card className="transition-colors hover:bg-muted/50">
                 <CardHeader>
                   <CardTitle>최근 정산 대기 공연</CardTitle>
-                  <CardDescription>최근 정산 대기 공연</CardDescription>
+                  <CardDescription>최근 2개의 정산 대기 공연</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 min-h-[90px]">
@@ -233,7 +233,7 @@ export default function AdminDashboard() {
               <Card className="transition-colors hover:bg-muted/50">
                 <CardHeader>
                   <CardTitle>최근 결제 대기 예매</CardTitle>
-                  <CardDescription>최근 결제 대기 예매</CardDescription>
+                  <CardDescription>최근 2개의 결제 대기 예매</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 min-h-[90px]">
@@ -260,7 +260,7 @@ export default function AdminDashboard() {
               <Card className="transition-colors hover:bg-muted/50">
                 <CardHeader>
                   <CardTitle>최근 환불 요청</CardTitle>
-                  <CardDescription>최근 환불 요청</CardDescription>
+                  <CardDescription>최근 2개의 환불 요청</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 min-h-[90px]">

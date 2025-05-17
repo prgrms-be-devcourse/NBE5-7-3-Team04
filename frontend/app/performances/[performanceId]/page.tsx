@@ -1,19 +1,22 @@
 import { Suspense } from "react"
 import PerformanceDetailClient from "./client"
 import { Metadata } from "next"
+import { PageProps } from "@/types/route"
 
-interface Props {
-  params: { performanceId: string }
+interface PerformanceParams {
+  performanceId: string
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<PerformanceParams>): Promise<Metadata> {
+  const { performanceId } = await params
   return {
     title: `공연 상세 정보`,
   }
 }
 
-export default function PerformanceDetailPage({ params }: Props) {
-    return (
+export default async function PerformanceDetailPage({ params }: PageProps<PerformanceParams>) {
+  const { performanceId } = await params
+  return (
     <Suspense fallback={
       <div className="container py-8 flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center">
@@ -22,7 +25,7 @@ export default function PerformanceDetailPage({ params }: Props) {
         </div>
       </div>
     }>
-      <PerformanceDetailClient performanceId={params.performanceId} />
+      <PerformanceDetailClient performanceId={performanceId} />
     </Suspense>
   )
 }

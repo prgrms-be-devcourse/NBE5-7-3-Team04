@@ -27,8 +27,14 @@ import { Loader2, AlertCircle, Calendar, Users, Clock, ArrowLeft, Plus, Ban, Ale
 import Link from "next/link"
 import { useAuth } from "@/src/auth/user"
 import { ScheduleForm } from "@/components/schedule-form"
+import { PageProps } from "@/types/route"
 
-export default function PerformanceDetailPage({ params }: { params: { performanceId: string } }) {
+interface PerformanceParams {
+  performanceId: string
+}
+
+export default async function PerformanceDetailPage({ params }: PageProps<PerformanceParams>) {
+  const { performanceId } = await params
   const [performance, setPerformance] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -47,7 +53,7 @@ export default function PerformanceDetailPage({ params }: { params: { performanc
       try {
         setLoading(true)
         setError(null)
-        const data = await getManagerPerformanceDetails(params.performanceId)
+        const data = await getManagerPerformanceDetails(performanceId)
         setPerformance(data)
       } catch (err) {
         console.error("공연 상세 정보 가져오기 오류:", err)
@@ -58,15 +64,15 @@ export default function PerformanceDetailPage({ params }: { params: { performanc
     }
 
     fetchPerformance()
-  }, [params.performanceId, requireRole])
+  }, [performanceId, requireRole])
 
   const handleCancelPerformance = async () => {
     try {
       setCancelLoading(true)
-      await cancelPerformance(params.performanceId)
+      await cancelPerformance(performanceId)
       setCancelDialogOpen(false)
       // 성공 후 데이터 다시 불러오기
-      const data = await getManagerPerformanceDetails(params.performanceId)
+      const data = await getManagerPerformanceDetails(performanceId)
       setPerformance(data)
     } catch (err) {
       console.error("공연 취소 오류:", err)
@@ -81,11 +87,11 @@ export default function PerformanceDetailPage({ params }: { params: { performanc
 
     try {
       setCancelLoading(true)
-      await cancelPerformanceSchedule(params.performanceId, cancelScheduleId)
+      await cancelPerformanceSchedule(performanceId, cancelScheduleId)
       setCancelScheduleDialogOpen(false)
       setCancelScheduleId(null)
       // 성공 후 데이터 다시 불러오기
-      const data = await getManagerPerformanceDetails(params.performanceId)
+      const data = await getManagerPerformanceDetails(performanceId)
       setPerformance(data)
     } catch (err) {
       console.error("공연 일정 취소 오류:", err)
@@ -97,10 +103,10 @@ export default function PerformanceDetailPage({ params }: { params: { performanc
 
   const handleAddSchedule = async (data: { startTime: string; endTime: string }) => {
     try {
-      await registerPerformanceSchedule(params.performanceId, data)
+      await registerPerformanceSchedule(performanceId, data)
       setAddScheduleDialogOpen(false)
       // 성공 후 데이터 다시 불러오기
-      const updatedData = await getManagerPerformanceDetails(params.performanceId)
+      const updatedData = await getManagerPerformanceDetails(performanceId)
       setPerformance(updatedData)
     } catch (err) {
       console.error("공연 일정 추가 오류:", err)

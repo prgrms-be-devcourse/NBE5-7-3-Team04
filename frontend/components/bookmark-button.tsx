@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Bookmark, BookmarkCheck } from "lucide-react"
-import { addBookmark, removeBookmark } from "@/lib/api"
+import { addBookmark, removeBookmark } from "@/src/api/api"
 import { useToast } from "@/components/ui/use-toast"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/src/auth/user"
 import { useRouter } from "next/navigation"
 
 interface BookmarkButtonProps {

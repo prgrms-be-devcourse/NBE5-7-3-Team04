@@ -208,10 +208,9 @@ export default function ApiTestClient() {
 
       // API 요청 실행
       const result = await api.request({
-        url: finalEndpoint,
-        method: options.method || 'GET',
-        headers: options.headers,
-        data: options.body
+        url: endpoint,
+        method: method,
+        data: ["POST", "PUT", "PATCH"].includes(method) ? requestBody : undefined
       })
       setResponse(result)
       setSuccess(true)
