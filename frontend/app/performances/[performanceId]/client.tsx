@@ -357,12 +357,6 @@ export default function PerformanceDetailClient({ performanceId }: { performance
               {/* 좌측 섹션 - 이미지 */}
               <div className="w-[300px] flex-shrink-0">
                 <div className="relative aspect-[2/3] w-full">
-                  {(() => {
-                    console.log('Performance fileUrl:', performance.fileUrl);
-                    console.log('CloudFront URL:', process.env.NEXT_PUBLIC_CLOUDFRONT_URL);
-                    console.log('Final image URL:', getPerformanceImageUrl(performance.fileUrl));
-                    return null;
-                  })()}
                   <img
                     src={getPerformanceImageUrl(performance.fileUrl)}
                     alt={performance.title}

@@ -17,7 +17,7 @@ export default function LoginPage() {
     try {
       // 소셜 로그인 리다이렉트 URL 가져오기
       const redirectUrl = getSocialLoginUrl(provider)
-      
+
       // 소셜 로그인 페이지로 리다이렉트
       window.location.href = redirectUrl
     } catch (error) {
