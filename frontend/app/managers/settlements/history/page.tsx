@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, CreditCard, Calendar } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
 import { useAuth } from "@/lib/auth"
+import { useRouter } from "next/navigation"
 
 export default function SettlementHistoryPage() {
   const [settlements, setSettlements] = useState<any[]>([])
@@ -15,11 +16,15 @@ export default function SettlementHistoryPage() {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
-    requireRole("MANAGER")
-
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
     const fetchSettlements = async () => {
       try {
         setLoading(true)
@@ -34,9 +39,8 @@ export default function SettlementHistoryPage() {
         setLoading(false)
       }
     }
-
     fetchSettlements()
-  }, [page, requireRole])
+  }, [authLoading, userRole, page])
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage)

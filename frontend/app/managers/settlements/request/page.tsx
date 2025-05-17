@@ -18,7 +18,7 @@ export default function SettlementRequestPage() {
   const searchParams = useSearchParams()
   const initialPerformanceId = searchParams.get("performanceId")
   const router = useRouter()
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
 
   const [performances, setPerformances] = useState<any[]>([])
   const [selectedPerformanceId, setSelectedPerformanceId] = useState<string>(initialPerformanceId || "")
@@ -30,8 +30,11 @@ export default function SettlementRequestPage() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    requireRole("MANAGER")
-
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
     const fetchPerformances = async () => {
       try {
         setLoading(true)
@@ -47,9 +50,8 @@ export default function SettlementRequestPage() {
         setLoading(false)
       }
     }
-
     fetchPerformances()
-  }, [requireRole])
+  }, [authLoading, userRole])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

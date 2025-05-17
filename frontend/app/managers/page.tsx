@@ -8,16 +8,21 @@ import { getManagerPerformances } from "@/lib/api-manager"
 import { Loader2, AlertCircle, Calendar, Users, Ticket, CreditCard } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth"
+import { useRouter } from "next/navigation"
 
 export default function ManagerDashboardPage() {
   const [performances, setPerformances] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
-    requireRole("MANAGER")
-
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
     const fetchPerformances = async () => {
       try {
         setLoading(true)
@@ -31,9 +36,8 @@ export default function ManagerDashboardPage() {
         setLoading(false)
       }
     }
-
     fetchPerformances()
-  }, [requireRole])
+  }, [authLoading, userRole])
 
   // 공연 상태별 개수 계산
   const pendingCount = performances.filter((p) => p.status === "PENDING").length

@@ -18,7 +18,7 @@ export default function EditPerformancePage() {
   const searchParams = useSearchParams()
   const performanceId = searchParams.get("id")
   const router = useRouter()
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
 
   const [performance, setPerformance] = useState<any>(null)
   const [description, setDescription] = useState("")
@@ -31,13 +31,15 @@ export default function EditPerformancePage() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    requireRole("MANAGER")
-
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
     if (!performanceId) {
       router.push("/managers/performances")
       return
     }
-
     const fetchPerformance = async () => {
       try {
         setLoading(true)
@@ -53,9 +55,8 @@ export default function EditPerformancePage() {
         setLoading(false)
       }
     }
-
     fetchPerformance()
-  }, [performanceId, router, requireRole])
+  }, [authLoading, userRole, performanceId, router])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

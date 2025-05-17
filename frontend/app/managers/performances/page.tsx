@@ -13,6 +13,7 @@ import { Loader2, Search, Plus, Calendar, MapPin } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { useAuth } from "@/lib/auth"
+import { useRouter } from "next/navigation"
 
 export default function ManagerPerformancesPage() {
   const searchParams = useSearchParams()
@@ -25,17 +26,21 @@ export default function ManagerPerformancesPage() {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
-    requireRole("MANAGER")
-
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
     if (initialSearchQuery) {
       handleSearch()
     } else {
       fetchPerformances()
     }
-  }, [initialSearchQuery, requireRole])
+  }, [authLoading, userRole, initialSearchQuery])
 
   const fetchPerformances = async () => {
     try {

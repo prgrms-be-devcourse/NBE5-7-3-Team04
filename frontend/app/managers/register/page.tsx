@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,7 +17,6 @@ import { CalendarIcon, Loader2, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { registerPerformance, uploadFile } from "@/lib/api-manager"
 import { useAuth } from "@/lib/auth"
-import { useEffect } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function RegisterPerformancePage() {
@@ -36,11 +35,15 @@ export default function RegisterPerformancePage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const router = useRouter()
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
 
   useEffect(() => {
-    requireRole("MANAGER")
-  }, [requireRole])
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
+  }, [authLoading, userRole])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

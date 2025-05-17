@@ -14,6 +14,7 @@ import {
 } from "@/lib/api-manager";
 import { format, parseISO } from "date-fns";
 import { useAuth } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export default function SchedulesPage() {
     const [performances, setPerformances] = useState<any[]>([]);
@@ -23,11 +24,15 @@ export default function SchedulesPage() {
     const [loading, setLoading] = useState(true);
     const [detailLoading, setDetailLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { requireRole } = useAuth();
+    const { isLoading: authLoading, userRole } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
-        requireRole("MANAGER");
-
+        if (authLoading) return;
+        if (userRole !== "MANAGER") {
+            router.push("/login");
+            return;
+        }
         const fetchPerformances = async () => {
             try {
                 setLoading(true);
@@ -41,9 +46,8 @@ export default function SchedulesPage() {
                 setLoading(false);
             }
         };
-
         fetchPerformances();
-    }, [requireRole]);
+    }, [authLoading, userRole]);
 
     useEffect(() => {
         if (selectedPerformanceId) {
