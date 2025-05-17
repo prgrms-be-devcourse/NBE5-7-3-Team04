@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import type React from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { useAdminAuth } from "@/lib/admin-auth"
+import { useAdminAuth } from "@/src/auth/admin"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AdminSidebar } from "@/components/admin-sidebar"
 
