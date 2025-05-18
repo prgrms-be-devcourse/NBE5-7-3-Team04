@@ -39,7 +39,7 @@ export default function SettlementsPage() {
     try {
       const statusQuery = status && status !== "ALL" ? `status=${status}&` : ''
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/settlements?${statusQuery}page=${page}&size=5`,
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/settlements?${statusQuery}page=${page}&size=10`,
         { credentials: 'include' }
       )
       
@@ -114,7 +114,7 @@ export default function SettlementsPage() {
   }
 
   const handleNextPage = () => {
-    if ((currentPage + 1) * 5 < totalCount) {
+    if ((currentPage + 1) * 10 < totalCount) {
       setCurrentPage(prev => prev + 1)
     }
   }
@@ -219,7 +219,7 @@ export default function SettlementsPage() {
               variant="outline"
               size="sm"
               onClick={handleNextPage}
-              disabled={(currentPage + 1) * 5 >= totalCount}
+              disabled={(currentPage + 1) * 10 >= totalCount}
             >
               다음
             </Button>
