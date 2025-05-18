@@ -28,6 +28,11 @@ public class UserService {
     public User registerUser(String email, String name, String phoneNumber, Role role) {
         log.debug("[UserService] registerUser() 진입");
 
+        log.info("email = {}", email);
+        log.info("name = {}", name);
+        log.info("phoneNumber = {}", phoneNumber);
+        log.info("role = {}", role);
+
 
         if(userRepository.existsByEmail(email)) {
             throw ErrorCode.DUPLICATE_USER_EMAIL.serviceException(); //중복 이메일은 예외 처리
