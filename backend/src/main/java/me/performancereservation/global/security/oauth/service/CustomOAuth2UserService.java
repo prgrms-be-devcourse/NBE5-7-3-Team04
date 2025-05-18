@@ -1,6 +1,7 @@
 package me.performancereservation.global.security.oauth.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.auth.entity.Auth;
 import me.performancereservation.domain.auth.service.AuthService;
 import me.performancereservation.domain.user.entitiy.User;
@@ -21,6 +22,7 @@ import java.util.Map;
 //소셜 인증 성공 시 소셜 유저 정보를 우리 서비스의 User/Auth와 연결(회원가입/로그인)
 //소셜별로 내려주는 유저 정보 구조가 다르기 때문에 직접 커스텀 필요 -> 소셜 별 파싱 로직을 추상화하여 하나로 통일
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -29,8 +31,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final AuthService authService;
 
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        log.debug("[CustomOAuth2UserService] loadUser 진입");
+        log.info("userRequest = {}", userRequest);
+
         //소셜에서 준 유저 정보 가져오기
          OAuth2User oAuth2User = super.loadUser(userRequest);
+
+        log.debug("[CustomOAuth2UserService] super.loadUser 호출 완료");
+
 
         //provider(google, kakao, naver 등) 추출
         String provider = userRequest.getClientRegistration().getRegistrationId();
@@ -39,19 +47,33 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         //초기 if문을 통해 구현했지만 통합 인터페이스를 만들고 소셜별로 메소드를 분리, 팩토리 패턴으로 구현
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
 
+        log.debug("[CustomOAuth2UserService] OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes()) 호출 완료");
+
+
         //소셜 계정이 이미 있는지 조회
         Auth auth;
         boolean isExist = true;
         try {
+            log.debug("가입된 계정이 존재함");
+
             auth = authService.getUserByProviderAndOauthId(provider, userInfo.getOauthId());
         } catch (Exception e) { //없으면 회원가입
+            log.debug("[CustomOAuth2UserService] 가입된 계정이 없음");
+
             isExist = false;
             User user = userService.registerUser(userInfo.getEmail(), userInfo.getName(), null, Role.USER);
+            log.debug("[CustomOAuth2UserService] userService.registerUser() 완료");
+
             auth = authService.registerAuth(user.getId(), provider, userInfo.getOauthId());
+            log.debug("[CustomOAuth2UserService] authService.registerAuth() 완료");
+
         }
 
         //유저 정보 반환(principal) Auth 정보에서 유저 id를 꺼내 실제 유저를 조회
         User user = userService.getUserById(auth.getUserId());
+
+        log.debug("[CustomOAuth2UserService] userService.getUserById() 호출 완료");
+
 
         // Attribute에 exist 정보 추가
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
