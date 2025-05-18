@@ -199,26 +199,27 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
 
         {/* 수정 모달 */}
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>공연 정보 수정</DialogTitle>
             </DialogHeader>
-            <div className="flex gap-4 items-start">
+            <div className="flex gap-6 items-start">
               {/* 이미지 첨부 및 미리보기 */}
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 w-2/5 min-w-[100px]">
                 {editImagePreview ? (
-                  <img src={editImagePreview} alt="미리보기" className="w-24 h-auto rounded border mb-2" />
+                  <img src={editImagePreview} alt="미리보기" className="w-full h-auto rounded border mb-2" />
                 ) : (
-                  <div className="w-24 h-32 flex items-center justify-center bg-gray-100 text-gray-400 border rounded mb-2">이미지 없음</div>
+                  <div className="w-full aspect-[2/3] flex items-center justify-center bg-gray-100 text-gray-400 border rounded mb-2">이미지 없음</div>
                 )}
-                <input type="file" accept="image/*" onChange={handleImageChange} />
+                <input type="file" accept="image/*" onChange={handleImageChange} className="w-full mt-1" />
               </div>
               {/* 설명 입력 */}
-              <div className="flex-1">
+              <div className="flex-1 w-3/5 min-w-0">
                 <label className="block text-sm font-medium mb-1">설명</label>
                 <textarea
                   className="w-full max-w-full border rounded p-2 text-sm resize-none"
-                  rows={5}
+                  style={{ boxSizing: 'border-box' }}
+                  rows={6}
                   value={editDescription}
                   onChange={e => setEditDescription(e.target.value)}
                 />
