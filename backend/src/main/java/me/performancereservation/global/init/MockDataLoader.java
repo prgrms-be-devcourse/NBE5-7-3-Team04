@@ -58,8 +58,8 @@ public class MockDataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Redis 초기화
-        redisTemplate.getConnectionFactory().getConnection().flushAll();
+//        // Redis 초기화
+//        redisTemplate.getConnectionFactory().getConnection().flushAll();
 
         try {
             // User 생성
@@ -357,6 +357,7 @@ public class MockDataLoader implements CommandLineRunner {
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
+                    .performanceId(schedule.getPerformanceId())
                     .scheduleId(schedule.getId())
                     .quantity(1 + i)
                     .status(ReservationStatus.PAYMENTS_PENDING)
@@ -370,6 +371,7 @@ public class MockDataLoader implements CommandLineRunner {
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
+                    .performanceId(schedule.getPerformanceId())
                     .scheduleId(schedule.getId())
                     .quantity(2 + i)
                     .status(ReservationStatus.PAYMENTS_CONFIRMED)
@@ -383,6 +385,7 @@ public class MockDataLoader implements CommandLineRunner {
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
+                    .performanceId(schedule.getPerformanceId())
                     .scheduleId(schedule.getId())
                     .quantity(1 + i)
                     .status(ReservationStatus.CANCEL_PENDING)
@@ -396,6 +399,7 @@ public class MockDataLoader implements CommandLineRunner {
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
+                    .performanceId(schedule.getPerformanceId())
                     .scheduleId(schedule.getId())
                     .quantity(2 + i)
                     .status(ReservationStatus.CANCEL_CONFIRMED)
