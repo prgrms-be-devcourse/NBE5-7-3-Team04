@@ -63,18 +63,48 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
   const handleEditSubmit = async () => {
     setEditLoading(true);
     try {
-      let fileId = performance?.fileUrl;
+      let fileId = performance?.fileUrl; // 기존 파일 ID
+      console.log('기존 fileId:', fileId);
+      
+      // 새 이미지가 있는 경우 S3에 업로드
       if (editImage) {
+        console.log('새 이미지 업로드 시작:', editImage);
         const uploadRes = await uploadFileToS3(editImage);
-        fileId = uploadRes.id; // fileUrl에 id 사용
+        console.log('S3 업로드 결과:', uploadRes);
+        
+        // S3 응답에서 파일 ID 추출
+        if (uploadRes && uploadRes.id) {
+          fileId = String(uploadRes.id);
+          console.log('S3에서 받은 파일 ID:', fileId);
+          console.log('파일 ID 타입:', typeof fileId);
+        } else {
+          throw new Error('S3 업로드 응답에서 파일 ID를 찾을 수 없습니다.');
+        }
       }
-      await updateManagerPerformance(performanceId!, {
+      
+      // 공연 수정 API 요청 데이터 준비
+      const updateData = {
         description: editDescription,
-        fileUrl: fileId,
-      });
-      setEditOpen(false);
-      onOpenChange(false);
+        fileId: fileId, // fileUrl을 fileId로 변경
+      };
+      console.log('공연 수정 API 요청 데이터:', updateData);
+      console.log('fileId 타입:', typeof updateData.fileId);
+      
+      // 공연 정보 수정 API 호출
+      const response = await updateManagerPerformance(performanceId!, updateData);
+      console.log('공연 수정 API 응답:', response);
+      
+      if (response.success) {
+        alert("공연 정보가 성공적으로 수정되었습니다.");
+        // 성공 시 모달 닫기
+        setEditOpen(false);
+        onOpenChange(false);
+        // 상세 정보 새로고침
+        const updatedData = await getManagerPerformanceDetailV1(performanceId!);
+        setPerformance(updatedData);
+      }
     } catch (e) {
+      console.error('공연 수정 중 오류 발생:', e);
       alert("수정에 실패했습니다.");
     } finally {
       setEditLoading(false);

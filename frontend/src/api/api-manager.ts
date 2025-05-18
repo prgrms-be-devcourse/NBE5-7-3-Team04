@@ -106,8 +106,19 @@ export async function searchManagerPerformances(params: {
  * 공연 정보 수정
  * PATCH /api/v1/managers/performances/{performanceId}
  * @param performanceId 공연 ID
- * @param data { description: string, fileUrl?: string }
+ * @param data { description: string, fileId?: string }
  */
-export async function updateManagerPerformance(performanceId: number | string, data: { description: string, fileUrl?: string }) {
-  return api.patch(`/managers/performances/${performanceId}`, data);
+export async function updateManagerPerformance(performanceId: number | string, data: { description: string, fileId?: string }) {
+  console.log('updateManagerPerformance 호출 - performanceId:', performanceId);
+  console.log('updateManagerPerformance 호출 - data:', data);
+  console.log('updateManagerPerformance 호출 - fileId 타입:', typeof data.fileId);
+  
+  const response = await api.patch(`/managers/performances/${performanceId}`, data);
+  console.log('updateManagerPerformance 응답:', response);
+  
+  // 204 응답의 경우 성공으로 처리하고 원본 데이터 반환
+  if (response.status === 204) {
+    return { success: true, data };
+  }
+  return response.data;
 } 
