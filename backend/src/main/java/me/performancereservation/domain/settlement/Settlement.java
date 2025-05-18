@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 public class Settlement extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id; // 정산 ID
+    private Long id; // 정산 ID
 
-    private long performanceId; // 공연 ID
+    private Long performanceId; // 공연 ID
 
     private int totalAmount; // 총 정산 금액
 
