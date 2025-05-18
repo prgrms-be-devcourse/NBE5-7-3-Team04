@@ -35,6 +35,7 @@ jobs:
                   build-args: |
                       NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
                       NEXT_PUBLIC_CLOUDFRONT_URL=${{ secrets.NEXT_PUBLIC_CLOUDFRONT_URL }}
+                      NEXT_PUBLIC_AUTH_API_URL=${{ secrets.NEXT_PUBLIC_AUTH_API_URL }}
 
             - name: Deploy to EC2
               uses: appleboy/ssh-action@master
