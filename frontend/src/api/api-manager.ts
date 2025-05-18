@@ -29,6 +29,8 @@ export interface ManagerPerformanceDetail {
   totalSeats: number;
   startDate: string;
   endDate: string;
+  description: string;
+  category: string;
   schedules: {
     id: number;
     startTime: string;
@@ -98,4 +100,14 @@ export async function searchManagerPerformances(params: {
 
   const response = await api.get(`/managers/performances/search?${searchParams.toString()}`);
   return response.data;
+}
+
+/**
+ * 공연 정보 수정
+ * PATCH /api/v1/managers/performances/{performanceId}
+ * @param performanceId 공연 ID
+ * @param data { description: string, fileUrl?: string }
+ */
+export async function updateManagerPerformance(performanceId: number | string, data: { description: string, fileUrl?: string }) {
+  return api.patch(`/managers/performances/${performanceId}`, data);
 } 

@@ -10,7 +10,6 @@ import { useAuth } from "@/src/auth/user"
 import { useRouter } from "next/navigation"
 import { getManagerPerformancesV1, ManagerPerformance, getManagerPerformanceDetailV1, ManagerPerformanceDetail } from "@/src/api/api-manager"
 import { format } from "date-fns"
-import { getPerformanceDetail, Performance } from "@/src/api/performance"
 
 export default function ManagerDashboardPage() {
   const [performances, setPerformances] = useState<ManagerPerformance[]>([])
@@ -19,7 +18,7 @@ export default function ManagerDashboardPage() {
   const [tab, setTab] = useState("all")
   const { isLoading: authLoading, userRole } = useAuth()
   const router = useRouter()
-  const [detail, setDetail] = useState<Performance | null>(null)
+  const [detail, setDetail] = useState<ManagerPerformanceDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
 
@@ -91,7 +90,7 @@ export default function ManagerDashboardPage() {
     setDetailLoading(true)
     setDetailError(null)
     try {
-      const res = await getPerformanceDetail(performanceId)
+      const res = await getManagerPerformanceDetailV1(performanceId)
       setDetail(res)
     } catch (e) {
       setDetailError("상세 정보를 불러오는 중 오류가 발생했습니다.")
@@ -279,7 +278,12 @@ export default function ManagerDashboardPage() {
                 기간: {format(new Date(detail.startDate), "yyyy.MM.dd HH:mm")} ~ {format(new Date(detail.endDate), "yyyy.MM.dd HH:mm")}
               </div>
               <div className="mb-2 text-xs text-muted-foreground">
-                표 가격: {detail.price?.toLocaleString()}원
+                상태: {detail.status === 'PENDING' ? '대기중'
+                  : detail.status === 'CONFIRMED' ? '승인됨'
+                  : detail.status === 'REJECTED' ? '거절됨'
+                  : detail.status === 'CANCELLED' ? '취소됨'
+                  : detail.status === 'COMPLETED' ? '완료됨'
+                  : detail.status}
               </div>
             </CardContent>
             <div className="flex justify-end p-4">
