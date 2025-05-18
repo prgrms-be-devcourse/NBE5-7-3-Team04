@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import me.performancereservation.domain.admin.dto.response.PendingManagerRequestPageResponse;
 import me.performancereservation.domain.admin.dto.response.PendingPerformancePageResponse;
+import me.performancereservation.domain.performance.enums.PerformanceStatus;
 import me.performancereservation.global.exception.ErrorResponse;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
@@ -32,7 +33,7 @@ public interface AdminPerformanceApiDocs {
     })
     @PageableAsQueryParam
     ResponseEntity<Page<PendingPerformancePageResponse>> performances(
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false) PerformanceStatus status,
         @ParameterObject Pageable pageable
     );
 

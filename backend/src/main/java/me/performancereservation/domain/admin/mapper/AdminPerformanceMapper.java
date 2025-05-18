@@ -33,6 +33,7 @@ public class AdminPerformanceMapper {
                 performance.getPrice(),
                 performance.getTotalSeats(),
                 performance.getCategory(),
+                performance.getStatus(),
                 performance.getStartDate(),
                 performance.getEndDate(),
                 performance.getDescription(),

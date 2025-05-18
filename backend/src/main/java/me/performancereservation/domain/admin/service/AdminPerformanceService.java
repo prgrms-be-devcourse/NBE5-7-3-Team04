@@ -50,10 +50,14 @@ public class AdminPerformanceService {
      * @return Page<PendingPerformancePageResponse> 페이징된 Pending 공연 목록
      */
     @Transactional(readOnly = true)
-    public Page<PendingPerformancePageResponse> getPendingPerformanceList(Pageable pageable) {
-        // 페이징된 PENDING 상태의 공연 조회
-        Page<Performance> performances = adminPerformanceRepository.findAllByStatusOrderByCreatedAt(PerformanceStatus.PENDING, pageable);
-
+    public Page<PendingPerformancePageResponse> getPendingPerformanceList(Pageable pageable, PerformanceStatus status) {
+        Page<Performance> performances = null;
+        if(status == null){
+            performances = adminPerformanceRepository.findAllPerformance(pageable);
+        }else {
+            // 페이징된 요청 받은 상태의 공연 조회
+            performances = adminPerformanceRepository.findAllByStatusOrderByCreatedAt(status, pageable);
+        }
         // 페이징된 공연의 파일 id 추출
         List<Long> fileIds = performances.getContent().stream()
                 .map(Performance::getFileId)
