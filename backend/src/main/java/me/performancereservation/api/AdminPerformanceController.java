@@ -5,6 +5,7 @@ import me.performancereservation.api.docs.AdminPerformanceApiDocs;
 import me.performancereservation.domain.admin.dto.response.PendingManagerRequestPageResponse;
 import me.performancereservation.domain.admin.dto.response.PendingPerformancePageResponse;
 import me.performancereservation.domain.admin.service.AdminPerformanceService;
+import me.performancereservation.domain.performance.enums.PerformanceStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class AdminPerformanceController implements AdminPerformanceApiDocs {
 
     private final AdminPerformanceService adminPerformanceService;
 
-    /** PENDING 상태의 공연을 페이징으로 조회
+    /** 공연을 상태별로 페이징으로 조회
      *
      * @param pageable
      * @return Page<PendingPerformancePageResponse>
@@ -25,9 +26,9 @@ public class AdminPerformanceController implements AdminPerformanceApiDocs {
     @Override
     @GetMapping("/performances")
     public ResponseEntity<Page<PendingPerformancePageResponse>> performances(
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false) PerformanceStatus status,
             Pageable pageable) {
-        Page<PendingPerformancePageResponse> pendingPerformanceList = adminPerformanceService.getPendingPerformanceList(pageable);
+        Page<PendingPerformancePageResponse> pendingPerformanceList = adminPerformanceService.getPendingPerformanceList(pageable, status);
         return ResponseEntity.ok(pendingPerformanceList);
     }
 
