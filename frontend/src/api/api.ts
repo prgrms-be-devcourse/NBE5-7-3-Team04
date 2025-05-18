@@ -144,7 +144,7 @@ export async function getUserReservations(page = 0, size = 10) {
 }
 
 export async function getReservationDetail(reservationId: number | string) {
-    const response = await api.get(`/users/reservations/${reservationId}`);
+    const response = await api.get(`/reservations/me/${reservationId}`);
     return response.data;
 }
 

@@ -1,60 +1,51 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { getReservationDetail } from "@/src/api/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, MapPin, ArrowLeft, Ticket, CreditCard, AlertTriangle } from "lucide-react"
+import { Calendar, Clock, MapPin, ArrowLeft, AlertTriangle, Ticket } from "lucide-react"
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
-import { CancelReservationDialog } from "@/components/cancel-reservation-dialog"
-import { PageProps } from "@/types/route"
 
-interface ReservationParams {
-  reservationId: string
+// 티켓 번호 생성 함수
+function generateTicketNumbers(quantity: number) {
+  const prefix = Math.floor(100 + Math.random() * 900); // 100~999
+  const startSuffix = Math.floor(1000 + Math.random() * 9000); // 1000~9999
+  return Array.from({ length: quantity }).map((_, idx) => {
+    const ticketNumber = `${prefix}-${startSuffix + idx}`;
+    return ticketNumber;
+  });
 }
 
-export default async function ReservationDetailPage({ params }: PageProps<ReservationParams>) {
-  const { reservationId } = await params
-  
-  // 실제 구현에서는 reservationId를 사용하여 API에서 데이터를 가져옵니다
-  const reservation = {
-    id: reservationId,
-    performance: {
-      id: "1",
-      title: "2023 여름 재즈 페스티벌",
-      date: "2023-07-15",
-      time: "18:00 - 22:00",
-      location: "서울 올림픽 공원",
-      address: "서울특별시 송파구 올림픽로 424",
-    },
-    reservedAt: "2023-05-10 14:30:22",
-    quantity: 2,
-    amount: 100000,
-    status: "예매완료",
-    payment: {
-      method: "무통장 입금",
-      bank: "신한은행",
-      accountNumber: "123-456-789012",
-      accountHolder: "티켓-4-U",
-      paidAt: "2023-05-10 15:45:33",
-    },
-    tickets: [
-      { id: "T-2023-10001", seat: "A-15" },
-      { id: "T-2023-10002", seat: "A-16" },
-    ],
-    refundPolicy: [
-      "공연 7일 전까지: 전액 환불",
-      "공연 3일 전까지: 70% 환불",
-      "공연 1일 전까지: 50% 환불",
-      "공연 당일: 환불 불가",
-    ],
-  }
+export default function ReservationDetailPage() {
+  const params = useParams()
+  const router = useRouter()
+  const reservationId = params?.reservationId as string
+  const [reservation, setReservation] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!reservationId) return
+    setLoading(true)
+    getReservationDetail(reservationId)
+      .then(setReservation)
+      .catch(() => setError("예매 정보를 불러오지 못했습니다."))
+      .finally(() => setLoading(false))
+  }, [reservationId])
+
+  if (loading) return <div className="p-8 text-center">로딩 중...</div>
+  if (error || !reservation) return <div className="p-8 text-center text-red-500">{error || "예매 정보가 없습니다."}</div>
 
   const statusVariant =
-    reservation.status === "예매완료" ? "success" : reservation.status === "결제대기" ? "secondary" : "destructive"
-
-  // 공연 날짜와 현재 날짜를 비교하여 취소 가능 여부 확인
-  const performanceDate = new Date(reservation.performance.date)
-  const today = new Date()
-  const canCancel = performanceDate > today && reservation.status === "예매완료"
+    reservation.status === "PAYMENTS_CONFIRMED"
+      ? "success"
+      : reservation.status === "PAYMENTS_PENDING"
+      ? "secondary"
+      : "destructive"
 
   return (
     <div className="container">
@@ -69,7 +60,7 @@ export default async function ReservationDetailPage({ params }: PageProps<Reserv
           <div>
             <h1 className="text-2xl font-bold tracking-tight">예매 상세 정보</h1>
             <p className="text-muted-foreground">
-              예약번호: {reservation.id} | {reservation.reservedAt} 예매
+              예약번호: {reservation.reservationId} | {reservation.createdAt} 예매
             </p>
           </div>
         </div>
@@ -87,48 +78,44 @@ export default async function ReservationDetailPage({ params }: PageProps<Reserv
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold">{reservation.performance.title}</h3>
+                <h3 className="text-lg font-semibold">{reservation.title}</h3>
                 <div className="mt-2 grid gap-2 text-sm">
-                  <div className="flex items-center gap-2">
+                  {/* 공연 날짜, 시간, 장소 등은 reservation에 필드가 있으면 표시 */}
+                  {/* <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{reservation.performance.date}</span>
+                    <span>{reservation.performanceDate}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>{reservation.performance.time}</span>
-                  </div>
+                    <span>{reservation.performanceTime}</span>
+                  </div> */}
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <div>{reservation.performance.location}</div>
-                      <div className="text-xs text-muted-foreground">{reservation.performance.address}</div>
+                      <div>{reservation.venue}</div>
                     </div>
                   </div>
                 </div>
               </div>
-
               <Separator />
-
+              {/* 티켓 정보: 예매 수량만큼 반복 출력 */}
               <div>
                 <h3 className="font-medium">티켓 정보</h3>
                 <div className="mt-2 space-y-2">
-                  {reservation.tickets.map((ticket) => (
-                    <div key={ticket.id} className="flex items-center justify-between rounded-md border p-2">
+                  {generateTicketNumbers(reservation.quantity).map((ticketNumber, idx) => (
+                    <div key={ticketNumber} className="flex items-center justify-between rounded-md border p-2">
                       <div className="flex items-center gap-2">
                         <Ticket className="h-4 w-4 text-muted-foreground" />
-                        <span>티켓 번호: {ticket.id}</span>
+                        <span>티켓 번호: {ticketNumber}</span>
                       </div>
-                      <Badge variant="outline">{ticket.seat}</Badge>
                     </div>
                   ))}
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline" asChild>
-                <Link href={`/performances/${reservation.performance.id}`}>공연 상세보기</Link>
-              </Button>
-              {canCancel && <CancelReservationDialog reservationId={reservation.id} />}
+              {/* 공연 상세보기 버튼은 필요시 추가 */}
+              {/* {canCancel && <CancelReservationDialog reservationId={reservation.reservationId} />} */}
             </CardFooter>
           </Card>
 
@@ -142,35 +129,15 @@ export default async function ReservationDetailPage({ params }: PageProps<Reserv
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">티켓 가격</span>
                     <span>
-                      {(reservation.amount / reservation.quantity).toLocaleString()}원 x {reservation.quantity}매
+                      {reservation.ticketPrice?.toLocaleString()}원 x {reservation.quantity}매
                     </span>
                   </div>
                   <div className="flex items-center justify-between font-bold">
                     <span>총 결제 금액</span>
-                    <span>{reservation.amount.toLocaleString()}원</span>
+                    <span>{reservation.totalPrice?.toLocaleString()}원</span>
                   </div>
                 </div>
-
-                <Separator />
-
-                <div>
-                  <h3 className="font-medium">결제 방법</h3>
-                  <div className="mt-2 grid gap-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      <span>{reservation.payment.method}</span>
-                    </div>
-                    {reservation.payment.method === "무통장 입금" && (
-                      <div className="rounded-md bg-muted p-3 text-xs">
-                        <p>
-                          입금 계좌: {reservation.payment.bank} {reservation.payment.accountNumber}
-                        </p>
-                        <p>예금주: {reservation.payment.accountHolder}</p>
-                        <p>입금 확인 시간: {reservation.payment.paidAt}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                {/* 결제 방법 등 추가 */}
               </CardContent>
             </Card>
 
@@ -185,9 +152,10 @@ export default async function ReservationDetailPage({ params }: PageProps<Reserv
                     <span className="text-sm font-medium">취소 시 아래 정책에 따라 환불됩니다.</span>
                   </div>
                   <ul className="list-inside list-disc text-sm text-muted-foreground">
-                    {reservation.refundPolicy.map((policy, index) => (
-                      <li key={index}>{policy}</li>
-                    ))}
+                    <li>공연 7일 전까지: 전액 환불</li>
+                    <li>공연 3일 전까지: 70% 환불</li>
+                    <li>공연 1일 전까지: 50% 환불</li>
+                    <li>공연 당일: 환불 불가</li>
                   </ul>
                 </div>
               </CardContent>
