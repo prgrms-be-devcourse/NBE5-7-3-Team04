@@ -1,0 +1,35 @@
+.fc .fc-button, .fc .fc-button-primary {
+  background: #fff;
+  color: #7a3fd8;
+  border: 1px solid #7a3fd8;
+  box-shadow: none;
+}
+.fc .fc-button-primary:not(:disabled):hover, .fc .fc-button-primary:focus {
+  background: #7a3fd8;
+  color: #fff;
+  border: 1px solid #7a3fd8;
+}
+.fc .fc-button-primary:active {
+  background: #6a2fc0;
+  color: #fff;
+  border: 1px solid #6a2fc0;
+}
+.fc .fc-button-primary:disabled, .fc .fc-button-primary.fc-button-disabled {
+  background: #ede7f6;
+  color: #b39ddb;
+  border: 1px solid #ede7f6;
+}
+.fc .fc-toolbar-title {
+  color: #7a3fd8;
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  margin-bottom: 10px;
+}
+.fc .fc-toolbar.fc-header-toolbar {
+  justify-content: flex-start;
+  position: relative;
+} 
