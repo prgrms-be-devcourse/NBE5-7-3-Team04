@@ -22,7 +22,10 @@ export default function ReservationDetailPage() {
     if (!reservationId) return
     setLoading(true)
     getReservationDetail(reservationId)
-      .then(setReservation)
+      .then((data) => {
+        console.log('reservation detail:', JSON.stringify(data, null, 2));
+        setReservation(data)
+      })
       .catch(() => setError("예매 정보를 불러오지 못했습니다."))
       .finally(() => setLoading(false))
   }, [reservationId])

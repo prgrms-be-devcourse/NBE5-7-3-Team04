@@ -124,6 +124,7 @@ export async function getPerformanceDetail(performanceId: number | string) {
 }
 
 export async function createReservation(data: {
+    performanceId: number | string;
     scheduleId: number;
     quantity: number;
 }) {

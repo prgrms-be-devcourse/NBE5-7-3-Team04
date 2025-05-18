@@ -170,6 +170,7 @@ export function ReservationCalendarModalFixed({
 
         try {
             await createReservation({
+                performanceId,
                 scheduleId: selectedScheduleId,
                 quantity,
             });
