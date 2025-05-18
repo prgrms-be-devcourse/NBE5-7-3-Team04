@@ -78,13 +78,13 @@ export default function ReservationsPage() {
           </Card>
         ) : (
           reservations.map((reservation) => (
-            <Card key={reservation.id}>
+            <Card key={reservation.reservationId}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-xl">{reservation.performanceTitle}</CardTitle>
+                    <CardTitle className="text-xl">{reservation.title}</CardTitle>
                     <CardDescription className="mt-1">
-                      {reservation.performanceDate} {reservation.performanceTime}
+                      {new Date(reservation.createdAt).toLocaleString()}
                     </CardDescription>
                   </div>
                   {getStatusBadge(reservation.status)}
@@ -92,39 +92,38 @@ export default function ReservationsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-24 h-24 relative rounded-lg overflow-hidden bg-gray-100">
-                      <img
-                        src={getImageUrl(reservation.performanceImageUrl)}
-                        alt={reservation.performanceTitle}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">공연장</p>
-                          <p className="font-medium">{reservation.performanceVenue}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">좌석</p>
-                          <p className="font-medium">{reservation.seatNumber}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">가격</p>
-                          <p className="font-medium">{reservation.price.toLocaleString()}원</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">예약일</p>
-                          <p className="font-medium">{new Date(reservation.createdAt).toLocaleDateString()}</p>
-                        </div>
+                  <div className="flex-1">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">공연장</p>
+                        <p className="font-medium">{reservation.venue}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">수량</p>
+                        <p className="font-medium">{reservation.quantity}매</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">티켓 가격</p>
+                        <p className="font-medium">
+                          {typeof reservation.ticketPrice === "number" && !isNaN(reservation.ticketPrice)
+                            ? `${reservation.ticketPrice.toLocaleString()}원`
+                            : "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">총 결제 금액</p>
+                        <p className="font-medium">
+                          {typeof reservation.totalPrice === "number" && !isNaN(reservation.totalPrice)
+                            ? `${reservation.totalPrice.toLocaleString()}원`
+                            : "-"}
+                        </p>
                       </div>
                     </div>
                   </div>
                   <Separator />
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => router.push(`/performances/${reservation.performanceId}`)}>
-                      공연 상세보기
+                    <Button variant="outline" onClick={() => router.push(`/users/mypage/reservations/${reservation.reservationId}`)}>
+                      예매 내역 상세보기
                     </Button>
                     {reservation.status === 'PENDING' && (
                       <Button variant="destructive">예약 취소</Button>

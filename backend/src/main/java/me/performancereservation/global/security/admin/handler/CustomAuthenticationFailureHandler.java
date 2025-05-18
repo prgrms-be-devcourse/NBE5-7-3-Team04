@@ -29,10 +29,24 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         ErrorCode errorCode = ErrorCode.ADMIN_NOT_FOUND;
         ErrorResponse errorResponse = ErrorResponse.from(errorCode);
 
+        String adminId = request.getParameter("adminId");
+        String clientIp = getClientIp(request);
+
+        log.error("Admin login failed - ID: {}, IP: {}, Reason: {}",
+                adminId, clientIp, exception.getMessage(), exception);
+
         //response에 예외를 셋팅해 반환해 줍니다.
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

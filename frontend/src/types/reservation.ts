@@ -1,15 +1,14 @@
 export interface ReservationResponse {
-  id: number;
-  performanceId: number;
-  performanceTitle: string;
-  performanceDate: string;
-  performanceTime: string;
-  performanceVenue: string;
-  performanceImageUrl: string | null;
-  seatNumber: string;
-  price: number;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  reservationId: number;
+  title: string;
+  venue: string;
+  quantity: number;
+  status: string;
   createdAt: string;
+  expirationAt: string;
+  ticketPrice: number;
+  totalPrice: number;
+  ticketNumbers: string[];
 }
 
 export interface ReservationPageResponse {

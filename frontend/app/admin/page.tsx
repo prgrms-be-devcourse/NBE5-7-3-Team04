@@ -72,7 +72,7 @@ export default function AdminDashboard() {
     const fetchDashboardData = async () => {
       try {
         // 승인 대기 공연 데이터 가져오기
-        const approvalResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/performances?page=0&size=2`, {
+        const approvalResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/performances?page=0&size=2&status=PENDING`, {
           credentials: 'include'
         })
         if (!approvalResponse.ok) throw new Error('승인 대기 공연 데이터를 가져오지 못했습니다')
