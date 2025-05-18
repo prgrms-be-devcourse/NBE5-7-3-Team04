@@ -54,8 +54,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Auth auth;
         boolean isExist = true;
         try {
-            log.debug("가입된 계정이 존재함");
-
             auth = authService.getUserByProviderAndOauthId(provider, userInfo.getOauthId());
         } catch (Exception e) { //없으면 회원가입
             log.debug("[CustomOAuth2UserService] 가입된 계정이 없음");
