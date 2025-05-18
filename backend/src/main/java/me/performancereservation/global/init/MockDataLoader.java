@@ -21,6 +21,9 @@ import me.performancereservation.domain.review.repository.ReviewRepository;
 import me.performancereservation.domain.settlement.Settlement;
 import me.performancereservation.domain.settlement.SettlementRepository;
 import me.performancereservation.domain.settlement.enums.SettlementStatus;
+import me.performancereservation.domain.ticket.Ticket;
+import me.performancereservation.domain.ticket.TicketRepository;
+import me.performancereservation.domain.ticket.enums.TicketStatus;
 import me.performancereservation.domain.user.entitiy.ManagerRequest;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.ManagerRequestStatus;
@@ -51,6 +54,7 @@ public class MockDataLoader implements CommandLineRunner {
     private final SettlementRepository settlementRepository;
     private final ReviewRepository reviewRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final TicketRepository ticketRepository;
     private final RedisSeatService redisSeatService;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -58,8 +62,8 @@ public class MockDataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Redis 초기화
-        redisTemplate.getConnectionFactory().getConnection().flushAll();
+//        // Redis 초기화
+//        redisTemplate.getConnectionFactory().getConnection().flushAll();
 
         try {
             // User 생성
@@ -86,6 +90,24 @@ public class MockDataLoader implements CommandLineRunner {
             // Reservation 생성
             List<Reservation> reservations = createMockReservations(users, schedules);
             reservationRepository.saveAll(reservations);
+
+
+            // 티켓 생성
+            List<Ticket> allTickets = new ArrayList<>();
+
+            for (Reservation reservation : reservations) {
+                for (int j = 0; j < reservation.getQuantity(); j++) {
+                    allTickets.add(Ticket.builder()
+                            .reservationId(reservation.getId())
+                            .performanceId(reservation.getPerformanceId())
+                            .ticketStatus(TicketStatus.PENDING)
+                            .build());
+                }
+            }
+
+            // 티켓 저장
+            ticketRepository.saveAll(allTickets);
+
 
             // Reservation ID 값 확인
             if (!reservations.isEmpty()) {
@@ -331,6 +353,7 @@ public class MockDataLoader implements CommandLineRunner {
 
     private List<Reservation> createMockReservations(List<User> users, List<PerformanceSchedule> schedules) {
         List<Reservation> reservations = new ArrayList<>();
+        List<Ticket> allTickets = new ArrayList<>();
 
         // 취소되지 않은 스케줄만 필터링
         List<PerformanceSchedule> availableSchedules = schedules.stream()
@@ -357,6 +380,7 @@ public class MockDataLoader implements CommandLineRunner {
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
+                    .performanceId(schedule.getPerformanceId())
                     .scheduleId(schedule.getId())
                     .quantity(1 + i)
                     .status(ReservationStatus.PAYMENTS_PENDING)
@@ -370,6 +394,7 @@ public class MockDataLoader implements CommandLineRunner {
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
+                    .performanceId(schedule.getPerformanceId())
                     .scheduleId(schedule.getId())
                     .quantity(2 + i)
                     .status(ReservationStatus.PAYMENTS_CONFIRMED)
@@ -383,6 +408,7 @@ public class MockDataLoader implements CommandLineRunner {
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
+                    .performanceId(schedule.getPerformanceId())
                     .scheduleId(schedule.getId())
                     .quantity(1 + i)
                     .status(ReservationStatus.CANCEL_PENDING)
@@ -396,6 +422,7 @@ public class MockDataLoader implements CommandLineRunner {
 
             reservations.add(Reservation.builder()
                     .userId(user.getId())
+                    .performanceId(schedule.getPerformanceId())
                     .scheduleId(schedule.getId())
                     .quantity(2 + i)
                     .status(ReservationStatus.CANCEL_CONFIRMED)
@@ -424,7 +451,7 @@ public class MockDataLoader implements CommandLineRunner {
         for (int i = 0; i < refundableReservations.size(); i++) {
             Reservation reservation = refundableReservations.get(i % refundableReservations.size());
             RefundStatus status;
-
+            
             if (i < 3) {
                 status = RefundStatus.PENDING;
             } else if (i < 6) {

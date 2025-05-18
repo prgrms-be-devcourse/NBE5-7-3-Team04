@@ -11,6 +11,9 @@ import me.performancereservation.domain.reservation.dto.ReservationResponse;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.domain.reservation.mapper.ReservationMapper;
 import me.performancereservation.domain.reservation.service.SeatReservationService;
+import me.performancereservation.domain.ticket.Ticket;
+import me.performancereservation.domain.ticket.TicketRepository;
+import me.performancereservation.domain.ticket.enums.TicketStatus;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.storage.redis.RedisReservationService;
 import me.performancereservation.global.storage.redis.RedisSeatService;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 public class RedisSeatReservationService implements SeatReservationService {
     private final ReservationRepository reservationRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
+    private final TicketRepository ticketRepository;
 
     private final RedisSeatService redisSeatService;
     private final RedisReservationService redisReservationService;
@@ -45,6 +49,7 @@ public class RedisSeatReservationService implements SeatReservationService {
      *
      * TODO 추후 어드민 무통장 결제 승인 메서드에서 티켓 수량만큼을 해당 Schedule에 차감 반영해야함
      *
+     * @param performanceId 공연 ID
      * @param scheduleId 공연 회차 ID
      * @param userId 예약하는 유저 ID
      * @param quantity 예약한 티켓 수
@@ -52,13 +57,14 @@ public class RedisSeatReservationService implements SeatReservationService {
      */
     @Override
     @Transactional
-    public ReservationResponse reserve(Long scheduleId, Long userId, int quantity) {
+    public ReservationResponse reserve(Long performanceId, Long scheduleId, Long userId, int quantity) {
         // Redis에서 좌석 1개 먼저 차감 (RDB 접근 없이 선 예약 선점 - 빠른 필터링이 가능한게 장점)
         redisSeatService.safeDecrement(scheduleId, quantity); // 내부에 Redis 좌석 선점 관련 예외처리 있음
 
         // 예약 엔티티 저장 (status -> PAYMENTS_PENDING (결제 대기))
         Reservation reservation = reservationRepository.save(
                 Reservation.builder()
+                        .performanceId(performanceId)
                         .scheduleId(scheduleId)
                         .userId(userId)
                         .quantity(quantity)
@@ -69,6 +75,16 @@ public class RedisSeatReservationService implements SeatReservationService {
         // 결제 대기 중인 예약에 대한 결제 만료 시간을 Redis ZSet에 등록
         // ReservationExpirationScheduler가 주기적으로 조회해서 만료 시간 초과 시 예약을 자동 취소
         redisReservationService.addToPendingExpirationQueue(reservation.getId());
+
+        // 티켓 수량만큼 생성
+        for (int i = 0; i < quantity; i++) {
+            ticketRepository.save(Ticket.builder()
+                    .reservationId(reservation.getId())
+                    .performanceId(performanceId)
+                    .ticketStatus(TicketStatus.PENDING)
+                    .build()
+            );
+        }
 
         // response dto mapping용도로 schedulePerformanceInfo 데이터 모델 조회
         SchedulePerformanceInfo schedulePerformanceInfo = performanceScheduleRepository.findSchedulePerformanceInfoByScheduleId(scheduleId)

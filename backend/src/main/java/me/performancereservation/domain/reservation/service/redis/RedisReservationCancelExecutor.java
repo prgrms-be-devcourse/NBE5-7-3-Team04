@@ -3,9 +3,13 @@ package me.performancereservation.domain.reservation.service.redis;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.refund.RefundService;
 import me.performancereservation.domain.reservation.Reservation;
+import me.performancereservation.domain.ticket.Ticket;
+import me.performancereservation.domain.ticket.TicketRepository;
 import me.performancereservation.global.storage.redis.RedisReservationService;
 import me.performancereservation.global.storage.redis.RedisSeatService;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 예약 취소 로직 실행기
@@ -17,6 +21,8 @@ public class RedisReservationCancelExecutor {
     private final RefundService refundService;
     private final RedisSeatService redisSeatService;
     private final RedisReservationService redisReservationService;
+
+    private final TicketRepository ticketRepository;
 
     // 유저가 취소했을 경우 (레디스 좌석 롤백 필요)
     public void executeForUserCancel(Reservation reservation) {
@@ -49,5 +55,10 @@ public class RedisReservationCancelExecutor {
 
         // 예약 만료 처리 대기 큐에서도 제거
         redisReservationService.removeFromPendingExpirationQueue(reservation.getId());
+
+        // 티켓 취소
+        List<Ticket> tickets = ticketRepository.findAllByReservationId(reservation.getId());
+
+        tickets.forEach(Ticket::cancel);
     }
 }
