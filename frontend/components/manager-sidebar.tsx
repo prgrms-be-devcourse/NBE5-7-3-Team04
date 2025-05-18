@@ -15,7 +15,7 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from "@/components/ui/sidebar"
-import { LayoutDashboard, CalendarDays, ListPlus, FileEdit, CreditCard, History, LogOut, ListMusic } from "lucide-react"
+import { LayoutDashboard, CalendarDays, ListPlus, FileEdit, CreditCard, History, LogOut, ListMusic, PlusCircle } from "lucide-react"
 import { logout } from "@/src/auth/user"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -51,14 +51,6 @@ export function ManagerSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/managers/performances"}>
-                  <Link href="/managers/performances">
-                    <ListMusic className="h-4 w-4" />
-                    <span>공연 목록</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/managers/schedules"}>
                   <Link href="/managers/schedules">
                     <CalendarDays className="h-4 w-4" />
@@ -77,18 +69,18 @@ export function ManagerSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/managers/register"}>
-                  <Link href="/managers/register">
-                    <ListPlus className="h-4 w-4" />
-                    <span>공연 등록</span>
+                <SidebarMenuButton asChild isActive={pathname === "/managers/performances"}>
+                  <Link href="/managers/performances">
+                    <ListMusic className="h-4 w-4" />
+                    <span>공연 목록</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/managers/edit"}>
-                  <Link href="/managers/edit">
-                    <FileEdit className="h-4 w-4" />
-                    <span>공연 수정</span>
+                <SidebarMenuButton asChild isActive={pathname === "/managers/register"}>
+                  <Link href="/managers/register">
+                    <PlusCircle className="h-4 w-4" />
+                    <span>공연 등록</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
