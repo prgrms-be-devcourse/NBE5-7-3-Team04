@@ -121,4 +121,19 @@ export async function updateManagerPerformance(performanceId: number | string, d
     return { success: true, data };
   }
   return response.data;
+}
+
+/**
+ * 정산 신청
+ * POST /api/v1/managers/settlements/register
+ * @param data { performanceId: number, account: string, bank: string }
+ * @returns 생성된 정산 ID
+ */
+export async function createSettlement(data: { 
+  performanceId: number, 
+  account: string, 
+  bank: string 
+}): Promise<number> {
+  const response = await api.post('/managers/settlements/register', data);
+  return response.data;
 } 

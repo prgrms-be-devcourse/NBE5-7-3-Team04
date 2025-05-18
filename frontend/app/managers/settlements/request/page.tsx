@@ -9,10 +9,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getManagerPerformances, createSettlement } from "@/src/api/api"
+import { getManagerPerformancesV1, createSettlement, getManagerPerformanceDetailV1 } from "@/src/api/api-manager"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/src/auth/user"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import dayjs from "dayjs"
 
 export default function SettlementRequestPage() {
   const searchParams = useSearchParams()
@@ -39,10 +40,15 @@ export default function SettlementRequestPage() {
       try {
         setLoading(true)
         setError(null)
-        const data = await getManagerPerformances()
-        // 완료된 공연만 필터링
-        const completedPerformances = data.content.filter((p: any) => p.status === "COMPLETED")
-        setPerformances(completedPerformances)
+        const data = await getManagerPerformancesV1()
+        // 7일 전 날짜 계산
+        const sevenDaysAgo = dayjs().subtract(7, "day").endOf("day")
+        // status가 COMPLETED이고 endDate가 7일 이전인 공연만 필터링
+        const filteredPerformances = data.content.filter((p: any) =>
+          p.status === "COMPLETED" &&
+          dayjs(p.endDate).isBefore(sevenDaysAgo)
+        )
+        setPerformances(filteredPerformances)
       } catch (err) {
         console.error("공연 목록 가져오기 오류:", err)
         setError("공연 목록을 불러오는 중 오류가 발생했습니다.")
@@ -66,6 +72,14 @@ export default function SettlementRequestPage() {
         return
       }
 
+      // 공연 디테일 정보 조회 및 로그 출력
+      try {
+        const detail = await getManagerPerformanceDetailV1(Number(selectedPerformanceId));
+        console.log('선택한 공연 디테일:', detail);
+      } catch (detailErr) {
+        console.error('공연 디테일 조회 오류:', detailErr);
+      }
+
       // 정산 신청
       const data = {
         performanceId: Number(selectedPerformanceId),
@@ -73,7 +87,10 @@ export default function SettlementRequestPage() {
         bank,
       }
 
-      const settlementId = await createSettlement(data)
+      console.log('정산 신청 데이터:', data);
+      const settlementId = await createSettlement(data);
+      console.log('정산 신청 성공 - ID:', settlementId);
+      
       setSuccess(true)
 
       // 성공 후 3초 후에 정산 내역 페이지로 이동
@@ -90,7 +107,7 @@ export default function SettlementRequestPage() {
 
   return (
     <div className="container py-8">
-      <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+      <div className="flex flex-col gap-6 max-w-4xl mx-auto">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">정산 신청</h1>
           <p className="text-muted-foreground mt-1">완료된 공연에 대한 정산을 신청합니다.</p>
@@ -128,7 +145,12 @@ export default function SettlementRequestPage() {
                       <SelectContent>
                         {performances.map((performance) => (
                           <SelectItem key={performance.id} value={performance.id.toString()}>
-                            {performance.title}
+                            <div className="flex flex-row items-center justify-between w-full">
+                              <span>{performance.title}</span>
+                              <span className="text-xs text-muted-foreground ml-4 whitespace-nowrap">
+                                {dayjs(performance.startDate).format('YYYY.MM.DD')} ~ {dayjs(performance.endDate).format('YYYY.MM.DD')}
+                              </span>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>

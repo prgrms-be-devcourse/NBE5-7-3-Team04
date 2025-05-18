@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/managers/settlements")
 @RequiredArgsConstructor
-public class SettlementController implements SettlementApiDocs {
+public class ManagerSettlementController implements SettlementApiDocs {
 
     private final SettlementService settlementService;
 
