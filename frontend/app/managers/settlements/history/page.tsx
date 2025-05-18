@@ -61,7 +61,7 @@ export default function SettlementHistoryPage() {
       <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">정산 내역</h1>
-          <p className="text-muted-foreground mt-1">신청한 정산 내역을 확인합니다.</p>
+          <p className="text-muted-foreground" style={{marginTop: '10px'}}>신청한 정산 내역을 확인합니다.</p>
         </div>
 
         {loading ? (

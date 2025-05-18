@@ -93,7 +93,7 @@ export function CustomCalendar({ selectedDate, onSelect, availableDates = [], cl
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-
+        <div style={{height: '20px'}} />
         {/* 요일 헤더 */}
         <div className="grid grid-cols-7 gap-1 text-center">
           {["일", "월", "화", "수", "목", "금", "토"].map((day) => (

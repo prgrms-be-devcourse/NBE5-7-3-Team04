@@ -54,7 +54,7 @@ export default function SchedulesPage() {
     <div className="p-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-2">공연 일정</h1>
-        <p className="text-gray-600">등록된 공연의 일정을 확인합니다.</p>
+        <p className="text-gray-600" style={{marginTop: '10px'}}>등록된 공연의 일정을 확인합니다.</p>
       </div>
       <div className="bg-white rounded-lg shadow p-6">
         <FullCalendar

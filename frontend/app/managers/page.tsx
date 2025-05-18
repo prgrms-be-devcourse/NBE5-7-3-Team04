@@ -104,7 +104,7 @@ export default function ManagerDashboardPage() {
       <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">공연 관리자 대시보드</h1>
-          <p className="text-muted-foreground mt-1">공연 등록 및 관리, 정산 신청을 할 수 있습니다.</p>
+          <p className="text-muted-foreground" style={{marginTop: '10px'}}>공연 등록 및 관리, 정산 신청을 할 수 있습니다.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

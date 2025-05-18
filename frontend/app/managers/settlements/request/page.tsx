@@ -110,7 +110,8 @@ export default function SettlementRequestPage() {
       <div className="flex flex-col gap-6 max-w-4xl mx-auto">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">정산 신청</h1>
-          <p className="text-muted-foreground mt-1">완료된 공연에 대한 정산을 신청합니다.</p>
+          <p className="text-muted-foreground" style={{marginTop: '10px'}}>완료된 공연에 대한 정산을 신청합니다.</p>
+          <p className="text-sm text-primary mt-2">공연의 마지막 날짜로부터 7일 이상이 지난 후부터 정산을 신청할 수 있습니다.</p>
         </div>
 
         {success ? (

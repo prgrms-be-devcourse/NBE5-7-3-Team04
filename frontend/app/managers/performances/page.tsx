@@ -137,7 +137,7 @@ export default function ManagerPerformancesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">공연 목록</h1>
-            <p className="text-muted-foreground mt-1">등록한 공연 목록을 관리합니다.</p>
+            <p className="text-muted-foreground" style={{marginTop: '10px'}}>등록한 공연 목록을 관리합니다.</p>
           </div>
           <Button asChild>
             <Link href="/managers/register">
