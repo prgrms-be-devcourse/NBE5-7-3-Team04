@@ -3,6 +3,7 @@ package me.performancereservation.domain.reservation.dto;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 예약 정보 응답 Dto
@@ -16,5 +17,6 @@ public record ReservationResponse(
         LocalDateTime createdAt, // 예약 신청 일시
         LocalDateTime expirationAt, // 결제 만료 일시
         int ticketPrice, // 티켓 가격
-        int totalPrice // 총 결제 금액
+        int totalPrice, // 총 결제 금액
+        List<String> ticketNumbers // 티켓 번호 목록
 ) {}

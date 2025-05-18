@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ReservationController implements ReservationApiDocs {
     private final RedisSeatReservationService seatReservationService;
-    private final RedisReservationBulkCancelService bulkCancelService;
     private final ReservationQueryService reservationQueryService;
 
     @Override
@@ -34,6 +33,7 @@ public class ReservationController implements ReservationApiDocs {
             @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
         ReservationResponse result = seatReservationService.reserve(
+                request.performanceId(),
                 request.scheduleId(),
                 authentication.getUser().getId(),
                 request.quantity()
