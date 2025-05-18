@@ -8,6 +8,7 @@ export interface ReservationResponse {
   expirationAt: string;
   ticketPrice: number;
   totalPrice: number;
+  ticketNumbers: string[];
 }
 
 export interface ReservationPageResponse {

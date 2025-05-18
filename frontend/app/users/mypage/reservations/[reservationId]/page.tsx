@@ -10,16 +10,6 @@ import { Calendar, Clock, MapPin, ArrowLeft, AlertTriangle, Ticket } from "lucid
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 
-// 티켓 번호 생성 함수
-function generateTicketNumbers(quantity: number) {
-  const prefix = Math.floor(100 + Math.random() * 900); // 100~999
-  const startSuffix = Math.floor(1000 + Math.random() * 9000); // 1000~9999
-  return Array.from({ length: quantity }).map((_, idx) => {
-    const ticketNumber = `${prefix}-${startSuffix + idx}`;
-    return ticketNumber;
-  });
-}
-
 export default function ReservationDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -102,7 +92,7 @@ export default function ReservationDetailPage() {
               <div>
                 <h3 className="font-medium">티켓 정보</h3>
                 <div className="mt-2 space-y-2">
-                  {generateTicketNumbers(reservation.quantity).map((ticketNumber, idx) => (
+                  {reservation.ticketNumbers?.map((ticketNumber: string, idx: number) => (
                     <div key={ticketNumber} className="flex items-center justify-between rounded-md border p-2">
                       <div className="flex items-center gap-2">
                         <Ticket className="h-4 w-4 text-muted-foreground" />
