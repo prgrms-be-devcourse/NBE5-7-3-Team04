@@ -238,7 +238,8 @@ export async function userOnboarding(data: {
 }
 
 export const getSocialLoginUrl = (provider: string) => {
-    return `${AUTH_API_URL}/oauth2/authorization/${provider}`;
+    // return `${AUTH_API_URL}/oauth2/authorization/${provider}`;
+    return `${API_BASE_URL}/oauth2/authorization/${provider}`;
 };
 
 // Manager API functions
