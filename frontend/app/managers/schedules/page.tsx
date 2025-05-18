@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useQuery } from '@tanstack/react-query';
-import { searchManagerPerformances, ManagerPerformance, ManagerPerformancePageResponse } from '@/src/api/api-manager';
+import { getManagerPerformancesV1, ManagerPerformance, ManagerPerformancePageResponse } from '@/src/api/api-manager';
 import dayjs from 'dayjs';
 import './calendar-custom.css';
 
@@ -13,27 +13,42 @@ export default function SchedulesPage() {
   const [page] = useState(0);
   const [size] = useState(100);
 
-  // 공연관리자용 공연 검색 API 사용
   const { data, isFetching } = useQuery<ManagerPerformancePageResponse, Error>({
     queryKey: ['manager-performances', page, size],
-    queryFn: () => searchManagerPerformances({ page, size }),
+    queryFn: () => getManagerPerformancesV1(page, size),
   });
 
-  const performances: ManagerPerformance[] = data?.content || [];
+  const performances: ManagerPerformance[] = (data?.content || []).filter(
+    (performance) => !['REJECTED', 'CANCELLED'].includes(performance.status)
+  );
 
   // 모든 공연을 이벤트로 변환
-  const events = performances.map((performance) => ({
-    title: performance.title,
-    start: performance.startDate,
-    end: performance.endDate
-      ? dayjs(performance.endDate).add(1, 'day').format('YYYY-MM-DD')
-      : undefined,
-    allDay: true,
-    backgroundColor: '#ede7f6',
-    borderColor: '#ede7f6',
-    textColor: '#7a3fd8',
-    display: 'block',
-  }));
+  const events = performances.map((performance) => {
+    let backgroundColor = '#ede7f6'; // COMPLETED: 연한 보라색
+    let borderColor = '#ede7f6';
+    let textColor = '#7a3fd8';
+    if (performance.status === 'CONFIRMED') {
+      backgroundColor = '#7a3fd8'; // 보라색
+      borderColor = '#7a3fd8';
+      textColor = '#fff';
+    } else if (performance.status === 'PENDING') {
+      backgroundColor = '#e0e0e0'; // 회색
+      borderColor = '#e0e0e0';
+      textColor = '#757575';
+    }
+    return {
+      title: performance.title,
+      start: performance.startDate,
+      end: performance.endDate
+        ? dayjs(performance.endDate).add(1, 'day').format('YYYY-MM-DD')
+        : undefined,
+      allDay: true,
+      backgroundColor,
+      borderColor,
+      textColor,
+      display: 'block',
+    };
+  });
 
   return (
     <div className="p-6">
