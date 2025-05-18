@@ -11,6 +11,9 @@ export const CLOUDFRONT_URL = process.env.NEXT_PUBLIC_CLOUDFRONT_URL;
 // 로그인 관련 API URL
 const AUTH_API_URL = "http://localhost:8080";
 
+// 배포에서는
+// const AUTH_API_URL = "http://43.201.79.165:8080";
+
 // 개발 환경에서 API 요청 실패 시 사용할 모의 데이터
 const MOCK_DATA_ENABLED = false;
 
