@@ -37,7 +37,7 @@ export function ManagerLayoutClient({ children }: ManagerLayoutClientProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-[calc(100vh-4rem)] mt-16">
+      <div className="flex min-h-screen">
         <ManagerSidebar />
         <main className="flex-1 overflow-auto">{children}</main>
       </div>
