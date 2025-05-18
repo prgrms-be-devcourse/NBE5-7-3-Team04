@@ -21,6 +21,8 @@ import me.performancereservation.domain.performance.mapper.PerformanceMapper;
 import me.performancereservation.domain.performance.mapper.PerformanceScheduleMapper;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
+import me.performancereservation.domain.ticket.Ticket;
+import me.performancereservation.domain.ticket.TicketRepository;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.storage.redis.RedisSeatService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -44,6 +46,8 @@ public class PerformanceService {
     private final PerformanceScheduleRepository performanceScheduleRepository;
     private final BookmarkRepository bookmarkRepository;
     private final FileRepository fileRepository;
+    private final TicketRepository ticketRepository;
+
     private final ApplicationEventPublisher eventPublisher;
 
     private final RedisSeatService redisSeatService;
@@ -290,13 +294,18 @@ public class PerformanceService {
         endedPerformances.forEach(performance ->{
             performance.completePerformance();
 
+            // 티켓 만료 처리
+            List<Ticket> tickets = ticketRepository.findAllByPerformanceId(performance.getId());
+
+            tickets.forEach(Ticket::expire);
+
+            // 레디스 좌석 정보 제거
             List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
 
             schedules.forEach(schedule -> {
                 redisSeatService.deleteSeatStock(schedule.getId());
             });
         });
-
     }
 
     // 파일 Url 맵 변환 메서드

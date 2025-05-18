@@ -5,14 +5,19 @@ import me.performancereservation.domain.performance.model.SchedulePerformanceInf
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
+import me.performancereservation.domain.ticket.Ticket;
+import me.performancereservation.domain.ticket.TicketRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class ReservationMapper {
+    private final TicketRepository ticketRepository;
+
     @Value("${reservation.expired_time}")
     private int EXPIRE_MINUTES;
 
@@ -29,6 +34,14 @@ public class ReservationMapper {
 
         int totalPrice = reservation.calculateTotalPrice(schedulePerformanceInfo.price());
 
+        // 관련 티켓들 조회
+        List<Ticket> tickets = ticketRepository.findAllByReservationId(reservation.getId());
+
+        // 티켓 id 목록 생성
+        List<String> ticketNumbers = tickets.stream()
+                .map(ticket -> reservation.getId() + "-" + ticket.getId().toString())
+                .toList();
+
         return new ReservationResponse(
                 reservation.getId(),
                 schedulePerformanceInfo.title(),
@@ -38,7 +51,8 @@ public class ReservationMapper {
                 createdAt,
                 expirationAt,
                 schedulePerformanceInfo.price(),
-                totalPrice
+                totalPrice,
+                ticketNumbers
         );
     }
 

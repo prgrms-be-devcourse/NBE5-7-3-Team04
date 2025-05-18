@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
  * 유저의 예약 시도를 위한 요청 Dto
  */
 public record ReservationRequest(
+        @NotNull Long performanceId, // 공연 ID
         @NotNull Long scheduleId, // 공연 회차 ID
         @NotNull @Positive int quantity // 티켓수량
 ) {}
