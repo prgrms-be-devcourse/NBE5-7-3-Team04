@@ -5,6 +5,7 @@ on:
         branches:
             - main
             - dev
+            - fe/feature/admin-login
 
 permissions:
     contents: read
