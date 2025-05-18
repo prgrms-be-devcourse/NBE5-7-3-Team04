@@ -19,6 +19,7 @@ export default function OAuth2SignUpPage() {
     name: "",
   });
   const [tokenReady, setTokenReady] = useState(false);
+  const [initialEmail, setInitialEmail] = useState("");
 
   useEffect(() => {
     const accessToken = searchParams.get("accessToken");
@@ -45,6 +46,7 @@ export default function OAuth2SignUpPage() {
           email,
           name,
         }));
+        setInitialEmail(email);
       } catch (e) {
         // 파싱 실패 시 무시
       }
@@ -138,7 +140,7 @@ export default function OAuth2SignUpPage() {
                   type="email"
                   required
                   value={formData.email}
-                  readOnly={!!formData.email}
+                  readOnly={!!initialEmail}
                   onChange={handleChange}
                 />
               </div>
