@@ -39,11 +39,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             throws IOException, ServletException {
         log.debug("[OAuth2SuccessHandler] onAuthenticationSuccess() 진입");
 
-        log.info("authentication = {}", authentication);
+        log.debug("authentication = {}", authentication);
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
-        log.info("oAuth2User = {}", oAuth2User);
+        log.debug("oAuth2User = {}", oAuth2User);
 
         log.debug("[OAuth2SuccessHandler] authentication.getPrincipal() 호출 완료");
 
@@ -63,6 +63,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         refreshTokenService.saveRefreshToken(user.getId(), refreshToken,jwtTokenProvider.getRefreshExpiration());
 
         boolean isExist = Boolean.TRUE.equals(oAuth2User.getAttribute("exist"));
+
+        log.debug("[OAuth2SuccessHandler] isExist = {}", isExist);
 
         Object existAttr = oAuth2User.getAttribute("exist");
 
