@@ -424,7 +424,7 @@ public class MockDataLoader implements CommandLineRunner {
         for (int i = 0; i < refundableReservations.size(); i++) {
             Reservation reservation = refundableReservations.get(i % refundableReservations.size());
             RefundStatus status;
-
+            
             if (i < 3) {
                 status = RefundStatus.PENDING;
             } else if (i < 6) {
