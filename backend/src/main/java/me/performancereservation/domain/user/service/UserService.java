@@ -1,6 +1,7 @@
 package me.performancereservation.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.user.entitiy.ManagerRequest;
 import me.performancereservation.domain.user.dto.UserOnboardingRequest;
 import me.performancereservation.domain.user.entitiy.User;
@@ -14,6 +15,7 @@ import me.performancereservation.domain.auth.service.AuthService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -24,6 +26,9 @@ public class UserService {
     //유저 정보 입력 (회원가입)
     @Transactional
     public User registerUser(String email, String name, String phoneNumber, Role role) {
+        log.debug("[UserService] registerUser() 진입");
+
+
         if(userRepository.existsByEmail(email)) {
             throw ErrorCode.DUPLICATE_USER_EMAIL.serviceException(); //중복 이메일은 예외 처리
         }
@@ -52,6 +57,8 @@ public class UserService {
 
     //id 기반 유저 조회
     public User getUserById(Long userId) {
+        log.debug("[UserService] getUserById() 진입");
+
         return userRepository.findById(userId)
                 .orElseThrow(ErrorCode.USER_NOT_FOUND::serviceException);
     }

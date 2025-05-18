@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.global.security.jwt.JwtTokenProvider;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
@@ -16,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
@@ -35,12 +37,27 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication)
             throws IOException, ServletException {
+        log.debug("[OAuth2SuccessHandler] onAuthenticationSuccess() 진입");
+
+        log.info("authentication = {}", authentication);
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+
+        log.info("oAuth2User = {}", oAuth2User);
+
+        log.debug("[OAuth2SuccessHandler] authentication.getPrincipal() 호출 완료");
+
+
         User user = oAuth2User.getUser();
+
+        log.debug("[OAuth2SuccessHandler] authentication.getUser() 호출 완료");
+
 
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
+
+        log.debug("[OAuth2SuccessHandler] token 쌍 생성 완료");
+
 
         //리프레쉬 토큰 레디스에 저장
         refreshTokenService.saveRefreshToken(user.getId(), refreshToken,jwtTokenProvider.getRefreshExpiration());
