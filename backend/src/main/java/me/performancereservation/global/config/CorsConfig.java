@@ -19,6 +19,8 @@ public class CorsConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:3000", // 임시 하드코딩, 프론트가 배포되면 수정해야 함
+                                "http://43.201.79.165:3000",
+                                "http://43.201.79.165:8080",
                                 host
                         )
                         .allowedMethods("*")
