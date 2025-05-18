@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { getManagerPerformanceDetailV1, updateManagerPerformance } from "@/src/api/api-manager"
+import { getManagerPerformanceDetailV1, updateManagerPerformance, cancelPerformance, cancelPerformanceSchedule } from "@/src/api/api-manager"
 import { Loader2, AlertCircle } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
   const [editImage, setEditImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
     if (!performanceId) return
@@ -111,6 +112,41 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
     }
   };
 
+  // 단일 스케줄 취소
+  const handleCancelSchedule = async (scheduleId: number) => {
+    if (!performanceId) return;
+    if (!window.confirm('정말 이 스케줄을 취소하시겠습니까?')) return;
+    setCancelLoading(true);
+    try {
+      await cancelPerformanceSchedule(performanceId, scheduleId);
+      const updated = await getManagerPerformanceDetailV1(performanceId);
+      setPerformance(updated);
+    } catch (e) {
+      alert("스케줄 취소에 실패했습니다.");
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  // 전체 공연 취소
+  const handleCancelAll = async () => {
+    if (!performanceId) return;
+    if (!window.confirm('정말 이 공연의 모든 스케줄을 일괄 취소하시겠습니까?')) return;
+    setCancelLoading(true);
+    try {
+      await cancelPerformance(performanceId);
+      const updated = await getManagerPerformanceDetailV1(performanceId);
+      setPerformance(updated);
+    } catch (e) {
+      alert("공연 전체 취소에 실패했습니다.");
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  // CONFIRMED 상태만 취소 가능
+  const canCancelSchedule = performance?.status === 'CONFIRMED';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -196,25 +232,44 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
                   <table className="w-full text-xs border">
                     <thead>
                       <tr className="bg-gray-50">
-                        <th className="border px-2 py-1">회차ID</th>
-                        <th className="border px-2 py-1">시작 시간</th>
-                        <th className="border px-2 py-1">종료 시간</th>
-                        <th className="border px-2 py-1">잔여 좌석</th>
-                        <th className="border px-2 py-1">취소 여부</th>
+                        <th className="border px-3 py-1 min-w-[80px] whitespace-nowrap">회차ID</th>
+                        <th className="border px-3 py-1 min-w-[120px] whitespace-nowrap">시작 시간</th>
+                        <th className="border px-3 py-1 min-w-[120px] whitespace-nowrap">종료 시간</th>
+                        <th className="border px-3 py-1 min-w-[90px] whitespace-nowrap">잔여 좌석</th>
+                        <th className="border px-3 py-1 min-w-[90px] whitespace-nowrap">취소 여부</th>
+                        <th className="border px-3 py-1 min-w-[80px] whitespace-nowrap">취소</th>
                       </tr>
                     </thead>
                     <tbody>
                       {performance.schedules.map((sch: any) => (
                         <tr key={sch.id}>
-                          <td className="border px-2 py-1 text-center">{sch.id}</td>
-                          <td className="border px-2 py-1 text-center">{formatDateTime(sch.startTime)}</td>
-                          <td className="border px-2 py-1 text-center">{formatDateTime(sch.endTime)}</td>
-                          <td className="border px-2 py-1 text-center">{sch.remainingSeats}</td>
-                          <td className="border px-2 py-1 text-center">{sch.isCanceled ? '취소됨' : '정상'}</td>
+                          <td className="border px-3 py-1 text-center min-w-[80px]">{sch.id}</td>
+                          <td className="border px-3 py-1 text-center min-w-[120px]">{formatDateTime(sch.startTime)}</td>
+                          <td className="border px-3 py-1 text-center min-w-[120px]">{formatDateTime(sch.endTime)}</td>
+                          <td className="border px-3 py-1 text-center min-w-[90px]">{sch.remainingSeats}</td>
+                          <td className="border px-3 py-1 text-center min-w-[90px]">{sch.isCanceled ? '취소됨' : '정상'}</td>
+                          <td className="border px-3 py-1 text-center min-w-[80px]">
+                            {sch.isCanceled ? (
+                              <span className="text-gray-400">-</span>
+                            ) : canCancelSchedule ? (
+                              <Button size="sm" variant="destructive" disabled={cancelLoading} className="text-xs px-2 py-1 h-7 min-w-0" onClick={() => handleCancelSchedule(sch.id)}>
+                                취소
+                              </Button>
+                            ) : (
+                              <span className="text-gray-300">-</span>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  <div className="flex justify-end mt-3">
+                    {canCancelSchedule && (
+                      <Button variant="destructive" disabled={cancelLoading} onClick={handleCancelAll} className="text-xs px-3 py-2 h-8 min-w-0">
+                        전체 스케줄 일괄 취소
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="mt-2 text-xs text-gray-400">회차(스케줄) 정보가 없습니다.</div>

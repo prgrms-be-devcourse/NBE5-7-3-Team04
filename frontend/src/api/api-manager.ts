@@ -136,4 +136,20 @@ export async function createSettlement(data: {
 }): Promise<number> {
   const response = await api.post('/managers/settlements/register', data);
   return response.data;
+}
+
+/**
+ * 공연 전체 취소
+ * PATCH /api/v1/managers/performances/{performanceId}/cancel
+ */
+export async function cancelPerformance(performanceId: number | string): Promise<void> {
+  await api.patch(`/managers/performances/${performanceId}/cancel`);
+}
+
+/**
+ * 단일 스케줄(회차) 취소
+ * PATCH /api/v1/managers/performances/{performanceId}/schedules/{performanceScheduleId}
+ */
+export async function cancelPerformanceSchedule(performanceId: number | string, scheduleId: number | string): Promise<void> {
+  await api.patch(`/managers/performances/${performanceId}/schedules/${scheduleId}`);
 } 
