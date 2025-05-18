@@ -59,6 +59,19 @@ interface Performance {
     schedules: PerformanceSchedule[];
 }
 
+interface ReservationResponse {
+    reservationId: number;
+    title: string;
+    venue: string;
+    quantity: number;
+    status: string;
+    createdAt: string;
+    expirationAt: string;
+    ticketPrice: number;
+    totalPrice: number;
+    ticketNumbers: string[];
+}
+
 interface ReservationCalendarModalFixedProps {
     performanceId: number | string;
     selectedDate?: Date;
@@ -169,8 +182,8 @@ export function ReservationCalendarModalFixed({
         setIsSubmitting(true);
 
         try {
-            await createReservation({
-                performanceId,
+            const response = await createReservation({
+                performanceId: Number(performanceId),
                 scheduleId: selectedScheduleId,
                 quantity,
             });
@@ -181,11 +194,30 @@ export function ReservationCalendarModalFixed({
             });
 
             onClose();
-            router.push("/users/mypage/reservations");
-        } catch (error) {
+            router.push(`/reservation/complete?data=${encodeURIComponent(JSON.stringify(response))}`);
+        } catch (error: any) {
+            let errorMessage = "예약 중 오류가 발생했습니다.";
+            
+            if (error.response) {
+                switch (error.response.status) {
+                    case 400:
+                        errorMessage = "잘못된 요청입니다.";
+                        break;
+                    case 401:
+                        errorMessage = "로그인이 필요합니다.";
+                        break;
+                    case 404:
+                        errorMessage = "공연 일정을 찾을 수 없습니다.";
+                        break;
+                    case 409:
+                        errorMessage = "선택하신 수량의 좌석이 부족합니다.";
+                        break;
+                }
+            }
+
             toast({
-                title: "예약 중 오류가 발생했습니다.",
-                description: "잠시 후 다시 시도해주세요.",
+                title: "예약 실패",
+                description: errorMessage,
                 variant: "destructive",
             });
         } finally {
