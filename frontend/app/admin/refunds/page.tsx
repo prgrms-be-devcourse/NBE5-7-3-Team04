@@ -46,13 +46,12 @@ export default function RefundsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { toast } = useToast()
 
-  const fetchRefunds = async (page: number, status?: string) => {
+  const fetchRefunds = async (page: number) => {
     try {
-      const statusQuery = status && status !== "ALL" ? `status=${status}&` : ''
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/refunds?${statusQuery}page=${page}&size=5`,
-        { credentials: 'include' }
-      )
+      const statusQuery = selectedStatus === 'ALL' ? '' : `&status=${selectedStatus}`;
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/refunds?page=${page}&size=10${statusQuery}`, {
+        credentials: 'include'
+      })
       
       if (!response.ok) throw new Error('환불 데이터를 가져오는데 실패했습니다')
       
@@ -74,7 +73,7 @@ export default function RefundsPage() {
   const handleStatusChange = (value: string) => {
     setSelectedStatus(value)
     setCurrentPage(0)
-    fetchRefunds(0, value || undefined)
+    fetchRefunds(0)
   }
 
   const handleConfirmRefund = async (refundId: number) => {
@@ -105,7 +104,7 @@ export default function RefundsPage() {
       })
       
       setIsModalOpen(false)
-      fetchRefunds(currentPage, selectedStatus || undefined)
+      fetchRefunds(currentPage)
     } catch (error) {
       console.error('Error confirming refund:', error)
       toast({
@@ -123,13 +122,13 @@ export default function RefundsPage() {
   }
 
   const handleNextPage = () => {
-    if ((currentPage + 1) * 5 < totalCount) {
+    if ((currentPage + 1) * 10 < totalCount) {
       setCurrentPage(prev => prev + 1)
     }
   }
 
   useEffect(() => {
-    fetchRefunds(currentPage, selectedStatus || undefined)
+    fetchRefunds(currentPage)
   }, [currentPage])
 
   return (
@@ -230,7 +229,7 @@ export default function RefundsPage() {
               variant="outline"
               size="sm"
               onClick={handleNextPage}
-              disabled={(currentPage + 1) * 5 >= totalCount}
+              disabled={(currentPage + 1) * 10 >= totalCount}
             >
               다음
             </Button>
