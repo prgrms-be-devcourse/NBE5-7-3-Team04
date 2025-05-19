@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import DatePicker, { registerLocale } from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import { ko } from "date-fns/locale/ko"
+import { getPerformanceImageUrl } from "@/lib/utils"
 
 export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { open: boolean, onOpenChange: (v: boolean) => void, performanceId: string | null }) {
   const [performance, setPerformance] = useState<any>(null)
@@ -212,10 +213,17 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
           <div className="flex gap-6 items-start">
             {/* 왼쪽: 이미지 */}
             <div className="flex-shrink-0">
-              {performance.fileUrl ? (
-                <img src={performance.fileUrl} alt={performance.title} className="w-32 h-auto rounded border" />
+              {performance && performance.fileUrl ? (
+                <img
+                  src={getPerformanceImageUrl(performance.fileUrl)}
+                  alt={performance.title}
+                  className="w-32 h-auto rounded border"
+                  onError={e => { e.currentTarget.src = "/placeholder.svg?height=300&width=400" }}
+                />
               ) : (
-                <div className="w-32 h-40 flex items-center justify-center bg-gray-100 text-gray-400 border rounded">이미지 없음</div>
+                <div className="w-32 h-40 flex items-center justify-center bg-gray-100 text-gray-400 border rounded">
+                  이미지 없음
+                </div>
               )}
             </div>
             {/* 오른쪽: 정보 */}
@@ -339,8 +347,17 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
               <div className="flex-shrink-0 w-2/5 min-w-[100px]">
                 {editImagePreview ? (
                   <img src={editImagePreview} alt="미리보기" className="w-full h-auto rounded border mb-2" />
+                ) : performance && performance.fileUrl ? (
+                  <img
+                    src={getPerformanceImageUrl(performance.fileUrl)}
+                    alt="현재 이미지"
+                    className="w-full h-auto rounded border mb-2"
+                    onError={e => { e.currentTarget.src = "/placeholder.svg?height=300&width=400" }}
+                  />
                 ) : (
-                  <div className="w-full aspect-[2/3] flex items-center justify-center bg-gray-100 text-gray-400 border rounded mb-2">이미지 없음</div>
+                  <div className="w-full aspect-[2/3] flex items-center justify-center bg-gray-100 text-gray-400 border rounded mb-2">
+                    이미지 없음
+                  </div>
                 )}
                 <input type="file" accept="image/*" onChange={handleImageChange} className="w-full mt-1" />
               </div>
