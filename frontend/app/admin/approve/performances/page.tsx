@@ -72,6 +72,13 @@ const getStatusBadgeVariant = (status: string) => {
   }
 }
 
+// 공연 기간을 KST로 변환하여 'YYYY. M. D' 형태로 반환하는 함수
+function toKSTDateString(isoString: string) {
+  const date = new Date(isoString)
+  date.setHours(date.getHours() + 9)
+  return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`
+}
+
 export default function PerformanceApprovalPage() {
   const [performances, setPerformances] = useState<Performance[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -256,7 +263,7 @@ export default function PerformanceApprovalPage() {
                         <td className="p-2 align-middle whitespace-nowrap">{performance.price.toLocaleString()}원</td>
                         <td className="p-2 align-middle whitespace-nowrap">{performance.totalSeats}석</td>
                         <td className="p-2 align-middle whitespace-nowrap">
-                          {new Date(performance.startDate).toLocaleDateString()} ~ {new Date(performance.endDate).toLocaleDateString()}
+                          {toKSTDateString(performance.startDate)} ~ {toKSTDateString(performance.endDate)}
                         </td>
                         <td className="p-2 align-middle whitespace-nowrap">
                           <Badge variant={getStatusBadgeVariant(performance.status)}>
@@ -331,7 +338,7 @@ export default function PerformanceApprovalPage() {
                     <div>가격: {selectedPerformance.price.toLocaleString()}원</div>
                     <div>좌석 수: {selectedPerformance.totalSeats}석</div>
                     <div>카테고리: {categoryMap[selectedPerformance.category] || selectedPerformance.category}</div>
-                    <div>기간: {new Date(selectedPerformance.startDate).toLocaleDateString()} ~ {new Date(selectedPerformance.endDate).toLocaleDateString()}</div>
+                    <div>기간: {toKSTDateString(selectedPerformance.startDate)} ~ {toKSTDateString(selectedPerformance.endDate)}</div>
                   </div>
                 </div>
               </div>
