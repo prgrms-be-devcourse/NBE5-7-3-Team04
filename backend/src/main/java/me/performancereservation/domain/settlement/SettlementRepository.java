@@ -37,4 +37,6 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
             WHERE s.status = :status
             """)
     Page<SettlementResponse> findAllSettlementsByStatus(@Param("status") SettlementStatus status, Pageable pageable);
+
+    Settlement findSettlementByPerformanceId(Long performanceId);
 }

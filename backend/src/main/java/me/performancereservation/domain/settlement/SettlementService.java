@@ -8,6 +8,8 @@ import me.performancereservation.domain.performance.repository.PerformanceSchedu
 import me.performancereservation.domain.performance.service.PerformanceService;
 import me.performancereservation.domain.settlement.dto.SettlementRequest;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
+import me.performancereservation.domain.settlement.dto.SettlementUpdateRequest;
+import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse;
 import me.performancereservation.domain.settlement.enums.SettlementStatus;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
@@ -93,6 +95,27 @@ public class SettlementService {
                 .filter(schedule -> !schedule.isCanceled()) // 취소된 스케쥴은 계산하지 않음
                 .mapToInt(schedule -> price * (totalSeats - schedule.getRemainingSeats()))
                 .sum();
+    }
+
+    /// PENDING 상태 정산의 은행, 계좌정보 수정
+    @Transactional
+    public SettlementUpdateResponse updateSettlement(SettlementUpdateRequest request) {
+        log.info("[editSettlement Service] 요청: {}", request);
+        Settlement settlement = settlementRepository.findById(request.settlementId())
+                .orElseThrow(() -> ErrorCode.SETTLEMENT_NOT_FOUND.domainException("존재하지 않는 정산입니다."));
+
+        // 승인된 정산은 정보를 수정할 수 없음
+        if (settlement.getStatus() == SettlementStatus.CONFIRMED) {
+            throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("이미 승인된 정산은 정보를 수정할 수 없습니다.");
+        }
+
+        Settlement updatedSettlement = settlement.updateBankInfo(request.bank(), request.account());
+        return SettlementUpdateResponse.fromSettlement(updatedSettlement);
+    }
+
+    @Transactional
+    public Long findSettlementIdByPerformanceId(Long performanceId) {
+        return settlementRepository.findSettlementByPerformanceId(performanceId).getId();
     }
 
     @Transactional
