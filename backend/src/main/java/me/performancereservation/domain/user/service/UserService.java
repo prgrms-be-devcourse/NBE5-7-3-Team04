@@ -26,14 +26,6 @@ public class UserService {
     //유저 정보 입력 (회원가입)
     @Transactional
     public User registerUser(String email, String name, String phoneNumber, Role role) {
-        log.debug("[UserService] registerUser() 진입");
-
-        log.info("email = {}", email);
-        log.info("name = {}", name);
-        log.info("phoneNumber = {}", phoneNumber);
-        log.info("role = {}", role);
-
-
         if(userRepository.existsByEmail(email)) {
             throw ErrorCode.DUPLICATE_USER_EMAIL.serviceException(); //중복 이메일은 예외 처리
         }
@@ -62,8 +54,6 @@ public class UserService {
 
     //id 기반 유저 조회
     public User getUserById(Long userId) {
-        log.debug("[UserService] getUserById() 진입");
-
         return userRepository.findById(userId)
                 .orElseThrow(ErrorCode.USER_NOT_FOUND::serviceException);
     }
