@@ -31,6 +31,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getPerformanceImageUrl } from "@/lib/utils";
 import type { PerformancePageResponse } from "../../src/types/performance";
+import { formatKSTDateTime } from "@/src/utils/date";
 
 export default function PerformancesPage() {
     const searchParams = useSearchParams();
@@ -196,11 +197,6 @@ export default function PerformancesPage() {
         }
     };
 
-    const formatDate = (date: string) => {
-        const formattedDate = new Date(date).toLocaleDateString();
-        return formattedDate.split(", ").join(" ");
-    };
-
     return (
         <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white">
             <div className="container py-12 px-4 md:px-6">
@@ -326,11 +322,11 @@ export default function PerformancesPage() {
                                                     <div className="flex items-center">
                                                         <Calendar className="mr-1 h-3.5 w-3.5" />
                                                         <span className="text-white">
-                                                            {formatDate(
+                                                            {formatKSTDateTime(
                                                                 performance.startDate
                                                             )}{" "}
                                                             ~{" "}
-                                                            {formatDate(
+                                                            {formatKSTDateTime(
                                                                 performance.endDate
                                                             )}
                                                         </span>
@@ -348,13 +344,13 @@ export default function PerformancesPage() {
                                                         {performance.venue}
                                                     </span>
                                                     <span className="text-muted-foreground">
-                                                        {new Date(
+                                                        {formatKSTDateTime(
                                                             performance.startDate
-                                                        ).toLocaleDateString()}{" "}
+                                                        )}{" "}
                                                         ~{" "}
-                                                        {new Date(
+                                                        {formatKSTDateTime(
                                                             performance.endDate
-                                                        ).toLocaleDateString()}
+                                                        )}
                                                     </span>
                                                 </div>
                                             </div>
