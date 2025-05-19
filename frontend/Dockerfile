@@ -11,7 +11,8 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_CLOUDFRONT_URL=$NEXT_PUBLIC_CLOUDFRONT_URL
 ENV NEXT_PUBLIC_AUTH_API_URL=$NEXT_PUBLIC_AUTH_API_URL
 
-RUN npm install --legacy-peer-deps
+# RUN npm install --legacy-peer-deps
+RUN npm i
 RUN npm run build
 
 # 실행
