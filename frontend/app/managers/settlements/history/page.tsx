@@ -13,6 +13,7 @@ import { formatKSTDateTime } from "@/src/api/utils/date"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { editManagerSettlement } from "@/src/api/api-manager"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function SettlementHistoryPage() {
   const [settlements, setSettlements] = useState<any[]>([])
@@ -193,7 +194,18 @@ export default function SettlementHistoryPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">은행명</label>
-                <Input value={editBank} onChange={e => setEditBank(e.target.value)} placeholder="은행명" />
+                <Select value={editBank} onValueChange={setEditBank} required>
+                  <SelectTrigger id="edit-bank">
+                    <SelectValue placeholder="은행 선택" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="신한은행">신한은행</SelectItem>
+                    <SelectItem value="국민은행">국민은행</SelectItem>
+                    <SelectItem value="우리은행">우리은행</SelectItem>
+                    <SelectItem value="하나은행">하나은행</SelectItem>
+                    <SelectItem value="기업은행">기업은행</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">계좌번호</label>

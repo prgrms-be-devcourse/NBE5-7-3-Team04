@@ -187,13 +187,18 @@ export default function SettlementRequestPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="bank">은행명</Label>
-                  <Input
-                    id="bank"
-                    placeholder="은행명을 입력하세요"
-                    value={bank}
-                    onChange={(e) => setBank(e.target.value)}
-                    required
-                  />
+                  <Select value={bank} onValueChange={setBank} required>
+                    <SelectTrigger id="bank">
+                      <SelectValue placeholder="은행 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="신한은행">신한은행</SelectItem>
+                      <SelectItem value="국민은행">국민은행</SelectItem>
+                      <SelectItem value="우리은행">우리은행</SelectItem>
+                      <SelectItem value="하나은행">하나은행</SelectItem>
+                      <SelectItem value="기업은행">기업은행</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">

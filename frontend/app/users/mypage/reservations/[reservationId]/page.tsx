@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { CancelReservationDialog } from "@/components/cancel-reservation-dialog";
-import { getPerformanceImageUrl } from "@/src/api/utils/image";
+import { getPerformanceImageUrl } from "@/lib/utils";
 import { formatKSTDateTime } from "@/src/api/utils/date";
 
 export default function ReservationDetailPage() {
