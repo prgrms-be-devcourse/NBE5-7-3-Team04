@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
+import { formatKSTDateTime } from "@/src/utils/date"
 import { CalendarIcon, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -66,7 +66,7 @@ export function ScheduleForm({ onSubmit }: ScheduleFormProps) {
                 className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : <span>날짜 선택</span>}
+                {date ? formatKSTDateTime(date.toISOString()) : <span>날짜 선택</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">

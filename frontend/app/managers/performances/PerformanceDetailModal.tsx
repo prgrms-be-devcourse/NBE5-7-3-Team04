@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getManagerPerformanceDetailV1, updateManagerPerformance, cancelPerformance, cancelPerformanceSchedule, registerPerformanceSchedule } from "@/src/api/api-manager"
 import { Loader2, AlertCircle } from "lucide-react"
-import { format, parseISO } from "date-fns"
+import { formatKSTDateTime } from "@/src/utils/date"
 import { Button } from "@/components/ui/button"
 import { uploadFileToS3 } from "@/src/api/api-file"
 import { Label } from "@/components/ui/label"
@@ -65,14 +65,8 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
     }
   }, [editOpen, performance]);
 
-  // 날짜 포맷 함수
-  const formatDateTime = (dateString: string) => {
-    try {
-      return format(parseISO(dateString), "yyyy년 MM월 dd일 HH시 mm분")
-    } catch {
-      return dateString
-    }
-  }
+  // 날짜 포맷 함수 (공통 util 사용)
+  const formatDateTime = formatKSTDateTime;
 
   // 이미지 파일 첨부 핸들러
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

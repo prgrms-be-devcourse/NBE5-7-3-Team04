@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/components/ui/use-toast"
 import { getCsrfToken } from "@/lib/admin-auth"
 import Image from "next/image"
+import { formatKSTDateTime } from "@/src/utils/date"
 
 interface RefundDetail {
   refundId: number
@@ -193,7 +194,7 @@ export default function RefundsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>{(refund.price * refund.quantity).toLocaleString()}원</TableCell>
-                    <TableCell>{new Date(refund.startTime).toLocaleDateString()}</TableCell>
+                    <TableCell>{formatKSTDateTime(refund.startTime)}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="outline"
@@ -269,7 +270,7 @@ export default function RefundsPage() {
                     <div>
                       <p className="text-sm font-medium">공연 일시</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(selectedRefund.performanceDate).toLocaleString()}
+                        {formatKSTDateTime(selectedRefund.performanceDate)}
                       </p>
                     </div>
                     <div>

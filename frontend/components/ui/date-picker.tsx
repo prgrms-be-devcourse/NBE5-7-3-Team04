@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { format } from "date-fns"
+import { formatKSTDateTime } from "@/src/utils/date"
 import { CalendarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -20,7 +20,7 @@ export function DatePicker() {
           className={cn("w-[180px] justify-start text-left font-normal", !date && "text-muted-foreground")}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>날짜 선택</span>}
+          {date ? formatKSTDateTime(date.toISOString()) : <span>날짜 선택</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">

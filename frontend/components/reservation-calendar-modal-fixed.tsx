@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { CustomCalendar } from "@/components/custom-calendar";
 import { createReservation, getPerformanceDetail } from "@/src/api/api";
+import { formatKSTDateTime } from "@/src/utils/date";
 
 interface PerformanceSchedule {
     id: number;
@@ -244,8 +245,7 @@ export function ReservationCalendarModalFixed({
     // 시간 포맷팅 함수
     const formatTime = (timeString: string) => {
         try {
-            const date = parseISO(timeString);
-            return format(date, "HH:mm", { locale: ko });
+            return formatKSTDateTime(timeString).slice(-5); // HH:mm만 추출
         } catch (error) {
             console.error("Invalid time format:", timeString);
             return "시간 정보 없음";
@@ -255,8 +255,7 @@ export function ReservationCalendarModalFixed({
     // 날짜 포맷팅 함수 개선
     const formatDateSafely = (dateString: string) => {
         try {
-            const date = parseISO(dateString);
-            return format(date, "yyyy년 MM월 dd일 (eee)", { locale: ko });
+            return formatKSTDateTime(dateString);
         } catch (error) {
             console.error("Invalid date format:", dateString);
             return "날짜 정보 없음";

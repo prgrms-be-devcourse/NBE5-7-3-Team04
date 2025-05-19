@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
 import { getCsrfToken } from "@/lib/admin-auth"
+import { formatKSTDateTime } from "@/src/utils/date"
 
 interface Reservation {
   reservationId: number
@@ -192,7 +193,7 @@ export default function ReservationsPage() {
                     </TableCell>
                     <TableCell>{reservation.quantity}매</TableCell>
                     <TableCell>{reservation.totalPrice.toLocaleString()}원</TableCell>
-                    <TableCell>{new Date(reservation.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>{formatKSTDateTime(reservation.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="outline"
@@ -272,7 +273,7 @@ export default function ReservationsPage() {
                   <div>
                     <p className="text-sm font-medium">예매일</p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(selectedReservation.createdAt).toLocaleString()}
+                      {formatKSTDateTime(selectedReservation.createdAt)}
                     </p>
                   </div>
                 </div>
