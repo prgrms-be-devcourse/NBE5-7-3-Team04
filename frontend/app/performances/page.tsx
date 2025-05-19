@@ -85,7 +85,7 @@ export default function PerformancesPage() {
                 if (query) searchParams.set("search", query);
                 if (cat !== "all") searchParams.set("category", cat);
                 searchParams.set("page", pageNum.toString());
-                router.replace(`/performances?${searchParams.toString()}`);
+                router.replace(`/performances?${searchParams.toString()}`, { scroll: false });
             } catch (err) {
                 console.error("검색 오류:", err);
                 setError("검색 중 오류가 발생했습니다.");
@@ -116,10 +116,13 @@ export default function PerformancesPage() {
         } else {
             fetchPerformances();
         }
-    }, [searchParams]); // searchParams가 변경될 때마다 실행
+    }, []); // 초기 로딩 시에만 실행
 
     // 디바운스된 검색어나 카테고리가 변경될 때 검색 실행
     useEffect(() => {
+        const isInitialLoad = !debouncedSearchQuery && category === "all" && page === 0;
+        if (isInitialLoad) return; // 초기 로딩 시에는 실행하지 않음
+
         if (debouncedSearchQuery || category !== "all") {
             executeSearch(debouncedSearchQuery, category, 0);
         } else {
