@@ -1,130 +1,92 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface User {
-  id: number
-  email: string
-  name: string
-  role: string
-  profileImage?: string
+  id: number;
+  email: string;
+  name: string;
+  role: string;
+  profileImage?: string;
 }
 
 // 전역 이벤트를 위한 커스텀 이벤트
-const AUTH_EVENT = 'auth-state-changed'
+const AUTH_EVENT = "auth-state-changed";
 
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const parseToken = (token: string) => {
     try {
-      const base64Url = token.split('.')[1]
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
       const jsonPayload = decodeURIComponent(
         atob(base64)
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      )
-      const { sub: id, email, role } = JSON.parse(jsonPayload)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+      const { sub: id, email, role } = JSON.parse(jsonPayload);
       return {
         id: Number(id),
         email,
-        name: email.split('@')[0],
-        role: role.replace('ROLE_', ''),
-      }
+        name: email ? email.split("@")[0] : `user${id}`,
+        role: role.replace("ROLE_", ""),
+      };
     } catch (error) {
-      console.error('Error parsing token:', error)
-      return null
+      console.error("Error parsing token:", error);
+      return null;
     }
-  }
+  };
 
   useEffect(() => {
-    console.log('useAuth useEffect 시작')
-    // localStorage에서 userInfo 먼저 확인
-    const userInfo = localStorage.getItem('userInfo')
-    console.log('localStorage userInfo:', userInfo)
-    
-    if (userInfo) {
-      try {
-        const parsedUser = JSON.parse(userInfo)
-        console.log('parsed userInfo:', parsedUser)
-        setIsAuthenticated(true)
-        setUser(parsedUser)
-        setIsLoading(false)
-        return
-      } catch (error) {
-        console.error('Error parsing userInfo:', error)
-      }
-    }
-
-    // userInfo가 없으면 토큰 확인
-    const token = getToken()
-    console.log('token:', token)
-    
+    const token = getToken();
     if (token) {
-      const userData = parseToken(token)
-      console.log('parsed token data:', userData)
+      const userData = parseToken(token);
+      console.log('parsed token data:', userData);
       if (userData) {
-        setIsAuthenticated(true)
-        setUser(userData)
+        setIsAuthenticated(true);
+        setUser(userData);
       } else {
-        removeToken()
+        removeToken();
       }
     }
-    setIsLoading(false)
+    setIsLoading(false);
 
     // 인증 상태 변경 이벤트 리스너
     const handleAuthChange = () => {
-      console.log('Auth state changed')
-      const userInfo = localStorage.getItem('userInfo')
-      console.log('handleAuthChange userInfo:', userInfo)
-      
-      if (userInfo) {
-        try {
-          const parsedUser = JSON.parse(userInfo)
-          console.log('handleAuthChange parsed user:', parsedUser)
-          setIsAuthenticated(true)
-          setUser(parsedUser)
-          return
-        } catch (error) {
-          console.error('Error parsing userInfo:', error)
-        }
-      }
-
-      const token = getToken()
+      const token = getToken();
       if (token) {
-        const userData = parseToken(token)
+        const userData = parseToken(token);
         if (userData) {
-          setIsAuthenticated(true)
-          setUser(userData)
+          setIsAuthenticated(true);
+          setUser(userData);
         }
       } else {
-        setIsAuthenticated(false)
-        setUser(null)
+        setIsAuthenticated(false);
+        setUser(null);
       }
-    }
+    };
 
-    window.addEventListener(AUTH_EVENT, handleAuthChange)
-    return () => window.removeEventListener(AUTH_EVENT, handleAuthChange)
-  }, [])
+    window.addEventListener(AUTH_EVENT, handleAuthChange);
+    return () => window.removeEventListener(AUTH_EVENT, handleAuthChange);
+  }, []);
 
   const requireRole = (role: string) => {
-    console.log('requireRole 호출:', { role, isAuthenticated, user })
+    console.log('requireRole 호출:', { role, isAuthenticated, user });
     if (!isAuthenticated || !user || user.role !== role) {
-      console.log('권한 없음, 로그인 페이지로 이동')
-      router.push("/login")
-      return false
+      console.log('권한 없음, 로그인 페이지로 이동');
+      router.push("/login");
+      return false;
     }
-    console.log('권한 있음')
-    return true
-  }
+    return true;
+  };
 
-  const userRole = user?.role || null
+  const userRole = user?.role || null;
 
   return {
     isAuthenticated,
@@ -132,55 +94,55 @@ export function useAuth() {
     requireRole,
     userRole,
     isLoading,
-  }
+  };
 }
 
 export function getToken(): string | null {
-  if (typeof window === "undefined") return null
-  return localStorage.getItem("token")
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
 }
 
 export function saveToken(token: string) {
-  localStorage.setItem("token", token)
-  const userData = parseToken(token)
+  localStorage.setItem("token", token);
+  const userData = parseToken(token);
   if (userData) {
-    localStorage.setItem('userInfo', JSON.stringify(userData))
+    localStorage.setItem("userInfo", JSON.stringify(userData));
     // 인증 상태 변경 이벤트 발생
-    window.dispatchEvent(new Event(AUTH_EVENT))
+    window.dispatchEvent(new Event(AUTH_EVENT));
   }
 }
 
 function parseToken(token: string) {
   try {
-    const base64Url = token.split('.')[1]
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    )
-    const { sub: id, email, role } = JSON.parse(jsonPayload)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    const { sub: id, email, role } = JSON.parse(jsonPayload);
     return {
       id: Number(id),
       email,
-      name: email.split('@')[0],
-      role: role.replace('ROLE_', ''),
-    }
+      name: email ? email.split("@")[0] : `user${id}`,
+      role: role.replace("ROLE_", ""),
+    };
   } catch (error) {
-    console.error('Error parsing token:', error)
-    return null
+    console.error("Error parsing token:", error);
+    return null;
   }
 }
 
 export function removeToken() {
-  localStorage.removeItem("token")
-  localStorage.removeItem("userInfo")
+  localStorage.removeItem("token");
+  localStorage.removeItem("userInfo");
   // 인증 상태 변경 이벤트 발생
-  window.dispatchEvent(new Event(AUTH_EVENT))
+  window.dispatchEvent(new Event(AUTH_EVENT));
 }
 
 export function logout() {
-  removeToken()
-  window.location.href = "/login"
-} 
+  removeToken();
+  window.location.href = "/login";
+}

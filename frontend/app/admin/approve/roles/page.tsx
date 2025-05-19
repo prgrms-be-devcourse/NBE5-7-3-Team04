@@ -163,7 +163,7 @@ export default function RoleApprovalPage() {
                 <TableHead>신청자</TableHead>
                 <TableHead>전화번호</TableHead>
                 <TableHead>상태</TableHead>
-                <TableHead className="text-right">작업</TableHead>
+                <TableHead className="text-right">승인 / 거부</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

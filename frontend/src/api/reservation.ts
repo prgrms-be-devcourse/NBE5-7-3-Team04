@@ -1,4 +1,5 @@
 import { ReservationPageResponse } from '../types/reservation';
+import { api } from "./api";
 
 interface GetReservationsParams {
   page?: number;
@@ -7,22 +8,8 @@ interface GetReservationsParams {
 
 export const getReservations = async ({ page = 0, size = 10 }: GetReservationsParams = {}) => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/reservations?page=${page}&size=${size}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch reservations: ${response.statusText}`);
-    }
-
-    return response.json() as Promise<ReservationPageResponse>;
+    const response = await api.get(`/reservations/me?page=${page}&size=${size}`);
+    return response.data as ReservationPageResponse;
   } catch (error) {
     console.error('Error fetching reservations:', error);
     throw error;

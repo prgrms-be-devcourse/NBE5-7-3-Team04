@@ -1,10 +1,14 @@
 package me.performancereservation.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.domain.file.FileRepository;
+import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.model.SchedulePerformanceInfo;
+import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
+import me.performancereservation.domain.reservation.dto.ReservationDetailResponse;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
 import me.performancereservation.domain.reservation.mapper.ReservationMapper;
@@ -23,6 +27,8 @@ import java.util.stream.Collectors;
 public class ReservationQueryService {
     private final ReservationRepository reservationRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
+    private final PerformanceRepository performanceRepository;
+    private final FileRepository fileRepository;
 
     private final ReservationMapper reservationMapper;
 
@@ -67,7 +73,7 @@ public class ReservationQueryService {
      * @return ReservationResponse
      */
     @Transactional(readOnly = true)
-    public ReservationResponse getByReservationId(Long reservationId, Long userId) {
+    public ReservationDetailResponse getByReservationId(Long reservationId, Long userId) {
         // 본인의 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.domainException("예약 ID: " + reservationId));
@@ -77,11 +83,22 @@ public class ReservationQueryService {
             throw ErrorCode.PERMISSION_DENIED.serviceException("해당 예약에 접근할 수 없습니다.");
         }
 
+        // 공연 조회(메타 데이터 용)
+        Performance performance = performanceRepository.findById(reservation.getPerformanceId())
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("공연 ID: " + reservation.getPerformanceId()));
+
+        String fileUrl = null;
+
+        if(performance.getFileId() != null) {
+            fileUrl = fileRepository.findById(performance.getFileId())
+                    .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("파일 ID: " + performance.getFileId())).getKey();
+        }
+
         // SchedulePerformanceInfo 조회
         SchedulePerformanceInfo scheduleInfo = performanceScheduleRepository.findSchedulePerformanceInfoByScheduleId(reservation.getScheduleId())
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.domainException("공연 회차 ID: " + reservation.getScheduleId()));
 
         // ReservationResponseDto 매핑
-        return reservationMapper.toResponseDto(reservation, scheduleInfo);
+        return reservationMapper.toDetailResponseDto(reservation, scheduleInfo, performance, fileUrl);
     }
 }

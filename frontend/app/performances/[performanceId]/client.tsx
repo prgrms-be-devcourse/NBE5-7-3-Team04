@@ -19,7 +19,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { ReservationCalendarModalFixed } from "@/components/reservation-calendar-modal-fixed";
-import { getPerformanceDetail, getReviews, createReview } from "@/src/api/api";
+
+import { getPerformanceDetail, getReviews, createReview, updateReview, deleteReview, addBookmark, removeBookmark  } from "@/src/api/api";
 import { format, parseISO, addHours } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
@@ -60,9 +61,11 @@ interface Performance {
 
 interface Review {
     id: number;
+    userId: number;
     userName: string;
-    scheduledId: number;
     comment: string;
+    createdAt: string;
+    isMine: boolean;
 }
 
 interface ReviewsResponse {
@@ -91,7 +94,7 @@ export default function PerformanceDetailClient({
     const [reviewRating, setReviewRating] = useState(5);
     const [submittingReview, setSubmittingReview] = useState(false);
     const [isBookmarked, setIsBookmarked] = useState(false);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(
         undefined
     );
@@ -100,6 +103,8 @@ export default function PerformanceDetailClient({
         useState<PerformanceSchedule | null>(null);
     const [step, setStep] = useState<"schedule" | "payment">("schedule");
     const router = useRouter();
+    const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+    const [editingComment, setEditingComment] = useState("");
 
     useEffect(() => {
         const fetchPerformance = async () => {
@@ -128,8 +133,12 @@ export default function PerformanceDetailClient({
                 setReviewsLoading(true);
                 setReviewsError(null);
                 const data = await getReviews(performanceId, reviewsPage);
-                console.log("받아온 리뷰 데이터:", data);
-                setReviews(data.content);
+                // 현재 로그인한 사용자의 ID와 비교하여 isMine 속성 설정
+                const reviewsWithIsMine = data.content.map((review: Review) => ({
+                    ...review,
+                    isMine: user?.id === review.userId
+                }));
+                setReviews(reviewsWithIsMine);
                 setReviewsTotal(data.totalElements);
                 setReviewsTotalPages(data.totalPages);
             } catch (err) {
@@ -141,7 +150,7 @@ export default function PerformanceDetailClient({
         };
 
         fetchReviews();
-    }, [performance, reviewsPage, performanceId]);
+    }, [performance, reviewsPage, performanceId, user?.id]);
 
     const handleReviewSubmit = async () => {
         if (!reviewComment.trim()) {
@@ -155,16 +164,18 @@ export default function PerformanceDetailClient({
         try {
             setSubmittingReview(true);
 
-            const scheduleId = performance?.schedules[0]?.id || 0;
-
             await createReview({
                 performanceId: Number(performanceId),
-                scheduledId: scheduleId,
-                comments: reviewComment,
+                comment: reviewComment,
             });
 
+            // 리뷰 목록 즉시 갱신
             const data = await getReviews(performanceId, 0);
-            setReviews(data.content);
+            const reviewsWithIsMine = data.content.map((review: Review) => ({
+                ...review,
+                isMine: user?.id === review.userId
+            }));
+            setReviews(reviewsWithIsMine);
             setReviewsTotal(data.totalElements);
             setReviewsTotalPages(data.totalPages);
             setReviewsPage(0);
@@ -180,13 +191,77 @@ export default function PerformanceDetailClient({
             console.error("Error submitting review:", err);
             toast({
                 title: "리뷰 등록 실패",
-                description:
-                    err.message ||
-                    "리뷰를 등록하는 중 오류가 발생했습니다. 다시 시도해주세요.",
+                description: err.message || "리뷰를 등록하는 중 오류가 발생했습니다. 다시 시도해주세요.",
                 variant: "destructive",
             });
         } finally {
             setSubmittingReview(false);
+        }
+    };
+
+    const handleEditReview = async (reviewId: number) => {
+        if (!editingComment.trim()) {
+            toast({
+                title: "리뷰 내용을 입력해주세요",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        try {
+            await updateReview(reviewId, editingComment);
+            
+            // 리뷰 목록 갱신
+            const data = await getReviews(performanceId, reviewsPage);
+            const reviewsWithIsMine = data.content.map((review: Review) => ({
+                ...review,
+                isMine: user?.id === review.userId
+            }));
+            setReviews(reviewsWithIsMine);
+            setReviewsTotal(data.totalElements);
+            setReviewsTotalPages(data.totalPages);
+            
+            // 수정 모드 종료
+            setEditingReviewId(null);
+            setEditingComment("");
+
+            toast({
+                title: "리뷰가 수정되었습니다",
+            });
+        } catch (err: any) {
+            toast({
+                title: "리뷰 수정 실패",
+                description: err.message || "리뷰를 수정하는 중 오류가 발생했습니다.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleDeleteReview = async (reviewId: number) => {
+        if (!confirm("정말로 이 리뷰를 삭제하시겠습니까?")) return;
+
+        try {
+            await deleteReview(reviewId);
+            
+            // 리뷰 목록 갱신
+            const data = await getReviews(performanceId, reviewsPage);
+            const reviewsWithIsMine = data.content.map((review: Review) => ({
+                ...review,
+                isMine: user?.id === review.userId
+            }));
+            setReviews(reviewsWithIsMine);
+            setReviewsTotal(data.totalElements);
+            setReviewsTotalPages(data.totalPages);
+            
+            toast({
+                title: "리뷰가 삭제되었습니다",
+            });
+        } catch (err: any) {
+            toast({
+                title: "리뷰 삭제 실패",
+                description: err.message || "리뷰를 삭제하는 중 오류가 발생했습니다.",
+                variant: "destructive",
+            });
         }
     };
 
@@ -211,17 +286,22 @@ export default function PerformanceDetailClient({
                 "to:",
                 !isBookmarked
             );
-            // TODO: 북마크 API 연동
+            if (isBookmarked) {
+                await removeBookmark(performanceId);
+                toast({
+                    title: "찜 목록에서 제거되었습니다.",
+                    description: "찜 목록에서 제거되었습니다.",
+                    duration: 2000,
+                });
+            } else {
+                await addBookmark(performanceId);
+                toast({
+                    title: "찜 목록에 추가되었습니다.",
+                    description: "찜 목록에 추가되었습니다.",
+                    duration: 2000,
+                });
+            }
             setIsBookmarked(!isBookmarked);
-            toast({
-                title: isBookmarked
-                    ? "찜 목록에서 제거되었습니다."
-                    : "찜 목록에 추가되었습니다.",
-                description: isBookmarked
-                    ? "찜 목록에서 제거되었습니다."
-                    : "찜 목록에 추가되었습니다.",
-                duration: 2000,
-            });
         } catch (error) {
             console.error("Error toggling bookmark:", error);
             toast({
@@ -334,21 +414,16 @@ export default function PerformanceDetailClient({
 
     // 리뷰 날짜 포맷팅
     const formatReviewDate = (dateString: string | undefined) => {
-        console.log("리뷰 날짜 원본:", dateString);
-
         if (!dateString) {
-            console.log("날짜 문자열이 없음");
             return "날짜 정보 없음";
         }
 
         try {
             const date = parseISO(dateString);
-            console.log("파싱된 날짜:", date);
-            const formattedDate = format(date, "yyyy년 MM월 dd일", {
+            const kstDate = addHours(date, 9); // UTC to KST
+            return format(kstDate, "yyyy년 MM월 dd일 HH:mm", {
                 locale: ko,
             });
-            console.log("포맷된 날짜:", formattedDate);
-            return formattedDate;
         } catch (error) {
             console.error("날짜 파싱 오류:", error);
             return "날짜 정보 없음";
@@ -397,7 +472,6 @@ export default function PerformanceDetailClient({
 
     return (
         <>
-            <Toaster />
             <div className="container mx-auto px-4 py-8">
                 <div className="flex gap-8">
                     {/* 좌측 + 중앙 섹션 */}
@@ -678,28 +752,19 @@ export default function PerformanceDetailClient({
                                             관람객 리뷰
                                         </h3>
 
-                                        {/* 리뷰 작성 폼 - 로그인한 사용자만 볼 수 있음 */}
+                                        {/* 리뷰 작성 폼 */}
                                         {isAuthenticated && (
                                             <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                                                <h4 className="text-sm font-medium mb-2">
-                                                    리뷰 작성
-                                                </h4>
+                                                <h4 className="text-sm font-medium mb-2">리뷰 작성</h4>
                                                 <Textarea
                                                     placeholder="공연에 대한 리뷰를 작성해주세요."
                                                     className="mb-2"
                                                     value={reviewComment}
-                                                    onChange={(e) =>
-                                                        setReviewComment(
-                                                            e.target.value
-                                                        )
-                                                    }
+                                                    onChange={(e) => setReviewComment(e.target.value)}
                                                 />
                                                 <Button
                                                     onClick={handleReviewSubmit}
-                                                    disabled={
-                                                        submittingReview ||
-                                                        !reviewComment.trim()
-                                                    }
+                                                    disabled={submittingReview || !reviewComment.trim()}
                                                     className="w-full"
                                                 >
                                                     {submittingReview ? (
@@ -726,44 +791,84 @@ export default function PerformanceDetailClient({
                                         ) : reviews.length === 0 ? (
                                             <div className="text-center py-8 text-muted-foreground">
                                                 <MessageCircle className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                                                <p>
-                                                    아직 작성된 리뷰가 없습니다.
-                                                </p>
-                                                <p className="text-sm">
-                                                    첫 번째 리뷰를 작성해보세요!
-                                                </p>
+                                                <p>아직 작성된 리뷰가 없습니다.</p>
+                                                <p className="text-sm">첫 번째 리뷰를 작성해보세요!</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-4">
                                                 {reviews.map((review) => (
-                                                    <div
-                                                        key={review.id}
-                                                        className="pb-4 border-b last:border-0"
-                                                    >
+                                                    <div key={review.id} className="pb-4 border-b last:border-0">
                                                         <div className="flex items-start gap-3">
                                                             <Avatar className="h-8 w-8">
                                                                 <AvatarFallback>
-                                                                    {review.userName.substring(
-                                                                        0,
-                                                                        2
-                                                                    )}
+                                                                    {review.userName.substring(0, 2)}
                                                                 </AvatarFallback>
                                                             </Avatar>
                                                             <div className="flex-1">
                                                                 <div className="flex items-center justify-between">
                                                                     <div>
                                                                         <p className="text-sm font-medium">
-                                                                            {
-                                                                                review.userName
-                                                                            }
+                                                                            {review.userName}
+                                                                        </p>
+                                                                        <p className="text-xs text-muted-foreground">
+                                                                            {formatReviewDate(review.createdAt)}
                                                                         </p>
                                                                     </div>
+                                                                    {review.isMine && (
+                                                                        <div className="flex gap-2">
+                                                                            {editingReviewId === review.id ? (
+                                                                                <>
+                                                                                    <Button
+                                                                                        variant="outline"
+                                                                                        size="sm"
+                                                                                        onClick={() => handleEditReview(review.id)}
+                                                                                    >
+                                                                                        저장
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        onClick={() => {
+                                                                                            setEditingReviewId(null);
+                                                                                            setEditingComment("");
+                                                                                        }}
+                                                                                    >
+                                                                                        취소
+                                                                                    </Button>
+                                                                                </>
+                                                                            ) : (
+                                                                                <>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        onClick={() => {
+                                                                                            setEditingReviewId(review.id);
+                                                                                            setEditingComment(review.comment);
+                                                                                        }}
+                                                                                    >
+                                                                                        수정
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        onClick={() => handleDeleteReview(review.id)}
+                                                                                    >
+                                                                                        삭제
+                                                                                    </Button>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                                <p className="mt-2 text-sm">
-                                                                    {
-                                                                        review.comment
-                                                                    }
-                                                                </p>
+                                                                {editingReviewId === review.id ? (
+                                                                    <Textarea
+                                                                        value={editingComment}
+                                                                        onChange={(e) => setEditingComment(e.target.value)}
+                                                                        className="mt-2"
+                                                                    />
+                                                                ) : (
+                                                                    <p className="mt-2 text-sm">{review.comment}</p>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>

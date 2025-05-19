@@ -209,6 +209,9 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link href="/users/mypage/reservations">예매 내역</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/users/mypage/bookmarks">찜한 공연</Link>
+                </DropdownMenuItem>
                 {!isManager && !isAdmin && (
                   <DropdownMenuItem asChild>
                     <Link href="/users/mypage/register">공연 관리자 신청</Link>

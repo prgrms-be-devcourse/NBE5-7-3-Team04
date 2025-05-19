@@ -9,7 +9,7 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 export const CLOUDFRONT_URL = process.env.NEXT_PUBLIC_CLOUDFRONT_URL;
 
 // 로그인 관련 API URL
-const AUTH_API_URL = "http://localhost:8080";
+const AUTH_API_URL = process.env.NEXT_PUBLIC_AUTH_API_URL;
 
 // 개발 환경에서 API 요청 실패 시 사용할 모의 데이터
 const MOCK_DATA_ENABLED = false;
@@ -124,6 +124,7 @@ export async function getPerformanceDetail(performanceId: number | string) {
 }
 
 export async function createReservation(data: {
+    performanceId: number;
     scheduleId: number;
     quantity: number;
 }) {
@@ -144,7 +145,7 @@ export async function getUserReservations(page = 0, size = 10) {
 }
 
 export async function getReservationDetail(reservationId: number | string) {
-    const response = await api.get(`/users/reservations/${reservationId}`);
+    const response = await api.get(`/reservations/me/${reservationId}`);
     return response.data;
 }
 
@@ -166,12 +167,12 @@ export async function updateRefundBankInfo(data: {
 }
 
 export async function addBookmark(performanceId: number | string) {
-    const response = await api.post(`/users/bookmarks/${performanceId}`);
+    const response = await api.post(`/bookmark/${performanceId}`);
     return response.data;
 }
 
 export async function removeBookmark(performanceId: number | string) {
-    const response = await api.delete(`/users/bookmarks/${performanceId}`);
+    const response = await api.patch(`/bookmark/${performanceId}`);
     return response.data;
 }
 
@@ -199,8 +200,7 @@ export const getReviews = async (
 
 export const createReview = async (data: {
     performanceId: number;
-    scheduledId: number;
-    comments: string;
+    comment: string;
 }) => {
     const response = await fetch(`${API_BASE_URL}/reviews`, {
         method: "POST",
@@ -212,11 +212,20 @@ export const createReview = async (data: {
     });
 
     if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json().catch(() => ({ message: "리뷰 작성에 실패했습니다." }));
         throw new Error(error.message || "리뷰 작성에 실패했습니다.");
     }
 
-    return response.json();
+    // 204 응답이거나 응답이 비어있는 경우 빈 객체 반환
+    if (response.status === 204 || response.headers.get("content-length") === "0") {
+        return {};
+    }
+
+    try {
+        return await response.json();
+    } catch (error) {
+        return {};
+    }
 };
 
 export async function getUserInfo() {
@@ -387,4 +396,18 @@ export async function uploadFile(file: File) {
         console.error("파일 업로드 오류:", error);
         throw error;
     }
+}
+
+export async function updateReview(reviewId: number, comment: string) {
+    const response = await api.put(`/reviews/${reviewId}`, { comment });
+    // 204 응답이거나 응답이 비어있는 경우 빈 객체 반환
+    if (response.status === 204 || !response.data) {
+        return {};
+    }
+    return response.data;
+}
+
+export async function deleteReview(reviewId: number) {
+    const response = await api.delete(`/reviews/${reviewId}`);
+    return response.data;
 }

@@ -10,5 +10,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface AdminPerformanceRepository extends JpaRepository<Performance, Long> {
+    /**
+     * 모든 공연을 페이징하여 조회 (생성일자 기준 정렬)
+     */
+    @Query("SELECT p FROM Performance p ORDER BY p.createdAt DESC")
+    Page<Performance> findAllPerformance(Pageable pageable);
+
     Page<Performance> findAllByStatusOrderByCreatedAt(PerformanceStatus status, Pageable pageable);
 }

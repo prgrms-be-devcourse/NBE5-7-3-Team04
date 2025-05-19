@@ -1,6 +1,7 @@
 package me.performancereservation.global.security.oauth.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.auth.entity.Auth;
 import me.performancereservation.domain.auth.service.AuthService;
 import me.performancereservation.domain.user.entitiy.User;
@@ -21,6 +22,7 @@ import java.util.Map;
 //소셜 인증 성공 시 소셜 유저 정보를 우리 서비스의 User/Auth와 연결(회원가입/로그인)
 //소셜별로 내려주는 유저 정보 구조가 다르기 때문에 직접 커스텀 필요 -> 소셜 별 파싱 로직을 추상화하여 하나로 통일
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -31,6 +33,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         //소셜에서 준 유저 정보 가져오기
          OAuth2User oAuth2User = super.loadUser(userRequest);
+
 
         //provider(google, kakao, naver 등) 추출
         String provider = userRequest.getClientRegistration().getRegistrationId();
@@ -47,6 +50,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } catch (Exception e) { //없으면 회원가입
             isExist = false;
             User user = userService.registerUser(userInfo.getEmail(), userInfo.getName(), null, Role.USER);
+
             auth = authService.registerAuth(user.getId(), provider, userInfo.getOauthId());
         }
 

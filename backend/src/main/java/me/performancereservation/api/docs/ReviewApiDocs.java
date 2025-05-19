@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import me.performancereservation.domain.review.dto.request.ReviewCreateRequest;
+import me.performancereservation.domain.review.dto.request.ReviewUpdateRequest;
 import me.performancereservation.domain.review.dto.respornse.ReviewResponse;
 import me.performancereservation.global.exception.ErrorResponse;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
@@ -46,5 +47,38 @@ public interface ReviewApiDocs {
     ResponseEntity<Page<ReviewResponse>> getReviews(
         @Parameter(description = "공연 ID", required = true) Long performanceId,
         @ParameterObject Pageable pageable
+    );
+
+    @Operation(summary = "리뷰 수정", description = "작성한 리뷰를 수정합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "수정 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 (INVALID_REQUEST)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 (UNAUTHORIZED)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "권한 없음 (FORBIDDEN)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음 (REVIEW_NOT_FOUND)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    ResponseEntity<Void> updateReview(
+        @Parameter(description = "리뷰 ID", required = true) Long reviewId,
+        @Parameter(description = "리뷰 수정 정보", required = true) ReviewUpdateRequest request,
+        @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User principal
+    );
+
+    @Operation(summary = "리뷰 삭제", description = "작성한 리뷰를 삭제합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "삭제 성공"),
+        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 (UNAUTHORIZED)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "권한 없음 (FORBIDDEN)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음 (REVIEW_NOT_FOUND)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    ResponseEntity<Void> deleteReview(
+        @Parameter(description = "리뷰 ID", required = true) Long reviewId,
+        @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User principal
     );
 } 
