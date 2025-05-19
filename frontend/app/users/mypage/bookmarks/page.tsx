@@ -92,14 +92,12 @@ export default function BookmarksPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white">
       <div className="container py-12 px-4 md:px-6 flex-grow">
-        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-8 text-center">
-          내가 찜한 공연
-        </h1>
+        <h1 className="text-3xl font-bold mb-8 text-left text-black">내가 찜한 공연</h1>
 
         {bookmarks.length === 0 ? (
-          <div className="flex justify-center items-center min-h-[300px]">
-            <Card className="w-full max-w-lg mx-auto">
-              <CardContent className="flex flex-col items-center justify-center py-12">
+          <div>
+            <Card className="w-full">
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <p className="text-muted-foreground mb-4">아직 찜한 공연이 없습니다.</p>
                 <Button onClick={() => router.push('/performances')}>공연 둘러보기</Button>
               </CardContent>
