@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getReservationDetail } from "@/src/api/api";
+import { getReservationDetail, cancelReservation } from "@/src/api/api";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -212,10 +212,31 @@ export default function ReservationDetailPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end">
-                <CancelReservationDialog
-                  reservationId={reservation.reservationId}
-                  disabled={isCancelDisabled}
-                />
+                {reservation.status === "PAYMENTS_PENDING" ? (
+                  <Button
+                    variant="destructive"
+                    disabled={isCancelDisabled}
+                    onClick={async () => {
+                      if (window.confirm("정말 예매를 취소하시겠습니까?")) {
+                        try {
+                          await cancelReservation(reservation.reservationId);
+                          window.location.reload();
+                        } catch (e) {
+                          alert(
+                            "예매 취소 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+                          );
+                        }
+                      }
+                    }}
+                  >
+                    예매 취소
+                  </Button>
+                ) : (
+                  <CancelReservationDialog
+                    reservationId={reservation.reservationId}
+                    disabled={isCancelDisabled}
+                  />
+                )}
               </CardFooter>
             </Card>
           </div>
