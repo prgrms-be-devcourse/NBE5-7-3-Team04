@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
 import { useAuth } from "@/src/auth/user"
 import { useRouter } from "next/navigation"
+import { formatKSTDateTime } from "@/src/utils/date"
 
 export default function SettlementHistoryPage() {
   const [settlements, setSettlements] = useState<any[]>([])
@@ -45,15 +46,6 @@ export default function SettlementHistoryPage() {
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
     window.scrollTo(0, 0)
-  }
-
-  // 날짜 포맷팅 함수
-  const formatDate = (dateString: string) => {
-    try {
-      return format(parseISO(dateString), "yyyy년 MM월 dd일")
-    } catch (error) {
-      return "날짜 정보 없음"
-    }
   }
 
   return (
@@ -97,7 +89,7 @@ export default function SettlementHistoryPage() {
                         {settlement.status === "CONFIRMED" ? "승인됨" : "대기중"}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        {settlement.settledAt ? formatDate(settlement.settledAt) : "처리 대기중"}
+                        {settlement.settledAt ? formatKSTDateTime(settlement.settledAt) : "처리 대기중"}
                       </span>
                     </div>
                     <div className="h-1" />

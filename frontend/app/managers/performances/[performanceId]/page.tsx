@@ -28,6 +28,8 @@ import Link from "next/link"
 import { useAuth } from "@/src/auth/user"
 import { ScheduleForm } from "@/components/schedule-form"
 import { PageProps } from "@/types/route"
+import dynamic from "next/dynamic"
+const { formatKSTDateTime } = require("@/src/utils/date")
 
 interface PerformanceParams {
   performanceId: string
@@ -111,15 +113,6 @@ export default async function PerformanceDetailPage({ params }: PageProps<Perfor
     } catch (err) {
       console.error("공연 일정 추가 오류:", err)
       setError("공연 일정 추가 중 오류가 발생했습니다.")
-    }
-  }
-
-  // 날짜 포맷팅 함수
-  const formatDate = (dateString: string) => {
-    try {
-      return format(parseISO(dateString), "yyyy년 MM월 dd일 HH:mm")
-    } catch (error) {
-      return "날짜 정보 없음"
     }
   }
 
@@ -242,8 +235,8 @@ export default async function PerformanceDetailPage({ params }: PageProps<Perfor
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-muted-foreground">공연 기간</p>
                     <p>
-                      {formatDate(performance.startDate).split(" ")[0]} ~{" "}
-                      {formatDate(performance.endDate).split(" ")[0]}
+                      {formatKSTDateTime(performance.startDate).split(" ")[0]} ~{" "}
+                      {formatKSTDateTime(performance.endDate).split(" ")[0]}
                     </p>
                   </div>
                   <div className="space-y-1">
@@ -316,7 +309,7 @@ export default async function PerformanceDetailPage({ params }: PageProps<Perfor
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium">{formatDate(schedule.startTime)}</span>
+                                <span className="font-medium">{formatKSTDateTime(schedule.startTime)}</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <Clock className="h-4 w-4 text-muted-foreground" />

@@ -99,7 +99,7 @@ export default function ReservationDetailPage() {
             </h1>
             <p className="text-muted-foreground">
               예약번호: {reservation.reservationId} |{" "}
-              {formatDate(reservation.createdAt)} 예매
+              {formatKSTDateTime(reservation.createdAt)} 예매
             </p>
           </div>
         </div>
@@ -151,10 +151,10 @@ export default function ReservationDetailPage() {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span>
                     {reservation.startTime
-                      ? `시작: ${formatDate(reservation.startTime)}`
+                      ? `시작: ${formatKSTDateTime(reservation.startTime)}`
                       : ""}
                     {reservation.endTime
-                      ? ` ~ 종료: ${formatDate(reservation.endTime)}`
+                      ? ` ~ 종료: ${formatKSTDateTime(reservation.endTime)}`
                       : ""}
                   </span>
                 </div>

@@ -16,6 +16,7 @@ import { format, parseISO } from "date-fns"
 import { useAuth } from "@/src/auth/user"
 import { PerformanceDetailModal } from "./PerformanceDetailModal"
 import { getPerformanceImageUrl } from "@/lib/utils"
+import { formatKSTDateTime } from "@/src/utils/date"
 
 export default function ManagerPerformancesPage() {
   const searchParams = useSearchParams()
@@ -122,15 +123,6 @@ export default function ManagerPerformancesPage() {
       handleSearch()
     }
   }, [status])
-
-  // 날짜 포맷팅 함수
-  const formatDate = (dateString: string) => {
-    try {
-      return format(parseISO(dateString), "yyyy.MM.dd")
-    } catch (error) {
-      return "날짜 정보 없음"
-    }
-  }
 
   // 상세정보 모달 닫힐 때 공연 목록 새로고침
   const handleModalOpenChange = (open: boolean) => {
@@ -258,7 +250,7 @@ export default function ManagerPerformancesPage() {
                           <div className="flex items-center">
                             <Calendar className="mr-1 h-3 w-3" />
                             <span>
-                              {formatDate(performance.startDate)} - {formatDate(performance.endDate)}
+                              {formatKSTDateTime(performance.startDate)} - {formatKSTDateTime(performance.endDate)}
                             </span>
                           </div>
                         </div>
