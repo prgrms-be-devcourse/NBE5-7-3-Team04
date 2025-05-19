@@ -76,11 +76,37 @@ public class UserService {
      */
     @Transactional
     public void submitManagerRequest(Long userId) {
+        if(!canRequestManagerRole(userId)){
+            throw ErrorCode.MANAGER_REQUEST_ALREADY_EXISTS.domainException("이미 공연자 권한 요청 중이거나 공연 관리자 입니다");
+        }
+
         ManagerRequest managerRequest = ManagerRequest.builder()
                 .userId(userId)
                 .status(ManagerRequestStatus.PENDING)
                 .build();
 
         managerRequestRepository.save(managerRequest);
+    }
+
+    /**
+     * 매니저 권한 신청 가능 여부 확인
+     * 이미 매니저이거나 신청 중인 요청이 있으면 신청 불가
+     *
+     * @param userId 사용자 ID
+     * @return 신청 가능 여부
+     */
+    public boolean canRequestManagerRole(Long userId) {
+        // 이미 승인된 요청이 있는지 확인 (이미 매니저인 경우)
+        if (managerRequestRepository.hasApprovedRequest(userId)) {
+            return false;
+        }
+
+        // 대기 중인 요청이 있는지 확인
+        if (managerRequestRepository.hasPendingRequest(userId)) {
+            return false;
+        }
+
+        // 승인된 요청도 없고 대기 중인 요청도 없으면 신청 가능
+        return true;
     }
 }
