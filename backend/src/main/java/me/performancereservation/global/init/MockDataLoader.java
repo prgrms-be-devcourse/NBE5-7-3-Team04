@@ -587,7 +587,6 @@ public class MockDataLoader implements CommandLineRunner {
             reviews.add(Review.builder()
                     .userId(user.getId())
                     .performanceId(performance.getId())
-                    .scheduleId(schedule.getId())
                     .comments(reviewComments[i % reviewComments.length])
                     .build());
         }

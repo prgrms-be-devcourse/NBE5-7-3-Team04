@@ -3,6 +3,7 @@ package me.performancereservation.api;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.api.docs.ReviewApiDocs;
 import me.performancereservation.domain.review.dto.request.ReviewCreateRequest;
+import me.performancereservation.domain.review.dto.request.ReviewUpdateRequest;
 import me.performancereservation.domain.review.dto.respornse.ReviewResponse;
 import me.performancereservation.domain.review.service.ReviewService;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +31,13 @@ public class ReviewController implements ReviewApiDocs {
      */
     @Override
     @PostMapping
-    public ResponseEntity<Void> createReview(@AuthenticationPrincipal CustomOAuth2User principal,
-                                             @RequestBody ReviewCreateRequest request) {
-        reviewService.createReview(principal.getUser().getId(), request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> createReview(
+        @AuthenticationPrincipal CustomOAuth2User principal,
+        @RequestBody ReviewCreateRequest request
+    ) {
+        reviewService.createReview( principal.getUser().getId(), request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -47,5 +52,30 @@ public class ReviewController implements ReviewApiDocs {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(reviewService.getReviewsByPerformanceId(performanceId, pageable));
+    }
+
+    // 리뷰 수정
+    @Override
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<Void> updateReview(
+            @PathVariable Long reviewId,
+            @RequestBody ReviewUpdateRequest request,
+            @AuthenticationPrincipal CustomOAuth2User principal
+    ) {
+        reviewService.updateReview(reviewId, request, principal.getUser().getId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 리뷰 삭제
+    @Override
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomOAuth2User principal
+    ) {
+        reviewService.deleteReview(reviewId, principal.getUser().getId());
+
+        return ResponseEntity.noContent().build();
     }
 }

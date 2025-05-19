@@ -18,7 +18,6 @@ public class ReviewMapper {
         return new ReviewResponse(
                 review.getId(),
                 user.getName(),
-                review.getScheduleId(),
                 review.getComments(),
                 review.getCreatedAt()
         );
@@ -27,7 +26,6 @@ public class ReviewMapper {
     public Review toEntity(Long userId, ReviewCreateRequest request) {
         return Review.builder()
                 .performanceId(request.performanceId())
-                .scheduleId(request.scheduledId())
                 .userId(userId)
                 .comments(request.comments())
                 .build();
