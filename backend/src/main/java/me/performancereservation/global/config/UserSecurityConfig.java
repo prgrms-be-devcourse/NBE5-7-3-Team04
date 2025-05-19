@@ -48,14 +48,14 @@ public class UserSecurityConfig {
                                 "/api/v1/auth/token-test", "/oauth2/**", "/login/oauth2/code/**").permitAll()
 
                         // 유저만
-                        .requestMatchers("/api/v1/users/manager-request", "/api/v1/users/manager-status").hasRole("USER")
+                        .requestMatchers("/api/v1/users/manager-request").hasRole("USER")
 
                         // 공연관리자만
                         .requestMatchers("/api/v1/files/**","/api/v1/managers/**").hasRole("MANAGER")
 
                         // 유저+공연관리자
                         .requestMatchers("/api/v1/users/me", "/api/v1/users/onboarding", "/api/v1/reviews",
-                                "/api/v1/reservations/**","/api/v1/bookmark/**","/api/v1/refunds/**"
+                                "/api/v1/reservations/**","/api/v1/bookmark/**","/api/v1/refunds/**", "/api/v1/users/manager-status"
                         ).hasAnyRole("USER", "MANAGER")
 
                         // 모두 접근 가능 (공연 목록/상세/검색 등)
