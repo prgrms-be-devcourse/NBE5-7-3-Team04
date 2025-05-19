@@ -115,7 +115,11 @@ public class SettlementService {
 
     @Transactional
     public Long findSettlementIdByPerformanceId(Long performanceId) {
-        return settlementRepository.findSettlementByPerformanceId(performanceId).getId();
+        return settlementRepository.findSettlementByPerformanceId(performanceId)
+                .stream()
+                .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
+                .map(Settlement::getId)
+                .orElse(null);
     }
 
     @Transactional

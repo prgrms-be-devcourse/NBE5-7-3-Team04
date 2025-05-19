@@ -35,7 +35,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { CustomCalendar } from "@/components/custom-calendar";
 import { createReservation, getPerformanceDetail } from "@/src/api/api";
-import { formatKSTDateTime } from "@/src/utils/date";
+import { formatKSTDateTime } from "@/src/api/utils/date";
 
 interface PerformanceSchedule {
     id: number;

@@ -31,7 +31,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getPerformanceImageUrl } from "@/lib/utils";
 import type { PerformancePageResponse } from "../../src/types/performance";
-import { formatKSTDateTime } from "@/src/utils/date";
+import { formatKSTDateTime } from "@/src/api/utils/date";
 
 export default function PerformancesPage() {
     const searchParams = useSearchParams();
