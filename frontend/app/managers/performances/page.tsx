@@ -132,6 +132,14 @@ export default function ManagerPerformancesPage() {
     }
   }
 
+  // 상세정보 모달 닫힐 때 공연 목록 새로고침
+  const handleModalOpenChange = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      fetchPerformances();
+    }
+  };
+
   return (
     <div className="container py-8">
       <div className="flex flex-col gap-6">
@@ -296,7 +304,7 @@ export default function ManagerPerformancesPage() {
       </div>
       <PerformanceDetailModal
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={handleModalOpenChange}
         performanceId={selectedId}
       />
     </div>

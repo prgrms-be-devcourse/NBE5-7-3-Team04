@@ -26,6 +26,7 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [newSchedules, setNewSchedules] = useState([{ startTime: "", endTime: "" }]);
   const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [editFileId, setEditFileId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!performanceId) return
@@ -51,6 +52,19 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
     registerLocale("ko", ko);
   }, []);
 
+  // 수정 모달이 열릴 때마다 현재 공연 이미지 미리보기를 세팅하고 fileId도 세팅
+  useEffect(() => {
+    if (editOpen && performance) {
+      if (performance.fileId !== undefined && performance.fileId !== null) {
+        setEditFileId(performance.fileId);
+      } else {
+        setEditFileId(null);
+      }
+      setEditImagePreview(performance.fileUrl ? getPerformanceImageUrl(performance.fileUrl) : null);
+      setEditImage(null);
+    }
+  }, [editOpen, performance]);
+
   // 날짜 포맷 함수
   const formatDateTime = (dateString: string) => {
     try {
@@ -64,12 +78,13 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setEditImage(file || null);
+    setEditFileId(null); // 새 파일 첨부 시 기존 fileId 무효화
     if (file) {
       const reader = new FileReader();
       reader.onload = (ev) => setEditImagePreview(ev.target?.result as string);
       reader.readAsDataURL(file);
     } else {
-      setEditImagePreview(performance?.fileUrl || null);
+      setEditImagePreview(performance?.fileUrl ? getPerformanceImageUrl(performance.fileUrl) : null);
     }
   };
 
@@ -77,32 +92,24 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
   const handleEditSubmit = async () => {
     setEditLoading(true);
     try {
-      let fileId = performance?.fileId; // fileUrl 대신 fileId 사용
-      console.log('기존 fileId:', fileId);
-      
-      // 새 이미지가 있는 경우 S3에 업로드
+      let fileId = editFileId;
+      console.log('handleEditSubmit - editFileId:', editFileId, typeof editFileId);
       if (editImage) {
-        console.log('새 이미지 업로드 시작:', editImage);
         const uploadRes = await uploadFileToS3(editImage);
-        console.log('S3 업로드 결과:', uploadRes);
-        
-        // S3 응답에서 파일 ID 추출
         if (uploadRes && uploadRes.id) {
-          fileId = uploadRes.id; // String으로 변환하지 않고 number 타입 유지
-          console.log('S3에서 받은 파일 ID:', fileId);
-          console.log('파일 ID 타입:', typeof fileId);
+          fileId = uploadRes.id;
         } else {
           throw new Error('S3 업로드 응답에서 파일 ID를 찾을 수 없습니다.');
         }
       }
-      
-      // 공연 수정 API 요청 데이터 준비
+      console.log('performance.fileId:', performance?.fileId, typeof performance?.fileId);
+      console.log('editFileId:', editFileId, typeof editFileId);
+      console.log('최종 fileId:', fileId, typeof fileId);
       const updateData = {
         description: editDescription,
-        fileId: fileId, // number 타입 유지
+        fileId: fileId !== null && fileId !== undefined ? String(fileId) : undefined,
       };
       console.log('공연 수정 API 요청 데이터:', updateData);
-      console.log('fileId 타입:', typeof updateData.fileId);
       
       // 공연 정보 수정 API 호출
       const response = await updateManagerPerformance(performanceId!, updateData);
@@ -110,10 +117,7 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
       
       if (response.success) {
         alert("공연 정보가 성공적으로 수정되었습니다.");
-        // 성공 시 모달 닫기
-        setEditOpen(false);
-        onOpenChange(false);
-        // 상세 정보 새로고침
+        // 모달을 닫지 않고 상세정보만 새로고침
         const updatedData = await getManagerPerformanceDetailV1(performanceId!);
         setPerformance(updatedData);
       }
@@ -331,8 +335,8 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
           </div>
         ) : null}
         {/* 스케줄 추가 버튼 */}
-        <div className="flex justify-end mb-2">
-          <Button size="sm" variant="secondary" onClick={() => setScheduleModalOpen(true)}>스케줄 추가</Button>
+        <div className="flex justify-end mb-2 gap-2">
+          <Button size="sm" variant="secondary" className="mr-2" onClick={() => setScheduleModalOpen(true)}>스케줄 추가</Button>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>수정</Button>
         </div>
 
@@ -345,20 +349,12 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
             <div className="flex gap-6 items-start">
               {/* 이미지 첨부 및 미리보기 */}
               <div className="flex-shrink-0 w-2/5 min-w-[100px]">
-                {editImagePreview ? (
-                  <img src={editImagePreview} alt="미리보기" className="w-full h-auto rounded border mb-2" />
-                ) : performance && performance.fileUrl ? (
-                  <img
-                    src={getPerformanceImageUrl(performance.fileUrl)}
-                    alt="현재 이미지"
-                    className="w-full h-auto rounded border mb-2"
-                    onError={e => { e.currentTarget.src = "/placeholder.svg?height=300&width=400" }}
-                  />
-                ) : (
-                  <div className="w-full aspect-[2/3] flex items-center justify-center bg-gray-100 text-gray-400 border rounded mb-2">
-                    이미지 없음
-                  </div>
-                )}
+                <img
+                  src={editImagePreview || (performance && performance.fileUrl ? getPerformanceImageUrl(performance.fileUrl) : "/placeholder.svg?height=300&width=400")}
+                  alt="미리보기"
+                  className="w-full h-auto rounded border mb-2"
+                  onError={e => { e.currentTarget.src = "/placeholder.svg?height=300&width=400" }}
+                />
                 <input type="file" accept="image/*" onChange={handleImageChange} className="w-full mt-1" />
               </div>
               {/* 설명 입력 */}
