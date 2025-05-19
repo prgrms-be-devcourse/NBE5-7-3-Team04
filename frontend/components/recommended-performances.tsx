@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Performance } from '@/src/api/performance'
 import { getPerformanceImageUrl } from '@/lib/utils'
+import { formatKSTDate } from "@/src/utils/date"
 
 interface RecommendedPerformancesProps {
   categoryPerformances: {
@@ -189,7 +190,7 @@ export function RecommendedPerformances({ categoryPerformances }: RecommendedPer
                                 <span className="font-medium truncate">{performance.venue}</span>
                               </div>
                               <div className="text-sm text-muted-foreground/80">
-                                <span>{new Date(performance.startDate).toLocaleDateString()} ~ {new Date(performance.endDate).toLocaleDateString()}</span>
+                                <span>{formatKSTDate(performance.startDate)} ~ {formatKSTDate(performance.endDate)}</span>
                               </div>
                             </div>
                           </div>
