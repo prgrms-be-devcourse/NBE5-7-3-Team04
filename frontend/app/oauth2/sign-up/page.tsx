@@ -48,12 +48,14 @@ export default function OAuth2SignUpPage() {
         }));
         setInitialEmail(email);
       } catch (e) {
-        // 파싱 실패 시 무시
+        console.error("Error parsing token:", e);
+        router.replace("/login?error=invalid_token");
+        return;
       }
 
       setTokenReady(true);
     } else {
-      router.replace("/login");
+      router.replace("/login?error=missing_token");
     }
   }, [router, searchParams]);
 
@@ -67,10 +69,8 @@ export default function OAuth2SignUpPage() {
         email: formData.email,
       });
       toast.success("회원가입이 완료되었습니다.");
-      const accessToken = localStorage.getItem("token");
-      if (accessToken) {
-        saveToken(accessToken);
-      }
+
+      // 토큰이 이미 저장되어 있으므로 추가 저장 불필요
       router.replace("/");
     } catch (error) {
       toast.error("회원가입 중 오류가 발생했습니다.");
