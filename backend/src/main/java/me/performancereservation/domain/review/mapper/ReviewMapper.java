@@ -17,6 +17,7 @@ public class ReviewMapper {
     public ReviewResponse toReviewResponse(Review review, User user) {
         return new ReviewResponse(
                 review.getId(),
+                user.getId(),
                 user.getName(),
                 review.getComments(),
                 review.getCreatedAt()
@@ -27,7 +28,7 @@ public class ReviewMapper {
         return Review.builder()
                 .performanceId(request.performanceId())
                 .userId(userId)
-                .comments(request.comments())
+                .comments(request.comment())
                 .build();
     }
 }
