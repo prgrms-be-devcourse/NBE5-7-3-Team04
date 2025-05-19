@@ -63,7 +63,7 @@ public class MockDataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) {
 //        // Redis 초기화
-//        redisTemplate.getConnectionFactory().getConnection().flushAll();
+       redisTemplate.getConnectionFactory().getConnection().flushAll();
 
         try {
             // User 생성
