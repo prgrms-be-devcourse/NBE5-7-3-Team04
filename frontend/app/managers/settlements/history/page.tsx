@@ -10,6 +10,9 @@ import { format, parseISO } from "date-fns"
 import { useAuth } from "@/src/auth/user"
 import { useRouter } from "next/navigation"
 import { formatKSTDateTime } from "@/src/utils/date"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { editManagerSettlement } from "@/src/api/api-manager"
 
 export default function SettlementHistoryPage() {
   const [settlements, setSettlements] = useState<any[]>([])
@@ -19,6 +22,11 @@ export default function SettlementHistoryPage() {
   const [totalPages, setTotalPages] = useState(1)
   const { isLoading: authLoading, userRole } = useAuth()
   const router = useRouter()
+  const [editOpen, setEditOpen] = useState(false)
+  const [editTarget, setEditTarget] = useState<any>(null)
+  const [editBank, setEditBank] = useState("")
+  const [editAccount, setEditAccount] = useState("")
+  const [editLoading, setEditLoading] = useState(false)
 
   useEffect(() => {
     if (authLoading) return;
@@ -46,6 +54,32 @@ export default function SettlementHistoryPage() {
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
     window.scrollTo(0, 0)
+  }
+
+  const openEditDialog = (settlement: any) => {
+    setEditTarget(settlement)
+    setEditBank(settlement.bank)
+    setEditAccount(settlement.account)
+    setEditOpen(true)
+  }
+
+  const handleEditSave = async () => {
+    if (!editTarget) return
+    setEditLoading(true)
+    try {
+      await editManagerSettlement({
+        settlementId: editTarget.settlementId,
+        bank: editBank,
+        account: editAccount
+      })
+      setEditOpen(false)
+      const data = await getManagerSettlements(page)
+      setSettlements(data.content || [])
+    } catch (e: any) {
+      alert(e.message || "수정에 실패했습니다.")
+    } finally {
+      setEditLoading(false)
+    }
   }
 
   return (
@@ -119,9 +153,14 @@ export default function SettlementHistoryPage() {
                       </div>
                     )}
                     {settlement.status === "PENDING" && (
-                      <div className="mt-5 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800 text-center">
-                        관리자 승인 대기 중입니다.
-                      </div>
+                      <>
+                        <div className="mt-5 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800 text-center">
+                          관리자 승인 대기 중입니다.
+                        </div>
+                        <Button className="mt-2 w-full" variant="outline" onClick={() => openEditDialog(settlement)}>
+                          정산 정보 수정
+                        </Button>
+                      </>
                     )}
                   </CardContent>
                 </Card>
@@ -145,6 +184,30 @@ export default function SettlementHistoryPage() {
             )}
           </>
         )}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>정산 정보 수정</DialogTitle>
+              <DialogDescription>은행명과 계좌번호를 수정할 수 있습니다.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">은행명</label>
+                <Input value={editBank} onChange={e => setEditBank(e.target.value)} placeholder="은행명" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">계좌번호</label>
+                <Input value={editAccount} onChange={e => setEditAccount(e.target.value)} placeholder="계좌번호" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)} disabled={editLoading}>취소</Button>
+              <Button onClick={handleEditSave} disabled={editLoading}>
+                {editLoading ? "저장 중..." : "저장"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
