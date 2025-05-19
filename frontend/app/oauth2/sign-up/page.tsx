@@ -82,10 +82,38 @@ export default function OAuth2SignUpPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    if (name === "phoneNumber") {
+      // 숫자만 추출
+      const numbers = value.replace(/[^0-9]/g, "");
+
+      // 최대 11자리까지만 허용
+      const limitedNumbers = numbers.slice(0, 11);
+
+      // 전화번호 포맷팅 (010-0000-0000)
+      let formattedNumber = "";
+      if (limitedNumbers.length > 0) {
+        formattedNumber = limitedNumbers.replace(
+          /(\d{3})(\d{0,4})(\d{0,4})/,
+          (_, p1, p2, p3) => {
+            let result = p1;
+            if (p2) result += `-${p2}`;
+            if (p3) result += `-${p3}`;
+            return result;
+          }
+        );
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: formattedNumber,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   if (!tokenReady) {
@@ -124,11 +152,12 @@ export default function OAuth2SignUpPage() {
                 <Input
                   id="phoneNumber"
                   name="phoneNumber"
-                  placeholder="010-0000-0000"
+                  placeholder="01000000000"
                   type="tel"
                   required
                   value={formData.phoneNumber}
                   onChange={handleChange}
+                  maxLength={13}
                 />
               </div>
               <div className="grid gap-2">
