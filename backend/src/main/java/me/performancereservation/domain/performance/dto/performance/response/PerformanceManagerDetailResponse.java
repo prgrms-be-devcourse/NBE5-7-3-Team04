@@ -1,6 +1,7 @@
 package me.performancereservation.domain.performance.dto.performance.response;
 
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse;
+import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,8 @@ public record PerformanceManagerDetailResponse(
         int totalSeats,
         LocalDateTime startDate,
         LocalDateTime endDate,
+        String description,
+        PerformanceCategory category,
         List<PerformanceScheduleResponse> schedules
         ) {
 }

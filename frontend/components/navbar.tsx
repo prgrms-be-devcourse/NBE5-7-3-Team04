@@ -169,6 +169,28 @@ export function Navbar() {
               <span className="sr-only">검색</span>
             </button>
           </form>
+
+          {/* TODO: 테스트 완료 후 삭제 */}
+          {/* 현재 로그인한 유저의 권한 표시 (임시) */}
+          {userRole && (
+            <span style={{ color: '#888', fontSize: 14 }}>(권한: {userRole})</span>
+          )}
+          {/* 매니저로 승인 임시 버튼 (USER일 때만 노출) */}
+          {userRole === 'USER' && (
+            <Button size="sm" variant="outline" onClick={async () => {
+              try {
+                await import("@/src/api/api-admin").then(mod => mod.approveMe());
+                window.location.reload();
+              } catch (e: any) {
+                alert("승인 실패: " + (e?.message || e));
+              }
+            }} style={{ marginLeft: 8 }}>
+              매니저로 승인
+            </Button>
+          )}
+          {/* TODO: 테스트 완료 후 삭제 */}
+
+          
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

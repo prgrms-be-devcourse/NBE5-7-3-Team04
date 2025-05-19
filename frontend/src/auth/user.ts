@@ -47,6 +47,7 @@ export function useAuth() {
     const token = getToken();
     if (token) {
       const userData = parseToken(token);
+      console.log('parsed token data:', userData);
       if (userData) {
         setIsAuthenticated(true);
         setUser(userData);
@@ -76,7 +77,9 @@ export function useAuth() {
   }, []);
 
   const requireRole = (role: string) => {
+    console.log('requireRole 호출:', { role, isAuthenticated, user });
     if (!isAuthenticated || !user || user.role !== role) {
+      console.log('권한 없음, 로그인 페이지로 이동');
       router.push("/login");
       return false;
     }

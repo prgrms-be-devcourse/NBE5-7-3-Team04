@@ -285,6 +285,7 @@ export default async function PerformanceDetailPage({ params }: PageProps<Perfor
                 <TabsTrigger value="schedules">공연 일정</TabsTrigger>
                 <TabsTrigger value="actions">관리 옵션</TabsTrigger>
               </TabsList>
+
               <TabsContent value="schedules" className="mt-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">공연 일정 목록</h3>
@@ -360,6 +361,7 @@ export default async function PerformanceDetailPage({ params }: PageProps<Perfor
                   </div>
                 )}
               </TabsContent>
+
               <TabsContent value="actions" className="mt-4">
                 <Card>
                   <CardHeader>

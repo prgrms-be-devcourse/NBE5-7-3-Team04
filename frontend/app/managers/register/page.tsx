@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,10 +15,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns"
 import { CalendarIcon, Loader2, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { registerPerformance, uploadFile } from "@/src/api/api"
+import { registerPerformance, registerPerformanceSchedule } from "@/src/api/api-manager"
+import { uploadFileToS3 } from "@/src/api/api-file"
 import { useAuth } from "@/src/auth/user"
-import { useEffect } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import DatePicker, { registerLocale } from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import { ko } from "date-fns/locale/ko"
 
 export default function RegisterPerformancePage() {
   const [title, setTitle] = useState("")
@@ -36,11 +39,19 @@ export default function RegisterPerformancePage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const router = useRouter()
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
 
   useEffect(() => {
-    requireRole("MANAGER")
-  }, [requireRole])
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
+  }, [authLoading, userRole])
+
+  useEffect(() => {
+    registerLocale("ko", ko);
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -61,11 +72,20 @@ export default function RegisterPerformancePage() {
       setError("포스터 이미지를 선택해주세요.")
       return null
     }
-
     try {
-      const response = await uploadFile(file)
-      setFileId(response.id)
-      return response.id
+      console.log('새 이미지 업로드 시작:', file);
+      const response = await uploadFileToS3(file)
+      console.log('S3 업로드 결과:', response);
+      
+      if (response && response.id) {
+        const fileId = String(response.id);
+        console.log('S3에서 받은 파일 ID:', fileId);
+        console.log('파일 ID 타입:', typeof fileId);
+        setFileId(Number(fileId));
+        return Number(fileId);
+      } else {
+        throw new Error('S3 업로드 응답에서 파일 ID를 찾을 수 없습니다.');
+      }
     } catch (err) {
       console.error("파일 업로드 오류:", err)
       setError("파일 업로드 중 오류가 발생했습니다.")
@@ -123,9 +143,9 @@ export default function RegisterPerformancePage() {
       const performanceId = await registerPerformance(data)
       setSuccess(true)
 
-      // 성공 후 3초 후에 상세 페이지로 이동
+      // 성공 후 3초 후에 공연 목록 페이지로 이동
       setTimeout(() => {
-        router.push(`/managers/performances/${performanceId}`)
+        router.push("/managers/performances")
       }, 3000)
     } catch (err) {
       console.error("공연 등록 오류:", err)
@@ -137,17 +157,17 @@ export default function RegisterPerformancePage() {
 
   return (
     <div className="container py-8">
-      <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+      <div className="flex flex-col gap-6 max-w-5xl mx-auto">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">공연 등록</h1>
-          <p className="text-muted-foreground mt-1">새로운 공연을 등록합니다.</p>
+          <p className="text-muted-foreground" style={{marginTop: '10px'}}>새로운 공연을 등록합니다.</p>
         </div>
 
         {success ? (
           <Alert className="bg-green-50 text-green-800 border-green-200">
             <AlertTitle>공연 등록 성공</AlertTitle>
             <AlertDescription>
-              공연이 성공적으로 등록되었습니다. 잠시 후 공연 상세 페이지로 이동합니다.
+              공연이 성공적으로 등록되었습니다. 잠시 후 공연 목록 페이지로 이동합니다.
             </AlertDescription>
           </Alert>
         ) : (
@@ -209,48 +229,40 @@ export default function RegisterPerformancePage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="OPERA">오페라</SelectItem>
-                        <SelectItem value="DANCING">무용</SelectItem>
-                        <SelectItem value="SINGING">콘서트</SelectItem>
+                        <SelectItem value="DANCING">춤 공연</SelectItem>
+                        <SelectItem value="SINGING">노래</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <Label>공연 기간</Label>
                     <div className="grid grid-cols-2 gap-2">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !startDate && "text-muted-foreground",
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {startDate ? format(startDate, "PPP") : <span>시작일</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
-                        </PopoverContent>
-                      </Popover>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !endDate && "text-muted-foreground",
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {endDate ? format(endDate, "PPP") : <span>종료일</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
-                        </PopoverContent>
-                      </Popover>
+                      <DatePicker
+                        selected={startDate}
+                        onChange={date => setStartDate(date as Date)}
+                        dateFormat="yyyy년 MM월 dd일 (eee) HH:mm"
+                        placeholderText="시작일 선택"
+                        className="w-full min-w-[240px] border rounded px-2 py-1"
+                        maxDate={endDate || undefined}
+                        isClearable
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={10}
+                        locale="ko"
+                      />
+                      <DatePicker
+                        selected={endDate}
+                        onChange={date => setEndDate(date as Date)}
+                        dateFormat="yyyy년 MM월 dd일 (eee) HH:mm"
+                        placeholderText="종료일 선택"
+                        className="w-full min-w-[240px] border rounded px-2 py-1"
+                        minDate={startDate || undefined}
+                        isClearable
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={10}
+                        locale="ko"
+                      />
                     </div>
                   </div>
                 </div>
@@ -298,7 +310,7 @@ export default function RegisterPerformancePage() {
                       {filePreview ? (
                         <div className="relative h-64 w-full overflow-hidden rounded-lg border">
                           <img
-                            src={filePreview || "/placeholder.svg"}
+                            src={filePreview}
                             alt="포스터 미리보기"
                             className="h-full w-full object-cover"
                           />
@@ -312,18 +324,17 @@ export default function RegisterPerformancePage() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" type="button" onClick={() => router.back()}>
-                  취소
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  공연 등록
-                </Button>
-              </CardFooter>
             </Card>
 
-            {error && <div className="mt-4 p-4 bg-red-50 text-red-800 rounded-lg">{error}</div>}
+            <CardFooter className="flex justify-between mt-6">
+              <Button variant="outline" type="button" onClick={() => router.back()}>
+                취소
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                공연 등록
+              </Button>
+            </CardFooter>
           </form>
         )}
       </div>

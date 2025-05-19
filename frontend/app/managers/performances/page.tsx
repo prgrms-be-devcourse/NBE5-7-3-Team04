@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -13,6 +14,8 @@ import { Loader2, Search, Plus, Calendar, MapPin } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { useAuth } from "@/src/auth/user"
+import { PerformanceDetailModal } from "./PerformanceDetailModal"
+import { getPerformanceImageUrl } from "@/lib/utils"
 
 export default function ManagerPerformancesPage() {
   const searchParams = useSearchParams()
@@ -25,24 +28,30 @@ export default function ManagerPerformancesPage() {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
+  const router = useRouter()
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
-    requireRole("MANAGER")
-
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
     if (initialSearchQuery) {
       handleSearch()
     } else {
       fetchPerformances()
     }
-  }, [initialSearchQuery, requireRole])
+  }, [authLoading, userRole, initialSearchQuery])
 
   const fetchPerformances = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const data = await getManagerPerformances(page)
+      const data = await getManagerPerformances(page, 10)
 
       setPerformances(data.content || [])
       setTotalPages(data.totalPages || 1)
@@ -63,7 +72,7 @@ export default function ManagerPerformancesPage() {
 
       const params: any = {
         page: 0,
-        size: 12,
+        size: 10,
       }
 
       if (searchQuery) params.title = searchQuery
@@ -82,9 +91,29 @@ export default function ManagerPerformancesPage() {
     }
   }
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = async (newPage: number) => {
     setPage(newPage)
-    window.scrollTo(0, 0)
+    try {
+      setLoading(true)
+      setError(null)
+
+      const params: any = {
+        page: newPage,
+        size: 10,
+      }
+
+      if (searchQuery) params.title = searchQuery
+      if (status !== "all") params.status = status
+
+      const data = await searchManagerPerformances(params)
+      setPerformances(data.content || [])
+      window.scrollTo(0, 0)
+    } catch (err) {
+      console.error("페이지 변경 오류:", err)
+      setError("페이지를 불러오는 중 오류가 발생했습니다.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   // 상태 변경 시 자동 검색
@@ -103,13 +132,21 @@ export default function ManagerPerformancesPage() {
     }
   }
 
+  // 상세정보 모달 닫힐 때 공연 목록 새로고침
+  const handleModalOpenChange = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      fetchPerformances();
+    }
+  };
+
   return (
     <div className="container py-8">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">공연 목록</h1>
-            <p className="text-muted-foreground mt-1">등록한 공연 목록을 관리합니다.</p>
+            <p className="text-muted-foreground" style={{marginTop: '10px'}}>등록한 공연 목록을 관리합니다.</p>
           </div>
           <Button asChild>
             <Link href="/managers/register">
@@ -167,90 +204,97 @@ export default function ManagerPerformancesPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {performances.map((performance) => (
-                <Card key={performance.id} className="overflow-hidden">
-                  <div className="aspect-video w-full overflow-hidden bg-muted">
-                    <img
-                      src={performance.fileUrl || "/placeholder.svg?height=300&width=400"}
-                      alt={performance.title}
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg?height=300&width=400"
-                      }}
-                    />
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              performance.status === "PENDING"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : performance.status === "CONFIRMED"
-                                  ? "bg-green-100 text-green-800"
-                                  : performance.status === "REJECTED"
-                                    ? "bg-red-100 text-red-800"
-                                    : performance.status === "CANCELLED"
-                                      ? "bg-gray-100 text-gray-800"
-                                      : "bg-blue-100 text-blue-800"
-                            }`}
-                          >
-                            {performance.status === "PENDING"
-                              ? "대기중"
+                <div
+                  key={performance.id}
+                  className="block cursor-pointer"
+                  onClick={() => { setSelectedId(performance.id); setModalOpen(true); }}
+                >
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 h-full">
+                    <div className="aspect-[3/4] w-full overflow-hidden bg-muted relative">
+                      <img
+                        src={getPerformanceImageUrl(performance.fileUrl)}
+                        alt={performance.title}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg?height=300&width=400"
+                        }}
+                      />
+                      <div className="absolute top-2 right-2">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            performance.status === "PENDING"
+                              ? "bg-yellow-100 text-yellow-800"
                               : performance.status === "CONFIRMED"
-                                ? "승인됨"
+                                ? "bg-green-100 text-green-800"
                                 : performance.status === "REJECTED"
-                                  ? "거절됨"
+                                  ? "bg-red-100 text-red-800"
                                   : performance.status === "CANCELLED"
-                                    ? "취소됨"
-                                    : "완료됨"}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {performance.category === "OPERA"
-                              ? "오페라"
-                              : performance.category === "DANCING"
-                                ? "무용"
-                                : "콘서트"}
-                          </span>
-                        </div>
-                        <h3 className="mt-2 text-lg font-semibold">{performance.title}</h3>
-                      </div>
-                      <div className="space-y-2 text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <MapPin className="mr-1 h-3.5 w-3.5" />
-                          <span>{performance.venue}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="mr-1 h-3.5 w-3.5" />
-                          <span>
-                            {formatDate(performance.startDate)} - {formatDate(performance.endDate)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/managers/performances/${performance.id}`}>상세 보기</Link>
-                        </Button>
+                                    ? "bg-gray-100 text-gray-800"
+                                    : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {performance.status === "PENDING"
+                            ? "대기중"
+                            : performance.status === "CONFIRMED"
+                              ? "승인됨"
+                              : performance.status === "REJECTED"
+                                ? "거절됨"
+                                : performance.status === "CANCELLED"
+                                  ? "취소됨"
+                                  : "완료됨"}
+                        </span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <CardContent className="p-3">
+                      <div className="space-y-1">
+                        <h3 className="font-semibold line-clamp-1 text-sm">{performance.title}</h3>
+                        <div className="space-y-0.5 text-xs text-muted-foreground">
+                          <div className="flex items-center">
+                            <MapPin className="mr-1 h-3 w-3" />
+                            <span className="line-clamp-1">{performance.venue}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="mr-1 h-3 w-3" />
+                            <span>
+                              {formatDate(performance.startDate)} - {formatDate(performance.endDate)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               ))}
             </div>
 
             {totalPages > 1 && (
               <div className="flex justify-center mt-8 gap-2">
-                <Button variant="outline" onClick={() => handlePageChange(page - 1)} disabled={page === 0}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => handlePageChange(page - 1)} 
+                  disabled={page === 0}
+                  className="w-10 h-10"
+                >
                   이전
                 </Button>
                 {Array.from({ length: totalPages }, (_, i) => (
-                  <Button key={i} variant={i === page ? "default" : "outline"} onClick={() => handlePageChange(i)}>
+                  <Button 
+                    key={i} 
+                    variant={i === page ? "default" : "outline"} 
+                    onClick={() => handlePageChange(i)}
+                    className="w-10 h-10"
+                  >
                     {i + 1}
                   </Button>
                 ))}
-                <Button variant="outline" onClick={() => handlePageChange(page + 1)} disabled={page === totalPages - 1}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => handlePageChange(page + 1)} 
+                  disabled={page === totalPages - 1}
+                  className="w-10 h-10"
+                >
                   다음
                 </Button>
               </div>
@@ -258,6 +302,11 @@ export default function ManagerPerformancesPage() {
           </>
         )}
       </div>
+      <PerformanceDetailModal
+        open={modalOpen}
+        onOpenChange={handleModalOpenChange}
+        performanceId={selectedId}
+      />
     </div>
   )
 }

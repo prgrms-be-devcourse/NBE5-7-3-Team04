@@ -1,118 +1,76 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import {
-    getManagerPerformances,
-    getManagerPerformanceDetails,
-    registerPerformanceSchedule,
-    cancelPerformanceSchedule,
-} from "@/src/api/api";
-import { format, parseISO } from "date-fns";
-import { useAuth } from "@/src/auth/user";
+import { useState } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { useQuery } from '@tanstack/react-query';
+import { getManagerPerformancesV1, ManagerPerformance, ManagerPerformancePageResponse } from '@/src/api/api-manager';
+import dayjs from 'dayjs';
+import './calendar-custom.css';
 
 export default function SchedulesPage() {
-    const [performances, setPerformances] = useState<any[]>([]);
-    const [selectedPerformanceId, setSelectedPerformanceId] =
-        useState<string>("");
-    const [selectedPerformance, setSelectedPerformance] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-    const [detailLoading, setDetailLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const { requireRole } = useAuth();
+  const [page] = useState(0);
+  const [size] = useState(100);
 
-    useEffect(() => {
-        requireRole("MANAGER");
+  const { data, isFetching } = useQuery<ManagerPerformancePageResponse, Error>({
+    queryKey: ['manager-performances', page, size],
+    queryFn: () => getManagerPerformancesV1(page, size),
+  });
 
-        const fetchPerformances = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const data = await getManagerPerformances();
-                setPerformances(data.content || []);
-            } catch (err) {
-                console.error("공연 목록 가져오기 오류:", err);
-                setError("공연 목록을 불러오는 중 오류가 발생했습니다.");
-            } finally {
-                setLoading(false);
-            }
-        };
+  const performances: ManagerPerformance[] = (data?.content || []).filter(
+    (performance) => !['REJECTED', 'CANCELLED'].includes(performance.status)
+  );
 
-        fetchPerformances();
-    }, [requireRole]);
-
-    useEffect(() => {
-        if (selectedPerformanceId) {
-            const fetchPerformanceDetails = async () => {
-                try {
-                    setDetailLoading(true);
-                    setError(null);
-                    const data = await getManagerPerformanceDetails(
-                        selectedPerformanceId
-                    );
-                    setSelectedPerformance(data);
-                } catch (err) {
-                    console.error("공연 상세 정보 가져오기 오류:", err);
-                    setError(
-                        "공연 상세 정보를 불러오는 중 오류가 발생했습니다."
-                    );
-                    setSelectedPerformance(null);
-                } finally {
-                    setDetailLoading(false);
-                }
-            };
-
-            fetchPerformanceDetails();
-        } else {
-            setSelectedPerformance(null);
-        }
-    }, [selectedPerformanceId]);
-
-    // 날짜 포맷팅 함수
-    const formatDate = (dateString: string) => {
-        try {
-            return format(parseISO(dateString), "yyyy년 MM월 dd일 HH:mm");
-        } catch (error) {
-            return "날짜 정보 없음";
-        }
+  // 모든 공연을 이벤트로 변환
+  const events = performances.map((performance) => {
+    let backgroundColor = '#ede7f6'; // COMPLETED: 연한 보라색
+    let borderColor = '#ede7f6';
+    let textColor = '#7a3fd8';
+    if (performance.status === 'CONFIRMED') {
+      backgroundColor = '#7a3fd8'; // 보라색
+      borderColor = '#7a3fd8';
+      textColor = '#fff';
+    } else if (performance.status === 'PENDING') {
+      backgroundColor = '#e0e0e0'; // 회색
+      borderColor = '#e0e0e0';
+      textColor = '#757575';
+    }
+    return {
+      title: performance.title,
+      start: performance.startDate,
+      end: performance.endDate
+        ? dayjs(performance.endDate).add(1, 'day').format('YYYY-MM-DD')
+        : undefined,
+      allDay: true,
+      backgroundColor,
+      borderColor,
+      textColor,
+      display: 'block',
     };
+  });
 
-    return (
-        <div className="container py-8">
-            <div className="flex flex-col gap-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">
-                        공연 일정
-                    </h1>
-                    <p className="text-muted-foreground mt-1">
-                        등록된 공연의 일정을 확인합니다.
-                    </p>
-                </div>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>공연 선택</CardTitle>
-                        <CardDescription>
-                            일정을 확인할 공연을 선택하세요.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {loading ? (
-                            <div className="flex items-center gap-2">
-                                로딩 중...
-                            </div>
-                        ) : (
-                            <div>공연 리스트 표시 영역</div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
-    );
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold mb-2">공연 일정</h1>
+        <p className="text-gray-600" style={{marginTop: '10px'}}>등록된 공연의 일정을 확인합니다.</p>
+      </div>
+      <div className="bg-white rounded-lg shadow p-6">
+        <FullCalendar
+          plugins={[dayGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          events={events}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: '',
+          }}
+          height="auto"
+          locale="ko"
+        />
+        {isFetching && <div className="text-center text-xs text-gray-400 mt-2">공연 정보를 불러오는 중...</div>}
+      </div>
+    </div>
+  );
 }

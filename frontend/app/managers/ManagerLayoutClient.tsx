@@ -15,12 +15,14 @@ interface ManagerLayoutClientProps {
 
 export function ManagerLayoutClient({ children }: ManagerLayoutClientProps) {
   const router = useRouter()
-  const { isLoading, requireRole } = useAuth()
+  const { isLoading, requireRole, isAuthenticated, user } = useAuth()
 
   // Check if user has MANAGER role
   useEffect(() => {
-    requireRole("MANAGER")
-  }, [requireRole])
+    if (!isLoading) {
+      requireRole("MANAGER")
+    }
+  }, [isLoading, isAuthenticated, user, requireRole])
 
   if (isLoading) {
     return (

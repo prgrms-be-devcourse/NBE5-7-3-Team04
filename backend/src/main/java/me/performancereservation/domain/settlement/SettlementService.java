@@ -36,14 +36,31 @@ public class SettlementService {
 
         // 공연 스케줄 조회
         List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
+        log.info("불러온 스케줄 리스트: {}개", schedules != null ? schedules.size() : null);
+        if (schedules != null) {
+            for (PerformanceSchedule schedule : schedules) {
+                log.info("schedule: id={}, startTime={}, endTime={}",
+                        schedule != null ? schedule.getId() : null,
+                        schedule != null ? schedule.getStartTime() : null,
+                        schedule != null ? schedule.getEndTime() : null);
+            }
+        }
+        if (schedules == null) {
+            schedules = List.of(); // null이면 빈 리스트로 처리
+        }
 
-        // 가장 늦은 공연 날짜 확인
+        // 가장 늦은 공연 날짜 확인 (스케쥴이 없으면 latestSchedule도 null)
         LocalDateTime latestSchedule = schedules.stream()
+                .filter(java.util.Objects::nonNull)
                 .map(PerformanceSchedule::getStartTime)
+                .filter(java.util.Objects::nonNull)
                 .max(LocalDateTime::compareTo)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("공연 스케줄이 존재하지 않습니다."));
+                .orElse(null);
 
-        // 정산 신청 가능 날짜 체크 (7일 이내)
+        // 정산 신청 가능 날짜 체크 (스케쥴이 없으면 바로 예외)
+        if (latestSchedule == null) {
+            throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("공연 스케줄이 존재하지 않습니다.");
+        }
         if (latestSchedule.plusDays(7).isAfter(LocalDateTime.now())) {
             throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("공연 종료 후 7일이 지나야 정산 신청이 가능합니다.");
         }
@@ -67,6 +84,9 @@ public class SettlementService {
     private int calculateTotalAmount(List<PerformanceSchedule> schedules, Performance performance) {
         int price = performance.getPrice();
         int totalSeats = performance.getTotalSeats();
+
+        log.info("정산금액 계산 ======= 가격 {} 좌석수 {}", price, totalSeats);
+        log.info("schedules = {}", schedules);
 
         // 스케쥴 리스트로 총 정산금액 누적 계산
         return schedules.stream()

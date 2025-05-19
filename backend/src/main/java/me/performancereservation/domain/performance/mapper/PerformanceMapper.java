@@ -117,6 +117,8 @@ public class PerformanceMapper {
                 performance.getTotalSeats(),
                 performance.getStartDate(),
                 performance.getEndDate(),
+                performance.getDescription(),
+                performance.getCategory(),
                 schedules
         );
     }

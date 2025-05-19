@@ -15,7 +15,7 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from "@/components/ui/sidebar"
-import { LayoutDashboard, CalendarDays, ListPlus, FileEdit, CreditCard, History, LogOut, ListMusic } from "lucide-react"
+import { LayoutDashboard, CalendarDays, ListPlus, FileEdit, CreditCard, History, LogOut, ListMusic, PlusCircle } from "lucide-react"
 import { logout } from "@/src/auth/user"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -30,14 +30,14 @@ export function ManagerSidebar() {
   }
 
   return (
-    <Sidebar>
+    <Sidebar className="pt-[73px]">
       <SidebarHeader className="border-b pb-4">
-        <Link href="/managers" className="flex items-center gap-2 px-2">
+        <Link href="/managers" className="flex items-center gap-2 px-2 pt-0">
           <Image src="/logo-icon.png" alt="TICKET4U" width={32} height={32} />
           <div className="font-semibold text-lg">공연 관리자</div>
         </Link>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="pl-[10px]">
         <SidebarGroup>
           <SidebarGroupLabel>메인</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -47,14 +47,6 @@ export function ManagerSidebar() {
                   <Link href="/managers">
                     <LayoutDashboard className="h-4 w-4" />
                     <span>대시보드</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/managers/performances"}>
-                  <Link href="/managers/performances">
-                    <ListMusic className="h-4 w-4" />
-                    <span>공연 목록</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -77,18 +69,18 @@ export function ManagerSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/managers/register"}>
-                  <Link href="/managers/register">
-                    <ListPlus className="h-4 w-4" />
-                    <span>공연 등록</span>
+                <SidebarMenuButton asChild isActive={pathname === "/managers/performances"}>
+                  <Link href="/managers/performances">
+                    <ListMusic className="h-4 w-4" />
+                    <span>공연 목록</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/managers/edit"}>
-                  <Link href="/managers/edit">
-                    <FileEdit className="h-4 w-4" />
-                    <span>공연 수정</span>
+                <SidebarMenuButton asChild isActive={pathname === "/managers/register"}>
+                  <Link href="/managers/register">
+                    <PlusCircle className="h-4 w-4" />
+                    <span>공연 등록</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -122,11 +114,11 @@ export function ManagerSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t pt-4">
+      <SidebarFooter className="border-t pt-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout}>
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4 pl-[10px] pb-[10px]" />
               <span>로그아웃</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

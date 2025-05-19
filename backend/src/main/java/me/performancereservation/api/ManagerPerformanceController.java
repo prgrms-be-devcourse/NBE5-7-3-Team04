@@ -107,7 +107,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
      * @param request
      */
     @Override
-    @PatchMapping("/performance/{performanceId}")
+    @PatchMapping("/performances/{performanceId}")
     public ResponseEntity<Void> updatePerformance(@PathVariable Long performanceId,
                                                   @RequestBody PerformanceUpdateRequest request,
                                                   @AuthenticationPrincipal CustomOAuth2User principal

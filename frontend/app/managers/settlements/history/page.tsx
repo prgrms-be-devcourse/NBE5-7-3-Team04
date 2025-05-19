@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, CreditCard, Calendar } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
 import { useAuth } from "@/src/auth/user"
+import { useRouter } from "next/navigation"
 
 export default function SettlementHistoryPage() {
   const [settlements, setSettlements] = useState<any[]>([])
@@ -15,11 +16,15 @@ export default function SettlementHistoryPage() {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
-  const { requireRole } = useAuth()
+  const { isLoading: authLoading, userRole } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
-    requireRole("MANAGER")
-
+    if (authLoading) return;
+    if (userRole !== "MANAGER") {
+      router.push("/login")
+      return;
+    }
     const fetchSettlements = async () => {
       try {
         setLoading(true)
@@ -34,9 +39,8 @@ export default function SettlementHistoryPage() {
         setLoading(false)
       }
     }
-
     fetchSettlements()
-  }, [page, requireRole])
+  }, [authLoading, userRole, page])
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
@@ -57,7 +61,7 @@ export default function SettlementHistoryPage() {
       <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">정산 내역</h1>
-          <p className="text-muted-foreground mt-1">신청한 정산 내역을 확인합니다.</p>
+          <p className="text-muted-foreground" style={{marginTop: '10px'}}>신청한 정산 내역을 확인합니다.</p>
         </div>
 
         {loading ? (
@@ -84,45 +88,46 @@ export default function SettlementHistoryPage() {
           </Card>
         ) : (
           <>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               {settlements.map((settlement) => (
-                <Card key={settlement.settlementId}>
-                  <CardHeader className="pb-3">
+                <Card key={settlement.settlementId} className="shadow-sm rounded-xl border border-gray-200">
+                  <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <Badge variant={settlement.status === "CONFIRMED" ? "success" : "secondary"}>
+                      <Badge variant={settlement.status === "CONFIRMED" ? "success" : "secondary"} className="px-3 py-1 text-xs">
                         {settlement.status === "CONFIRMED" ? "승인됨" : "대기중"}
                       </Badge>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {settlement.settledAt ? formatDate(settlement.settledAt) : "처리 대기중"}
                       </span>
                     </div>
-                    <CardTitle className="mt-2">{settlement.title}</CardTitle>
-                    <CardDescription>정산 ID: {settlement.settlementId}</CardDescription>
+                    <div className="h-1" />
+                    <CardTitle className="text-lg font-bold text-gray-900">{settlement.title}</CardTitle>
+                    <CardDescription className="mt-1 text-xs text-gray-500">정산 ID: {settlement.settlementId}</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">정산 금액</span>
+                  <CardContent className="space-y-5 pt-2 pb-4">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4 text-black" />
+                          <span className="text-sm font-medium text-black">정산 금액</span>
+                        </div>
+                        <span className="font-bold text-lg text-gray-900 ml-4">{settlement.totalAmount.toLocaleString()}원</span>
                       </div>
-                      <span className="font-medium">{settlement.totalAmount.toLocaleString()}원</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">계좌 정보</span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-black" />
+                          <span className="text-sm font-medium text-black">계좌 정보</span>
+                        </div>
+                        <span className="text-sm text-gray-800 break-all ml-4">{settlement.bank} {settlement.account}</span>
                       </div>
-                      <span className="text-sm">
-                        {settlement.bank} {settlement.account}
-                      </span>
                     </div>
                     {settlement.status === "CONFIRMED" && (
-                      <div className="mt-4 rounded-md bg-green-50 p-3 text-sm text-green-800">
+                      <div className="mt-5 rounded-md bg-green-50 p-3 text-sm text-green-800 text-center">
                         정산이 완료되었습니다.
                       </div>
                     )}
                     {settlement.status === "PENDING" && (
-                      <div className="mt-4 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
+                      <div className="mt-5 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800 text-center">
                         관리자 승인 대기 중입니다.
                       </div>
                     )}
