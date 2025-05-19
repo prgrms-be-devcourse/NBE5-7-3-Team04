@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import me.performancereservation.domain.reservation.dto.ReservationDetailResponse;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.dto.ReservationRequest;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
@@ -92,7 +93,7 @@ public interface ReservationApiDocs {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
-    ResponseEntity<ReservationResponse> getReservationById(
+    ResponseEntity<ReservationDetailResponse> getReservationById(
         @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User authentication,
         @Parameter(description = "예매 ID", required = true) Long reservationId
     );
