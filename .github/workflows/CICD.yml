@@ -128,6 +128,12 @@ jobs:
                       id: dummy-id-for-test
                       password: dummy-password-for-test
 
+                  coolsms:
+                    api:
+                      key: dummy-key-for-test
+                      secret: dummy-secret-for-test
+                      number: dummy-number-for-test
+
                   logging:
                     level:
                       web: debug
