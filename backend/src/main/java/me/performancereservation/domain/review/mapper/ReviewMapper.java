@@ -19,7 +19,8 @@ public class ReviewMapper {
                 review.getId(),
                 user.getName(),
                 review.getScheduleId(),
-                review.getComments()
+                review.getComments(),
+                review.getCreatedAt()
         );
     }
 
