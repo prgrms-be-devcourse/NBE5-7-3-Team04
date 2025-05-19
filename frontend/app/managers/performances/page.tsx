@@ -15,6 +15,7 @@ import Link from "next/link"
 import { format, parseISO } from "date-fns"
 import { useAuth } from "@/src/auth/user"
 import { PerformanceDetailModal } from "./PerformanceDetailModal"
+import { getPerformanceImageUrl } from "@/lib/utils"
 
 export default function ManagerPerformancesPage() {
   const searchParams = useSearchParams()
@@ -205,7 +206,7 @@ export default function ManagerPerformancesPage() {
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 h-full">
                     <div className="aspect-[3/4] w-full overflow-hidden bg-muted relative">
                       <img
-                        src={performance.fileUrl || "/placeholder.svg?height=300&width=400"}
+                        src={getPerformanceImageUrl(performance.fileUrl)}
                         alt={performance.title}
                         className="h-full w-full object-cover"
                         onError={(e) => {

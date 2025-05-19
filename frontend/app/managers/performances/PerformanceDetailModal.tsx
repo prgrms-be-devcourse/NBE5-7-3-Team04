@@ -1,11 +1,16 @@
 "use client"
 import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { getManagerPerformanceDetailV1, updateManagerPerformance, cancelPerformance, cancelPerformanceSchedule } from "@/src/api/api-manager"
+import { getManagerPerformanceDetailV1, updateManagerPerformance, cancelPerformance, cancelPerformanceSchedule, registerPerformanceSchedule } from "@/src/api/api-manager"
 import { Loader2, AlertCircle } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { uploadFileToS3 } from "@/src/api/api-file"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import DatePicker, { registerLocale } from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import { ko } from "date-fns/locale/ko"
 
 export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { open: boolean, onOpenChange: (v: boolean) => void, performanceId: string | null }) {
   const [performance, setPerformance] = useState<any>(null)
@@ -17,6 +22,9 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [newSchedules, setNewSchedules] = useState([{ startTime: "", endTime: "" }]);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
 
   useEffect(() => {
     if (!performanceId) return
@@ -37,6 +45,10 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
       setEditImagePreview(performance.fileUrl || null);
     }
   }, [performance]);
+
+  useEffect(() => {
+    registerLocale("ko", ko);
+  }, []);
 
   // 날짜 포맷 함수
   const formatDateTime = (dateString: string) => {
@@ -64,7 +76,7 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
   const handleEditSubmit = async () => {
     setEditLoading(true);
     try {
-      let fileId = performance?.fileUrl; // 기존 파일 ID
+      let fileId = performance?.fileId; // fileUrl 대신 fileId 사용
       console.log('기존 fileId:', fileId);
       
       // 새 이미지가 있는 경우 S3에 업로드
@@ -75,7 +87,7 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
         
         // S3 응답에서 파일 ID 추출
         if (uploadRes && uploadRes.id) {
-          fileId = String(uploadRes.id);
+          fileId = uploadRes.id; // String으로 변환하지 않고 number 타입 유지
           console.log('S3에서 받은 파일 ID:', fileId);
           console.log('파일 ID 타입:', typeof fileId);
         } else {
@@ -86,7 +98,7 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
       // 공연 수정 API 요청 데이터 준비
       const updateData = {
         description: editDescription,
-        fileId: fileId, // fileUrl을 fileId로 변경
+        fileId: fileId, // number 타입 유지
       };
       console.log('공연 수정 API 요청 데이터:', updateData);
       console.log('fileId 타입:', typeof updateData.fileId);
@@ -146,6 +158,39 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
 
   // CONFIRMED 상태만 취소 가능
   const canCancelSchedule = performance?.status === 'CONFIRMED';
+
+  const addNewScheduleRow = () => setNewSchedules([...newSchedules, { startTime: "", endTime: "" }]);
+  const removeNewScheduleRow = (idx: number) => setNewSchedules(newSchedules.filter((_, i) => i !== idx));
+  const updateNewSchedule = (idx: number, field: string, value: string) => {
+    setNewSchedules(newSchedules.map((row, i) => i === idx ? { ...row, [field]: value } : row));
+  };
+
+  const handleAddSchedules = async () => {
+    if (!performanceId) return;
+    if (newSchedules.length === 0 || newSchedules.some(sch => !sch.startTime || !sch.endTime)) {
+      alert("모든 회차(스케줄)의 시작/종료 시간을 입력해주세요.");
+      return;
+    }
+    setScheduleLoading(true);
+    try {
+      for (const sch of newSchedules) {
+        await registerPerformanceSchedule(performanceId, {
+          startTime: sch.startTime,
+          endTime: sch.endTime,
+        });
+      }
+      setScheduleModalOpen(false);
+      setNewSchedules([{ startTime: "", endTime: "" }]);
+      // 상세정보 새로고침
+      const updated = await getManagerPerformanceDetailV1(performanceId);
+      setPerformance(updated);
+      alert("스케줄이 성공적으로 추가되었습니다.");
+    } catch (e) {
+      alert("스케줄 추가 중 오류가 발생했습니다.");
+    } finally {
+      setScheduleLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -277,8 +322,9 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
             </div>
           </div>
         ) : null}
-        {/* 수정 버튼 추가 */}
+        {/* 스케줄 추가 버튼 */}
         <div className="flex justify-end mb-2">
+          <Button size="sm" variant="secondary" onClick={() => setScheduleModalOpen(true)}>스케줄 추가</Button>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>수정</Button>
         </div>
 
@@ -312,6 +358,62 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
                   {editLoading ? "수정 중..." : "수정 완료"}
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* 스케줄 추가 모달 */}
+        <Dialog open={scheduleModalOpen} onOpenChange={setScheduleModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>스케줄(회차) 추가</DialogTitle>
+              <div className="mt-2 text-sm text-muted-foreground">
+                공연 기간: {performance && performance.startDate ? formatDateTime(performance.startDate) : "-"} ~ {performance && performance.endDate ? formatDateTime(performance.endDate) : "-"}
+              </div>
+              <div className="mt-1 text-xs text-primary">
+                * 종료 시각은 시작 시각보다 늦어야 합니다.
+              </div>
+            </DialogHeader>
+            <div className="mb-4">
+              {newSchedules.map((sch, idx) => (
+                <div key={idx} className="flex gap-2 items-center mb-2 flex-wrap md:flex-nowrap">
+                  <Label className="min-w-[36px]">시작</Label>
+                  <DatePicker
+                    selected={sch.startTime ? new Date(sch.startTime) : null}
+                    onChange={date => updateNewSchedule(idx, "startTime", date ? date.toISOString() : "")}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={10}
+                    dateFormat="yyyy년 MM월 dd일 (eee) HH:mm"
+                    placeholderText="시작 시각 선택"
+                    className="min-w-[240px] flex-grow max-w-[280px] border rounded px-2 py-1"
+                    locale="ko"
+                  />
+                  <Label className="min-w-[36px]">종료</Label>
+                  <DatePicker
+                    selected={sch.endTime ? new Date(sch.endTime) : null}
+                    onChange={date => updateNewSchedule(idx, "endTime", date ? date.toISOString() : "")}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={10}
+                    dateFormat="yyyy년 MM월 dd일 (eee) HH:mm"
+                    placeholderText="종료 시각 선택"
+                    className="min-w-[240px] flex-grow max-w-[280px] border rounded px-2 py-1"
+                    locale="ko"
+                  />
+                  {newSchedules.length > 1 && (
+                    <Button type="button" variant="outline" size="icon" onClick={() => removeNewScheduleRow(idx)}>
+                      X
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button type="button" variant="secondary" onClick={addNewScheduleRow}>+ 회차 추가</Button>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={handleAddSchedules} disabled={scheduleLoading}>
+                {scheduleLoading ? "등록 중..." : "등록"}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

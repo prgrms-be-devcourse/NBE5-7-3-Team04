@@ -152,4 +152,40 @@ export async function cancelPerformance(performanceId: number | string): Promise
  */
 export async function cancelPerformanceSchedule(performanceId: number | string, scheduleId: number | string): Promise<void> {
   await api.patch(`/managers/performances/${performanceId}/schedules/${scheduleId}`);
+}
+
+/**
+ * 공연 등록
+ * POST /api/v1/managers/register
+ * @param data PerformanceCreateRequest
+ * @returns 생성된 performanceId
+ */
+export async function registerPerformance(data: {
+  title: string;
+  venue: string;
+  price: number;
+  totalSeats: number;
+  category: string;
+  startDate: string; // ISO
+  endDate: string;   // ISO
+  description: string;
+  fileId?: number;
+}): Promise<number> {
+  const response = await api.post('/managers/register', data);
+  return response.data;
+}
+
+/**
+ * 공연 회차(스케줄) 등록
+ * POST /api/v1/managers/performances/{performanceId}/register
+ * @param performanceId
+ * @param data PerformanceScheduleRequest
+ * @returns 생성된 scheduleId
+ */
+export async function registerPerformanceSchedule(performanceId: number | string, data: {
+  startTime: string; // ISO
+  endTime: string;   // ISO
+}): Promise<number> {
+  const response = await api.post(`/managers/performances/${performanceId}/register`, data);
+  return response.data;
 } 
