@@ -166,8 +166,8 @@ export async function registerPerformance(data: {
   price: number;
   totalSeats: number;
   category: string;
-  startDate: string; // ISO
-  endDate: string;   // ISO
+  startDate: Date; 
+  endDate: Date;   
   description: string;
   fileId?: number;
 }): Promise<number> {
@@ -183,8 +183,8 @@ export async function registerPerformance(data: {
  * @returns 생성된 scheduleId
  */
 export async function registerPerformanceSchedule(performanceId: number | string, data: {
-  startTime: string; // ISO
-  endTime: string;   // ISO
+  startTime: Date; 
+  endTime: Date;   
 }): Promise<number> {
   const response = await api.post(`/managers/performances/${performanceId}/register`, data);
   return response.data;

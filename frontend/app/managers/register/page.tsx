@@ -134,8 +134,8 @@ export default function RegisterPerformancePage() {
         price: Number(price),
         totalSeats: Number(totalSeats),
         category,
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
+        startDate,
+        endDate,
         description,
         fileId: uploadedFileId,
       }
