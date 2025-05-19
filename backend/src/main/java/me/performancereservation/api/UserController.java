@@ -26,6 +26,12 @@ public class UserController implements UserApiDocs {
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
     }
 
+    @GetMapping("/manager-status")
+    public ResponseEntity<Boolean> canRequestManagerRole(@AuthenticationPrincipal CustomOAuth2User principal) {
+        boolean canRequest = userService.canRequestManagerRole(principal.getUser().getId());
+        return ResponseEntity.ok(canRequest);
+    }
+
     @Override
     @PostMapping("/manager-request")
     public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal) {

@@ -48,7 +48,7 @@ public class UserSecurityConfig {
                                 "/api/v1/auth/token-test", "/oauth2/**", "/login/oauth2/code/**").permitAll()
 
                         // 유저만
-                        .requestMatchers("/api/v1/users/manager-request").hasRole("USER")
+                        .requestMatchers("/api/v1/users/manager-request", "/api/v1/users/manager-status").hasRole("USER")
 
                         // 공연관리자만
                         .requestMatchers("/api/v1/files/**","/api/v1/managers/**").hasRole("MANAGER")
