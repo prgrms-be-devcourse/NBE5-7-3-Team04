@@ -330,7 +330,7 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
         ) : null}
         {/* 스케줄 추가 버튼 */}
         <div className="flex justify-end mb-2 gap-2">
-          <Button size="sm" variant="secondary" className="mr-2" onClick={() => setScheduleModalOpen(true)}>스케줄 추가</Button>
+          <Button size="sm" variant="secondary" className="mr-2" onClick={() => setScheduleModalOpen(true)} disabled={performance?.status !== 'CONFIRMED' && performance?.status !== 'PENDING'}>스케줄 추가</Button>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>수정</Button>
         </div>
 
