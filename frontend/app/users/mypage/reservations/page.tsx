@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -67,7 +67,7 @@ export default function ReservationsPage() {
       fetchReservations(newPage)
       window.scrollTo(0, 0)
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -77,7 +77,7 @@ export default function ReservationsPage() {
           <p className="mt-4 text-gray-600">예약 정보를 불러오는 중...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -85,7 +85,7 @@ export default function ReservationsPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center text-red-500">{error}</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -191,5 +191,5 @@ export default function ReservationsPage() {
         </>
       )}
     </div>
-  )
+  );
 }
