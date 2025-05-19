@@ -51,14 +51,15 @@ export default function SettlementRequestPage() {
         for (const performance of data.content) {
           try {
             const settlementId = await getSettlementIdByPerformanceId(performance.id);
-            if (settlementId !== null) {
+            console.log(`공연 ${performance.id}의 settlementId 응답값:`, settlementId, typeof settlementId);
+            if (typeof settlementId === 'number' && settlementId > 0) {
               settledIds.push(performance.id);
               console.log(`공연 ${performance.id}는 이미 정산이 생성되어 있습니다.`);
             }
+            // settlementId가 없거나 0, 빈 문자열, null, undefined면 선택 가능
           } catch (err) {
-            // 에러가 발생하면 해당 공연은 정산이 생성된 것으로 간주
+            // 에러가 발생해도 비활성화하지 않음
             console.warn(`공연 ${performance.id}의 정산 정보 조회 중 오류 발생:`, err);
-            settledIds.push(performance.id);
           }
         }
         console.log("이미 정산이 생성된 공연 ID 목록:", settledIds);

@@ -115,11 +115,17 @@ public class SettlementService {
 
     @Transactional
     public Long findSettlementIdByPerformanceId(Long performanceId) {
-        return settlementRepository.findSettlementByPerformanceId(performanceId)
-                .stream()
+        List<Settlement> settlements = settlementRepository.findSettlementByPerformanceId(performanceId);
+        Settlement latest = settlements.stream()
                 .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
-                .map(Settlement::getId)
                 .orElse(null);
+
+        Long settlementId = latest != null ? latest.getId() : null;
+
+        // 로그 출력
+        log.info("공연ID: {}, SettlementID: {}", performanceId, settlementId);
+
+        return settlementId;
     }
 
     @Transactional
