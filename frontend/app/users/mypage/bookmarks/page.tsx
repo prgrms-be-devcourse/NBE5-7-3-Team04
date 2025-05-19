@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar } from "lucide-react"
+import { formatKSTDateTime } from "@/src/utils/date"
 
 const mapStatus = (status: string) => {
   switch (status) {
@@ -44,10 +45,7 @@ const getStatusBadge = (category: string) => {
   }
 };
 
-const formatDate = (date: string) => {
-  const formattedDate = new Date(date).toLocaleDateString();
-  return formattedDate.split(", ").join(" ");
-};
+const formatDate = (date: string) => formatKSTDateTime(date);
 
 export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedPerformance[]>([])

@@ -25,6 +25,7 @@ import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { CancelReservationDialog } from "@/components/cancel-reservation-dialog";
 import { getPerformanceImageUrl } from "@/src/utils/image";
+import { formatKSTDateTime } from "@/src/utils/date";
 
 export default function ReservationDetailPage() {
   const params = useParams();
@@ -60,17 +61,6 @@ export default function ReservationDetailPage() {
       : reservation.status === "PAYMENTS_PENDING"
       ? "secondary"
       : "destructive";
-
-  // 날짜 포맷 함수 추가
-  function formatDate(dateString: string) {
-    const date = new Date(dateString);
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    const hh = String(date.getHours()).padStart(2, "0");
-    const min = String(date.getMinutes()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-  }
 
   // 상태 한글 변환 함수
   const getStatusLabel = (status: string) => {

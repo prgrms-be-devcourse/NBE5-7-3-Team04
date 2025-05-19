@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Ticket, Calendar, Clock, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { formatKSTDateTime } from "@/src/utils/date"
 
 interface ReservationData {
   reservationId: number;
@@ -79,18 +80,14 @@ export default function ReservationCompletePage() {
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-muted-foreground" />
               <p>
-                {format(new Date(reservationData.createdAt), "yyyy년 MM월 dd일", {
-                  locale: ko,
-                })}
+                {formatKSTDateTime(reservationData.createdAt)}
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-muted-foreground" />
               <p>
-                {format(new Date(new Date(reservationData.expirationAt).getTime() + 9 * 60 * 60 * 1000), "yyyy년 MM월 dd일 HH:mm", {
-                  locale: ko
-                })} 까지 결제
+                {formatKSTDateTime(reservationData.expirationAt)} 까지 결제
               </p>
             </div>
 
