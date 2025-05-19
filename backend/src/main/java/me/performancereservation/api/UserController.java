@@ -53,19 +53,19 @@ public class UserController implements UserApiDocs {
     }
 
 
-    // TODO: 테스트 완료 후 삭제
-    private final UserRepository userRepository;
+//     // TODO: 테스트 완료 후 삭제
+//     private final UserRepository userRepository;
 
-    @Transactional
-    @PatchMapping("/approve/me")
-    public ResponseEntity<Void> approveMe(@AuthenticationPrincipal CustomOAuth2User principal) {
-        User userPrincipal = principal.getUser();
-        Long userid = userPrincipal.getId();
+//     @Transactional
+//     @PatchMapping("/approve/me")
+//     public ResponseEntity<Void> approveMe(@AuthenticationPrincipal CustomOAuth2User principal) {
+//         User userPrincipal = principal.getUser();
+//         Long userid = userPrincipal.getId();
 
-        // 요청자의 사용자 정보 조회
-        userRepository.updateUserRole(userid, Role.MANAGER);
-        // 사용자 ROLE 변경
-//        user.promoteManager();
-        return ResponseEntity.noContent().build();
-    }
+//         // 요청자의 사용자 정보 조회
+//         userRepository.updateUserRole(userid, Role.MANAGER);
+//         // 사용자 ROLE 변경
+// //        user.promoteManager();
+//         return ResponseEntity.noContent().build();
+//     }
 }
