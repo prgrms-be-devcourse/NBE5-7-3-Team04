@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Image from "next/image"
+import { formatKSTDateTime } from "@/src/utils/date"
 
 interface PerformanceSchedule {
   id: number
@@ -345,7 +346,7 @@ export default function PerformanceApprovalPage() {
                 <div className="space-y-2">
                   {selectedPerformance.schedules.map((schedule, idx) => (
                     <div key={schedule.id} className="text-sm">
-                      {idx + 1}회차: {new Date(schedule.startTime).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} ~ {new Date(schedule.endTime).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
+                      {idx + 1}회차: {formatKSTDateTime(schedule.startTime)} ~ {formatKSTDateTime(schedule.endTime)}
                     </div>
                   ))}
                 </div>
