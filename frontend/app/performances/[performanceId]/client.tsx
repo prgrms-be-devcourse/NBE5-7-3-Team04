@@ -19,7 +19,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { ReservationCalendarModalFixed } from "@/components/reservation-calendar-modal-fixed";
-import { getPerformanceDetail, getReviews, createReview, updateReview, deleteReview } from "@/src/api/api";
+
+import { getPerformanceDetail, getReviews, createReview, updateReview, deleteReview, addBookmark, removeBookmark  } from "@/src/api/api";
 import { format, parseISO, addHours } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
@@ -285,17 +286,22 @@ export default function PerformanceDetailClient({
                 "to:",
                 !isBookmarked
             );
-            // TODO: 북마크 API 연동
+            if (isBookmarked) {
+                await removeBookmark(performanceId);
+                toast({
+                    title: "찜 목록에서 제거되었습니다.",
+                    description: "찜 목록에서 제거되었습니다.",
+                    duration: 2000,
+                });
+            } else {
+                await addBookmark(performanceId);
+                toast({
+                    title: "찜 목록에 추가되었습니다.",
+                    description: "찜 목록에 추가되었습니다.",
+                    duration: 2000,
+                });
+            }
             setIsBookmarked(!isBookmarked);
-            toast({
-                title: isBookmarked
-                    ? "찜 목록에서 제거되었습니다."
-                    : "찜 목록에 추가되었습니다.",
-                description: isBookmarked
-                    ? "찜 목록에서 제거되었습니다."
-                    : "찜 목록에 추가되었습니다.",
-                duration: 2000,
-            });
         } catch (error) {
             console.error("Error toggling bookmark:", error);
             toast({

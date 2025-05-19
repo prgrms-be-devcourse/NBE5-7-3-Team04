@@ -26,14 +26,6 @@ public class UserService {
     //유저 정보 입력 (회원가입)
     @Transactional
     public User registerUser(String email, String name, String phoneNumber, Role role) {
-        log.debug("[UserService] registerUser() 진입");
-
-        log.info("email = {}", email);
-        log.info("name = {}", name);
-        log.info("phoneNumber = {}", phoneNumber);
-        log.info("role = {}", role);
-
-
         if(userRepository.existsByEmail(email)) {
             throw ErrorCode.DUPLICATE_USER_EMAIL.serviceException(); //중복 이메일은 예외 처리
         }
@@ -62,8 +54,6 @@ public class UserService {
 
     //id 기반 유저 조회
     public User getUserById(Long userId) {
-        log.debug("[UserService] getUserById() 진입");
-
         return userRepository.findById(userId)
                 .orElseThrow(ErrorCode.USER_NOT_FOUND::serviceException);
     }
@@ -86,11 +76,37 @@ public class UserService {
      */
     @Transactional
     public void submitManagerRequest(Long userId) {
+        if(!canRequestManagerRole(userId)){
+            throw ErrorCode.MANAGER_REQUEST_ALREADY_EXISTS.domainException("이미 공연자 권한 요청 중이거나 공연 관리자 입니다");
+        }
+
         ManagerRequest managerRequest = ManagerRequest.builder()
                 .userId(userId)
                 .status(ManagerRequestStatus.PENDING)
                 .build();
 
         managerRequestRepository.save(managerRequest);
+    }
+
+    /**
+     * 매니저 권한 신청 가능 여부 확인
+     * 이미 매니저이거나 신청 중인 요청이 있으면 신청 불가
+     *
+     * @param userId 사용자 ID
+     * @return 신청 가능 여부
+     */
+    public boolean canRequestManagerRole(Long userId) {
+        // 이미 승인된 요청이 있는지 확인 (이미 매니저인 경우)
+        if (managerRequestRepository.hasApprovedRequest(userId)) {
+            return false;
+        }
+
+        // 대기 중인 요청이 있는지 확인
+        if (managerRequestRepository.hasPendingRequest(userId)) {
+            return false;
+        }
+
+        // 승인된 요청도 없고 대기 중인 요청도 없으면 신청 가능
+        return true;
     }
 }

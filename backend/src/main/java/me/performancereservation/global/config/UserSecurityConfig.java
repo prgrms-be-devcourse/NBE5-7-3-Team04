@@ -55,7 +55,7 @@ public class UserSecurityConfig {
 
                         // 유저+공연관리자
                         .requestMatchers("/api/v1/users/me", "/api/v1/users/onboarding", "/api/v1/reviews",
-                                "/api/v1/reservations/**","/api/v1/bookmark/**","/api/v1/refunds/**"
+                                "/api/v1/reservations/**","/api/v1/bookmark/**","/api/v1/refunds/**", "/api/v1/users/manager-status"
                         ).hasAnyRole("USER", "MANAGER")
 
                         // 모두 접근 가능 (공연 목록/상세/검색 등)

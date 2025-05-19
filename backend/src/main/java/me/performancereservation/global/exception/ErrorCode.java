@@ -35,6 +35,7 @@ public enum ErrorCode {
     TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST,"존재하지 않는 토큰입니다."),
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    MANAGER_REQUEST_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 공연자 권한 요청 중이거나 공연 관리자 입니다"),
 
     // 공연 관련
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 공연입니다."),

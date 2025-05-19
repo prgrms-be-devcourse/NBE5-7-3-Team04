@@ -167,12 +167,12 @@ export async function updateRefundBankInfo(data: {
 }
 
 export async function addBookmark(performanceId: number | string) {
-    const response = await api.post(`/users/bookmarks/${performanceId}`);
+    const response = await api.post(`/bookmark/${performanceId}`);
     return response.data;
 }
 
 export async function removeBookmark(performanceId: number | string) {
-    const response = await api.delete(`/users/bookmarks/${performanceId}`);
+    const response = await api.patch(`/bookmark/${performanceId}`);
     return response.data;
 }
 

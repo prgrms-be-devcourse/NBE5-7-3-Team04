@@ -19,6 +19,15 @@ function MyPageTabs() {
           예매 내역
         </Link>
         <Link
+          href="/users/mypage/bookmarks"
+          className={cn(
+            "flex h-full items-center border-b-2 border-transparent px-2 text-sm font-medium transition-colors hover:border-foreground/50",
+            pathname === "/users/mypage/bookmarks" && "border-foreground",
+          )}
+        >
+          찜한 공연
+        </Link>
+        <Link
           href="/users/mypage/register"
           className={cn(
             "flex h-full items-center border-b-2 border-transparent px-2 text-sm font-medium transition-colors hover:border-foreground/50",
@@ -27,6 +36,7 @@ function MyPageTabs() {
         >
           공연 관리자 신청
         </Link>
+      
       </div>
     </div>
   )
