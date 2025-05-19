@@ -345,7 +345,7 @@ export default function PerformanceApprovalPage() {
                 <div className="space-y-2">
                   {selectedPerformance.schedules.map((schedule, idx) => (
                     <div key={schedule.id} className="text-sm">
-                      {idx + 1}회차: {new Date(schedule.startTime).toLocaleString()} ~ {new Date(schedule.endTime).toLocaleString()}
+                      {idx + 1}회차: {new Date(schedule.startTime).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} ~ {new Date(schedule.endTime).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
                     </div>
                   ))}
                 </div>
