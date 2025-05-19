@@ -2,6 +2,13 @@ import { getToken } from "@/src/auth/user"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL
 
+export interface UserManagerRequestRequest {
+  organizationName: string;
+  organizationContact: string;
+  experience: string;
+  reason: string;
+}
+
 export const canRequestManagerRole = async () => {
   const token = getToken()
   if (!token) {
@@ -25,7 +32,7 @@ export const canRequestManagerRole = async () => {
   return response.json()
 }
 
-export const submitManagerRequest = async () => {
+export const submitManagerRequest = async (data: UserManagerRequestRequest) => {
   const token = getToken()
   if (!token) {
     window.location.href = '/login'
@@ -38,7 +45,8 @@ export const submitManagerRequest = async () => {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
-    }
+    },
+    body: JSON.stringify(data)
   })
   
   if (response.status === 401) {

@@ -2,7 +2,8 @@ package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.api.docs.UserApiDocs;
-import me.performancereservation.domain.user.dto.UserOnboardingRequest;
+import me.performancereservation.domain.user.dto.request.UserManagerRequestRequest;
+import me.performancereservation.domain.user.dto.request.UserOnboardingRequest;
 import me.performancereservation.domain.user.dto.UserResponse;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.service.UserService;
@@ -35,8 +36,9 @@ public class UserController implements UserApiDocs {
 
     @Override
     @PostMapping("/manager-request")
-    public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal) {
-        userService.submitManagerRequest(principal.getUser().getId());
+    public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal,
+                                                     @RequestBody UserManagerRequestRequest request) {
+        userService.submitManagerRequest(principal.getUser().getId(), request);
         return ResponseEntity.noContent().build();
     }
 

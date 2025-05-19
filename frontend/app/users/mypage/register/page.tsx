@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { canRequestManagerRole, submitManagerRequest } from "@/src/api/user"
+import { canRequestManagerRole, submitManagerRequest, UserManagerRequestRequest } from "@/src/api/user"
 import { useRouter } from "next/navigation"
 import { InfoIcon } from "lucide-react"
 
@@ -16,6 +16,12 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const [formData, setFormData] = useState<UserManagerRequestRequest>({
+    organizationName: '',
+    organizationContact: '',
+    experience: '',
+    reason: ''
+  })
 
   useEffect(() => {
     const checkManagerStatus = async () => {
@@ -36,13 +42,24 @@ export default function RegisterPage() {
 
   const handleSubmit = async () => {
     try {
-      await submitManagerRequest()
+      await submitManagerRequest(formData)
       alert("공연 관리자 신청이 완료되었습니다.")
       router.push("/users/mypage/reservations")
     } catch (error) {
       console.error("Error submitting manager request:", error)
       alert("신청 중 오류가 발생했습니다.")
     }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [id === 'name' ? 'organizationName' : 
+         id === 'email' ? 'organizationContact' : 
+         id === 'phone' ? 'experience' : 
+         'reason']: value
+    }))
   }
 
   if (loading) {
@@ -91,19 +108,39 @@ export default function RegisterPage() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">이름 (개인 또는 단체명)</Label>
-                <Input id="name" placeholder="이름(개인 또는 단체명)을 입력하세요" />
+                <Input 
+                  id="name" 
+                  placeholder="이름(개인 또는 단체명)을 입력하세요" 
+                  value={formData.organizationName}
+                  onChange={handleChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">연락처</Label>
-                <Input id="email" type="email" placeholder="연락 가능한 전화번호를 입력하세요" />
+                <Input 
+                  id="email" 
+                  placeholder="연락 가능한 전화번호를 입력하세요" 
+                  value={formData.organizationContact}
+                  onChange={handleChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">공연 기획/운영 경험</Label>
-                <Input id="phone" placeholder="이전 공연 기획 또는 운영 경험을 간략히 설명해주세요" />
+                <Input 
+                  id="phone" 
+                  placeholder="이전 공연 기획 또는 운영 경험을 간략히 설명해주세요" 
+                  value={formData.experience}
+                  onChange={handleChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="reason">신청 사유</Label>
-                <Textarea id="reason" placeholder="공연 관리자 권한이 필요한 이유를 설명해주세요" />
+                <Textarea 
+                  id="reason" 
+                  placeholder="공연 관리자 권한이 필요한 이유를 설명해주세요" 
+                  value={formData.reason}
+                  onChange={handleChange}
+                />
               </div>
               <Button 
                 className="w-full" 
