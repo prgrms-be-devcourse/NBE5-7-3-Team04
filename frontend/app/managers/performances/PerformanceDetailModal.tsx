@@ -174,8 +174,8 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
     try {
       for (const sch of newSchedules) {
         await registerPerformanceSchedule(performanceId, {
-          startTime: sch.startTime,
-          endTime: sch.endTime,
+          startTime: new Date(sch.startTime),
+          endTime: new Date(sch.endTime),
         });
       }
       setScheduleModalOpen(false);
