@@ -45,6 +45,11 @@ export const submitManagerRequest = async () => {
     window.location.href = '/login'
     throw new Error('Unauthorized')
   }
-  
-  return response.json()
+
+  if (!response.ok) {
+    throw new Error('신청 중 오류가 발생했습니다.')
+  }
+
+  // 204 No Content 응답이므로 JSON 파싱하지 않음
+  return null
 }
