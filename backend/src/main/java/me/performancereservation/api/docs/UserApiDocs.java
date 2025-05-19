@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import me.performancereservation.domain.user.dto.UserOnboardingRequest;
+import me.performancereservation.domain.user.dto.request.UserManagerRequestRequest;
+import me.performancereservation.domain.user.dto.request.UserOnboardingRequest;
 import me.performancereservation.domain.user.dto.UserResponse;
 import me.performancereservation.global.exception.ErrorResponse;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "User API", description = "사용자 관련 API")
 public interface UserApiDocs {
@@ -51,7 +53,8 @@ public interface UserApiDocs {
         )
     })
     ResponseEntity<Void> submitManagerRequest(
-        @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User principal
+        @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User principal,
+        @Parameter(description = "공연 관리자 요청 정보") @RequestBody UserManagerRequestRequest request
     );
 
     @Operation(summary = "온보딩 정보 등록", description = "사용자의 온보딩 정보를 등록합니다.")

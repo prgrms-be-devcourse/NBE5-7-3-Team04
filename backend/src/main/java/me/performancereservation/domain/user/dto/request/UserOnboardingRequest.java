@@ -1,4 +1,4 @@
-package me.performancereservation.domain.user.dto;
+package me.performancereservation.domain.user.dto.request;
 
 public record UserOnboardingRequest (
         String phoneNumber,

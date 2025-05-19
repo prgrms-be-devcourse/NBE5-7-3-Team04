@@ -5,16 +5,27 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, XCircle, Search } from "lucide-react"
+import { CheckCircle, XCircle, Search, Eye } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { getCsrfToken } from "@/lib/admin-auth"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface ManagerRequest {
   id: number
   userId: number
   userName: string
   phoneNumber: string
+  organizationName: string
+  organizationContact: string
+  experience: string
+  reason: string
 }
 
 export default function RoleApprovalPage() {
@@ -22,6 +33,8 @@ export default function RoleApprovalPage() {
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
+  const [selectedRequest, setSelectedRequest] = useState<ManagerRequest | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
   const { toast } = useToast()
 
   const fetchRequests = async (page: number) => {
@@ -39,7 +52,11 @@ export default function RoleApprovalPage() {
         id: item.id,
         userId: item.userId,
         userName: item.userName,
-        phoneNumber: item.phoneNumber
+        phoneNumber: item.phoneNumber,
+        organizationName: item.organizationName,
+        organizationContact: item.organizationContact,
+        experience: item.experience,
+        reason: item.reason
       })))
       setTotalCount(data.totalElements)
     } catch (error) {
@@ -80,6 +97,7 @@ export default function RoleApprovalPage() {
         description: "공연자 권한이 승인되었습니다"
       })
       fetchRequests(currentPage)
+      setIsDetailOpen(false)
     } catch (error) {
       console.error('Error approving request:', error)
       toast({
@@ -116,6 +134,7 @@ export default function RoleApprovalPage() {
         description: "공연자 권한 요청이 거절되었습니다"
       })
       fetchRequests(currentPage)
+      setIsDetailOpen(false)
     } catch (error) {
       console.error('Error rejecting request:', error)
       toast({
@@ -136,6 +155,11 @@ export default function RoleApprovalPage() {
     if ((currentPage + 1) * 10 < totalCount) {
       setCurrentPage(prev => prev + 1)
     }
+  }
+
+  const handleViewDetails = (request: ManagerRequest) => {
+    setSelectedRequest(request)
+    setIsDetailOpen(true)
   }
 
   useEffect(() => {
@@ -163,7 +187,7 @@ export default function RoleApprovalPage() {
                 <TableHead>신청자</TableHead>
                 <TableHead>전화번호</TableHead>
                 <TableHead>상태</TableHead>
-                <TableHead className="text-right">승인 / 거부</TableHead>
+                <TableHead className="text-right">작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -189,19 +213,10 @@ export default function RoleApprovalPage() {
                           size="sm" 
                           variant="outline" 
                           className="h-8 w-8 p-0"
-                          onClick={() => handleApprove(request.id)}
+                          onClick={() => handleViewDetails(request)}
                         >
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="sr-only">승인</span>
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="h-8 w-8 p-0"
-                          onClick={() => handleReject(request.id)}
-                        >
-                          <XCircle className="h-4 w-4 text-red-500" />
-                          <span className="sr-only">거절</span>
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">상세보기</span>
                         </Button>
                       </div>
                     </TableCell>
@@ -233,6 +248,54 @@ export default function RoleApprovalPage() {
           </div>
         </CardFooter>
       </Card>
+
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>공연 매니저 권한 신청 상세</DialogTitle>
+            <DialogDescription>
+              신청자의 상세 정보를 확인하고 승인 또는 거절할 수 있습니다.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium mb-1">신청자 정보</h4>
+                  <p className="text-sm text-muted-foreground">이름: {selectedRequest.userName}</p>
+                  <p className="text-sm text-muted-foreground">전화번호: {selectedRequest.phoneNumber}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">단체 정보</h4>
+                  <p className="text-sm text-muted-foreground">단체명: {selectedRequest.organizationName}</p>
+                  <p className="text-sm text-muted-foreground">연락처: {selectedRequest.organizationContact}</p>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">공연 경험</h4>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedRequest.experience}</p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-1">신청 사유</h4>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedRequest.reason}</p>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => handleReject(selectedRequest.id)}
+                >
+                  거절
+                </Button>
+                <Button 
+                  onClick={() => handleApprove(selectedRequest.id)}
+                >
+                  승인
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
