@@ -29,6 +29,17 @@ public interface UserApiDocs {
         @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User principal
     );
 
+    @Operation(summary = "공연자 권한 확인", description = "공연자 권한을 확인합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "확인 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자 (UNAUTHORIZED)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
+    ResponseEntity<Boolean> canRequestManagerRole(
+            @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User principal
+    );
+
     @Operation(summary = "공연자 권한 요청", description = "공연자 권한을 요청합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "요청 성공"),

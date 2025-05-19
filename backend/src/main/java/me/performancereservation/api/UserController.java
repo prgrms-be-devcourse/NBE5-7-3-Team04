@@ -26,6 +26,7 @@ public class UserController implements UserApiDocs {
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
     }
 
+    @Override
     @GetMapping("/manager-status")
     public ResponseEntity<Boolean> canRequestManagerRole(@AuthenticationPrincipal CustomOAuth2User principal) {
         boolean canRequest = userService.canRequestManagerRole(principal.getUser().getId());

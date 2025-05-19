@@ -86,6 +86,10 @@ public class UserService {
      */
     @Transactional
     public void submitManagerRequest(Long userId) {
+        if(!canRequestManagerRole(userId)){
+            throw ErrorCode.MANAGER_REQUEST_ALREADY_EXISTS.domainException("이미 공연자 권한 요청 중이거나 공연 관리자 입니다");
+        }
+
         ManagerRequest managerRequest = ManagerRequest.builder()
                 .userId(userId)
                 .status(ManagerRequestStatus.PENDING)
