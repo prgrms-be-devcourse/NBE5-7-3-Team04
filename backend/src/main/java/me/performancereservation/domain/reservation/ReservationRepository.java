@@ -31,5 +31,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     Page<Reservation> findAllByUserId(Long userId, Pageable pageable);
 
-    boolean existsByUserIdAndScheduleId(Long userId, Long scheduleId);
+    boolean existsByUserIdAndPerformanceId(Long userId, Long performanceId);
 }
