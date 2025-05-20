@@ -9,6 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig {
     @Value("${dev-host}")
+//    @Value("http://localhost:8080")
     private String host;
 
     @Bean
