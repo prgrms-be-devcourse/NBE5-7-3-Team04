@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { getPerformanceImageUrl } from "@/lib/utils";
 import type { PerformancePageResponse } from "../../src/types/performance";
 import { format, parseISO, addHours } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -346,6 +347,19 @@ export default function PerformancesPage() {
     }
   };
 
+  const formatKSTDate = (dateString: string) => {
+    try {
+      return formatInTimeZone(
+        parseISO(dateString),
+        'Asia/Seoul',
+        'yyyy.MM.dd'
+      );
+    } catch (e) {
+      console.error('날짜 포맷팅 오류:', e);
+      return dateString;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white">
       <div className="container py-12 px-4 md:px-6">
@@ -491,15 +505,9 @@ export default function PerformancesPage() {
                           <div className="flex items-center">
                             <CalendarIcon className="mr-1 h-3.5 w-3.5" />
                             <span className="text-white">
-                              {format(
-                                addHours(parseISO(performance.startDate), 9),
-                                "yyyy.MM.dd"
-                              )}{" "}
+                              {formatKSTDate(performance.startDate)}{" "}
                               ~{" "}
-                              {format(
-                                addHours(parseISO(performance.endDate), 9),
-                                "yyyy.MM.dd"
-                              )}
+                              {formatKSTDate(performance.endDate)}
                             </span>
                           </div>
                         </div>
@@ -513,15 +521,9 @@ export default function PerformancesPage() {
                         <div className="flex flex-col gap-1 text-sm">
                           <span>{performance.venue}</span>
                           <span className="text-muted-foreground">
-                            {format(
-                              addHours(parseISO(performance.startDate), 9),
-                              "yyyy.MM.dd"
-                            )}{" "}
+                            {formatKSTDate(performance.startDate)}{" "}
                             ~{" "}
-                            {format(
-                              addHours(parseISO(performance.endDate), 9),
-                              "yyyy.MM.dd"
-                            )}
+                            {formatKSTDate(performance.endDate)}
                           </span>
                         </div>
                       </div>
