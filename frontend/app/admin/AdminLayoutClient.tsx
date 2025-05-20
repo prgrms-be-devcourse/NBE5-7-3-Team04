@@ -16,10 +16,12 @@ export default function AdminLayoutClient({ children }: AdminLayoutClientProps) 
   const router = useRouter()
   const pathname = usePathname()
   const [isLoading, setIsLoading] = useState(true)
+  const [isAuth, setIsAuth] = useState(false)
 
   useEffect(() => {
     const checkAuth = async () => {
-      const isAuth = await requireAdminAuth()
+      const result = await requireAdminAuth()
+      setIsAuth(result)
       setIsLoading(false)
     }
     checkAuth()
@@ -31,6 +33,11 @@ export default function AdminLayoutClient({ children }: AdminLayoutClientProps) 
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     )
+  }
+
+  if (!isAuth && pathname !== "/admin/login") {
+    // 인증 안된 경우 children을 렌더링하지 않음
+    return null
   }
 
   // 로그인 페이지면 레이아웃 없이 렌더링
