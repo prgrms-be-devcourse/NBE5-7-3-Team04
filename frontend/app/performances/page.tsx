@@ -31,7 +31,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getPerformanceImageUrl } from "@/lib/utils";
 import type { PerformancePageResponse } from "../../src/types/performance";
-import { formatKSTDateTime } from "@/src/utils/date";
+import { format, parseISO, addHours } from "date-fns";
 
 export default function PerformancesPage() {
     const searchParams = useSearchParams();
@@ -322,13 +322,9 @@ export default function PerformancesPage() {
                                                     <div className="flex items-center">
                                                         <Calendar className="mr-1 h-3.5 w-3.5" />
                                                         <span className="text-white">
-                                                            {formatKSTDateTime(
-                                                                performance.startDate
-                                                            )}{" "}
+                                                            {format(addHours(parseISO(performance.startDate), 9), 'yyyy.MM.dd')}{" "}
                                                             ~{" "}
-                                                            {formatKSTDateTime(
-                                                                performance.endDate
-                                                            )}
+                                                            {format(addHours(parseISO(performance.endDate), 9), 'yyyy.MM.dd')}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -344,13 +340,9 @@ export default function PerformancesPage() {
                                                         {performance.venue}
                                                     </span>
                                                     <span className="text-muted-foreground">
-                                                        {formatKSTDateTime(
-                                                            performance.startDate
-                                                        )}{" "}
+                                                        {format(addHours(parseISO(performance.startDate), 9), 'yyyy.MM.dd')}{" "}
                                                         ~{" "}
-                                                        {formatKSTDateTime(
-                                                            performance.endDate
-                                                        )}
+                                                        {format(addHours(parseISO(performance.endDate), 9), 'yyyy.MM.dd')}
                                                     </span>
                                                 </div>
                                             </div>

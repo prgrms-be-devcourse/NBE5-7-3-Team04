@@ -36,10 +36,10 @@ export function Footer() {
                   <Link href="/privacy">개인정보처리방침</Link>
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
                 © 2024 TICKET4U. All rights reserved.
-              </p>
-            </div>
+            </p>
+          </div>
           </div>
         </div>
       </div>
