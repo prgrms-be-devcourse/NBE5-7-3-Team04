@@ -890,12 +890,16 @@ export default function PerformanceDetailClient({
                                                 selectedDate={selectedDate}
                                                 onSelect={setSelectedDate}
                                                 availableDates={performance.schedules.map(
-                                                    (schedule) =>
-                                                        parseISO(
-                                                            schedule.startTime
-                                                        )
+                                                    (schedule) => parseISO(schedule.startTime)
                                                 )}
                                                 className="mx-auto"
+                                                initialMonth={
+                                                    performance.schedules.length > 0
+                                                        ? performance.schedules
+                                                            .map((schedule) => parseISO(schedule.startTime))
+                                                            .reduce((min, d) => (d < min ? d : min), new Date(3000, 0, 1))
+                                                        : undefined
+                                                }
                                             />
                                             <p className="text-center text-sm text-muted-foreground mt-2">
                                                 초록색으로 표시된 날짜만 공연이
