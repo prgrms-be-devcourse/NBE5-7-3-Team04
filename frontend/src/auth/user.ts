@@ -1,148 +1,84 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getMe } from "@/src/api/api";
 
 interface User {
   id: number;
   email: string;
   name: string;
-  role: string;
+  role: "ADMIN" | "MANAGER" | "USER";
   profileImage?: string;
 }
 
-// 전역 이벤트를 위한 커스텀 이벤트
-const AUTH_EVENT = "auth-state-changed";
+let globalUser: User | null = null;
+let globalIsLoading = true;
+
+export function logout() {
+  localStorage.removeItem("token");
+  globalUser = null;
+  window.location.href = "/";
+}
 
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(globalUser);
+  const [isLoading, setIsLoading] = useState(globalIsLoading);
   const router = useRouter();
 
-  const parseToken = (token: string) => {
-    try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      const { sub: id, email, role } = JSON.parse(jsonPayload);
-      return {
-        id: Number(id),
-        email,
-        name: email ? email.split("@")[0] : `user${id}`,
-        role: role.replace("ROLE_", ""),
-      };
-    } catch (error) {
-      console.error("Error parsing token:", error);
-      return null;
-    }
-  };
-
   useEffect(() => {
-    const token = getToken();
-    if (token) {
-      const userData = parseToken(token);
-      console.log('parsed token data:', userData);
-      if (userData) {
-        setIsAuthenticated(true);
+    const checkAuth = async () => {
+      try {
+        const userData = await getMe();
         setUser(userData);
-      } else {
-        removeToken();
-      }
-    }
-    setIsLoading(false);
-
-    // 인증 상태 변경 이벤트 리스너
-    const handleAuthChange = () => {
-      const token = getToken();
-      if (token) {
-        const userData = parseToken(token);
-        if (userData) {
-          setIsAuthenticated(true);
-          setUser(userData);
-        }
-      } else {
-        setIsAuthenticated(false);
+        globalUser = userData;
+      } catch (error) {
         setUser(null);
+        globalUser = null;
+        localStorage.removeItem("token");
+      } finally {
+        setIsLoading(false);
+        globalIsLoading = false;
       }
     };
 
-    window.addEventListener(AUTH_EVENT, handleAuthChange);
-    return () => window.removeEventListener(AUTH_EVENT, handleAuthChange);
+    const token = localStorage.getItem("token");
+    if (token) {
+      checkAuth();
+    } else {
+      setIsLoading(false);
+      globalIsLoading = false;
+    }
   }, []);
 
   const requireRole = (role: string) => {
-    console.log('requireRole 호출:', { role, isAuthenticated, user });
-    if (!isAuthenticated || !user || user.role !== role) {
-      console.log('권한 없음, 로그인 페이지로 이동');
+    if (!user || user.role !== role) {
       router.push("/login");
       return false;
     }
     return true;
   };
 
-  const userRole = user?.role || null;
-
   return {
-    isAuthenticated,
     user,
-    requireRole,
-    userRole,
+    isAuthenticated: !!user,
     isLoading,
+    isAdmin: user?.role === "ADMIN",
+    isManager: user?.role === "MANAGER",
+    logout,
+    requireRole,
+    userRole: user?.role || null,
   };
-}
-
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("token");
 }
 
 export function saveToken(token: string) {
   localStorage.setItem("token", token);
-  const userData = parseToken(token);
-  if (userData) {
-    localStorage.setItem("userInfo", JSON.stringify(userData));
-    // 인증 상태 변경 이벤트 발생
-    window.dispatchEvent(new Event(AUTH_EVENT));
+  window.location.href = "/";
+}
+
+export function getToken() {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("token");
   }
-}
-
-function parseToken(token: string) {
-  try {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-    const { sub: id, email, role } = JSON.parse(jsonPayload);
-    return {
-      id: Number(id),
-      email,
-      name: email ? email.split("@")[0] : `user${id}`,
-      role: role.replace("ROLE_", ""),
-    };
-  } catch (error) {
-    console.error("Error parsing token:", error);
-    return null;
-  }
-}
-
-export function removeToken() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("userInfo");
-  // 인증 상태 변경 이벤트 발생
-  window.dispatchEvent(new Event(AUTH_EVENT));
-}
-
-export function logout() {
-  removeToken();
-  window.location.href = "/login";
+  return null;
 }
