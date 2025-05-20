@@ -228,9 +228,12 @@ export default function RegisterPerformancePage() {
                         <SelectValue placeholder="카테고리 선택" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="OPERA">오페라</SelectItem>
-                        <SelectItem value="DANCING">춤 공연</SelectItem>
-                        <SelectItem value="SINGING">노래</SelectItem>
+                        <SelectItem value="CLASSIC_DANCE">클래식 + 무용</SelectItem>
+                        <SelectItem value="EVENT_DISPLAY">행사 + 전시</SelectItem>
+                        <SelectItem value="CONCERT">콘서트</SelectItem>
+                        <SelectItem value="MUSICAL_OPERA">뮤지컬 + 오페라</SelectItem>
+                        <SelectItem value="THEATER">연극</SelectItem>
+                        <SelectItem value="ETC">기타</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

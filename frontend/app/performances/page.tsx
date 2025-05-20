@@ -287,31 +287,58 @@ export default function PerformancesPage() {
 
   const getStatusBadge = (category: PerformancePageResponse["category"]) => {
     switch (category) {
-      case "SINGING":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-blue-50 text-blue-700 border-blue-200"
-          >
-            콘서트
-          </Badge>
-        );
-      case "DANCING":
+      case "CLASSIC_DANCE":
         return (
           <Badge
             variant="outline"
             className="bg-purple-50 text-purple-700 border-purple-200"
           >
-            무용
+            클래식/무용
           </Badge>
         );
-      case "OPERA":
+      case "EVENT_DISPLAY":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200"
+          >
+            이벤트/전시
+          </Badge>
+        );
+      case "CONCERT":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
+            콘서트
+          </Badge>
+        );
+      case "MUSICAL_OPERA":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-yellow-50 text-yellow-700 border-yellow-200"
+          >
+            뮤지컬/오페라
+          </Badge>
+        );
+      case "THEATER":
         return (
           <Badge
             variant="outline"
             className="bg-red-50 text-red-700 border-red-200"
           >
-            오페라
+            연극
+          </Badge>
+        );
+      case "ETC":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-gray-50 text-gray-700 border-gray-200"
+          >
+            기타
           </Badge>
         );
       default:
@@ -337,11 +364,14 @@ export default function PerformancesPage() {
             className="w-full"
             onValueChange={setCategory}
           >
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="all">전체</TabsTrigger>
-              <TabsTrigger value="SINGING">콘서트</TabsTrigger>
-              <TabsTrigger value="DANCING">무용</TabsTrigger>
-              <TabsTrigger value="OPERA">오페라</TabsTrigger>
+              <TabsTrigger value="CLASSIC_DANCE">클래식/무용</TabsTrigger>
+              <TabsTrigger value="EVENT_DISPLAY">이벤트/전시</TabsTrigger>
+              <TabsTrigger value="CONCERT">콘서트</TabsTrigger>
+              <TabsTrigger value="MUSICAL_OPERA">뮤지컬/오페라</TabsTrigger>
+              <TabsTrigger value="THEATER">연극</TabsTrigger>
+              <TabsTrigger value="ETC">기타</TabsTrigger>
             </TabsList>
           </Tabs>
 
