@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { searchPerformances } from '@/src/api/api'
+import { searchPerformances, getMe } from '@/src/api/api'
 import { Performance } from '@/src/api/performance'
 import { Hero } from '@/components/hero'
 import { RecommendedPerformances } from '@/components/recommended-performances'
@@ -9,23 +9,31 @@ import { getPerformanceImageUrl } from '@/lib/utils'
 import { formatKSTDateTime } from "@/src/api/utils/date";
 import { Calendar } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
+import { useRouter } from 'next/navigation';
 
 interface PerformanceWithImage extends Performance {
   image: string
 }
 
 export default function Home() {
+  const router = useRouter();
   const [performances, setPerformances] = useState<PerformanceWithImage[]>([])
   const [recommendedPerformances, setRecommendedPerformances] = useState<PerformanceWithImage[]>([])
   const [heroPerformances, setHeroPerformances] = useState<PerformanceWithImage[]>([])
   const [categoryPerformances, setCategoryPerformances] = useState<{
-    SINGING: PerformanceWithImage[];
-    DANCING: PerformanceWithImage[];
-    OPERA: PerformanceWithImage[];
+    CLASSIC_DANCE: PerformanceWithImage[];
+    EVENT_DISPLAY: PerformanceWithImage[];
+    CONCERT: PerformanceWithImage[];
+    MUSICAL_OPERA: PerformanceWithImage[];
+    THEATER: PerformanceWithImage[];
+    ETC: PerformanceWithImage[];
   }>({
-    SINGING: [],
-    DANCING: [],
-    OPERA: []
+    CLASSIC_DANCE: [],
+    EVENT_DISPLAY: [],
+    CONCERT: [],
+    MUSICAL_OPERA: [],
+    THEATER: [],
+    ETC: []
   })
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -36,10 +44,13 @@ export default function Home() {
       setError(null)
       try {
         // 1. 카테고리별 10개씩 최신순으로 가져오기
-        const [singing, dancing, opera] = await Promise.all([
-          searchPerformances({ category: 'SINGING', size: 10, sort: ['startDate,desc'] }),
-          searchPerformances({ category: 'DANCING', size: 10, sort: ['startDate,desc'] }),
-          searchPerformances({ category: 'OPERA', size: 10, sort: ['startDate,desc'] }),
+        const [classicDance, eventDisplay, concert, musicalOpera, theater, etc] = await Promise.all([
+          searchPerformances({ category: 'CLASSIC_DANCE', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'EVENT_DISPLAY', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'CONCERT', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'MUSICAL_OPERA', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'THEATER', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'ETC', size: 10, sort: ['startDate,desc'] }),
         ])
 
         // 2. 이미지 URL 매핑
@@ -48,19 +59,32 @@ export default function Home() {
           image: getPerformanceImageUrl(p.fileUrl)
         })
 
-        const singingWithImages = (singing.content || []).map(addImageUrl)
-        const dancingWithImages = (dancing.content || []).map(addImageUrl)
-        const operaWithImages = (opera.content || []).map(addImageUrl)
+        const classicDanceWithImages = (classicDance.content || []).map(addImageUrl)
+        const eventDisplayWithImages = (eventDisplay.content || []).map(addImageUrl)
+        const concertWithImages = (concert.content || []).map(addImageUrl)
+        const musicalOperaWithImages = (musicalOpera.content || []).map(addImageUrl)
+        const theaterWithImages = (theater.content || []).map(addImageUrl)
+        const etcWithImages = (etc.content || []).map(addImageUrl)
 
         // 3. 카테고리별 데이터 설정
         setCategoryPerformances({
-          SINGING: singingWithImages,
-          DANCING: dancingWithImages,
-          OPERA: operaWithImages
+          CLASSIC_DANCE: classicDanceWithImages,
+          EVENT_DISPLAY: eventDisplayWithImages,
+          CONCERT: concertWithImages,
+          MUSICAL_OPERA: musicalOperaWithImages,
+          THEATER: theaterWithImages,
+          ETC: etcWithImages
         })
 
         // 4. 전체 데이터 합치기
-        const allPerformances = [...singingWithImages, ...dancingWithImages, ...operaWithImages]
+        const allPerformances = [
+          ...classicDanceWithImages,
+          ...eventDisplayWithImages,
+          ...concertWithImages,
+          ...musicalOperaWithImages,
+          ...theaterWithImages,
+          ...etcWithImages
+        ]
         
         // 5. 각 용도별 데이터 설정
         setPerformances(allPerformances)
@@ -71,11 +95,61 @@ export default function Home() {
         setError('공연 정보를 불러오는 중 오류가 발생했습니다.')
       } finally {
         setIsLoading(false)
-  }
+      }
     }
 
     fetchPerformances()
   }, [])
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkUserStatus = async () => {
+      console.log("[Home Page] checkUserStatus 시작");
+      const token = localStorage.getItem("token");
+      console.log("[Home Page] Current token:", token);
+
+      if (!token) {
+        console.log("[Home Page] 토큰이 없음 - 함수 종료");
+        return;
+      }
+
+      try {
+        console.log("[Home Page] getMe() 호출 시작");
+        const userData = await getMe();
+        console.log("[Home Page] getMe() 응답:", userData);
+
+        if (isMounted && userData && (!userData.phoneNumber || !userData.email)) {
+          console.log("[Home Page] 온보딩 필요 - phoneNumber 또는 email 없음");
+          console.log("[Home Page] /oauth2/sign-up로 리다이렉션 시작");
+          router.push("/oauth2/sign-up");
+        } else {
+          console.log("[Home Page] 온보딩 불필요 - 정상 상태");
+        }
+      } catch (error: any) {
+        console.error("[Home Page] 에러 발생:", {
+          status: error?.response?.status,
+          message: error?.message,
+          data: error?.response?.data
+        });
+        
+        if (isMounted && error?.response?.status !== 401) {
+          console.log("[Home Page] 401이 아닌 에러로 인한 토큰 제거");
+          localStorage.removeItem("token");
+        } else {
+          console.log("[Home Page] 401 에러 발생 - 토큰 유지");
+        }
+      }
+    };
+
+    console.log("[Home Page] useEffect 실행");
+    checkUserStatus();
+
+    return () => {
+      console.log("[Home Page] useEffect cleanup");
+      isMounted = false;
+    };
+  }, [router]);
 
   if (isLoading) {
     return (
