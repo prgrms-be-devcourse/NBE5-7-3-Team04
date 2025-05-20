@@ -16,8 +16,10 @@ RUN npm i
 RUN npm run build
 
 # 실행
-FROM node:20-alpine AS runner
+FROM node:20 AS runner
 WORKDIR /app
+
+ENV TZ=Asia/Seoul
 
 COPY --from=builder /app/package.json .
 COPY --from=builder /app/.next .next

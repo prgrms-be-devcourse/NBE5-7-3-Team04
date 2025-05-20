@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar } from "lucide-react"
-import { formatKSTDateTime } from "@/src/utils/date"
+import { formatKSTDateTime } from "@/src/api/utils/date"
 
 const mapStatus = (status: string) => {
   switch (status) {

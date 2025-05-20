@@ -29,7 +29,7 @@ import { useAuth } from "@/src/auth/user"
 import { ScheduleForm } from "@/components/schedule-form"
 import { PageProps } from "@/types/route"
 import dynamic from "next/dynamic"
-const { formatKSTDateTime } = require("@/src/utils/date")
+import { formatKSTDate, formatKSTDateTime } from "@/src/api/utils/date";
 
 interface PerformanceParams {
   performanceId: string

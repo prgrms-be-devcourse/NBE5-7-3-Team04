@@ -16,7 +16,7 @@ import { format, parseISO } from "date-fns"
 import { useAuth } from "@/src/auth/user"
 import { PerformanceDetailModal } from "./PerformanceDetailModal"
 import { getPerformanceImageUrl } from "@/lib/utils"
-import { formatKSTDateTime } from "@/src/utils/date"
+import { formatKSTDateTime } from "@/src/api/utils/date"
 
 export default function ManagerPerformancesPage() {
   const searchParams = useSearchParams()

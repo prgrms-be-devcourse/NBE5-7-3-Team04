@@ -44,4 +44,10 @@ public class Settlement extends BaseEntity {
         this.settledAt = LocalDateTime.now();
         this.status = SettlementStatus.CONFIRMED;
     }
+
+    public Settlement updateBankInfo(String bank, String account){
+        this.bank = bank;
+        this.account = account;
+        return this;
+    }
 }

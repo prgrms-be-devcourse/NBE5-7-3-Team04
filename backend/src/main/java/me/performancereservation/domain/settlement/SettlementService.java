@@ -8,7 +8,10 @@ import me.performancereservation.domain.performance.repository.PerformanceSchedu
 import me.performancereservation.domain.performance.service.PerformanceService;
 import me.performancereservation.domain.settlement.dto.SettlementRequest;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
+import me.performancereservation.domain.settlement.dto.SettlementUpdateRequest;
+import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse;
 import me.performancereservation.domain.settlement.enums.SettlementStatus;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SettlementService {
+    private final SMSService smsService;
     private final SettlementRepository settlementRepository;
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
@@ -95,6 +99,37 @@ public class SettlementService {
                 .sum();
     }
 
+    /// PENDING 상태 정산의 은행, 계좌정보 수정
+    @Transactional
+    public SettlementUpdateResponse updateSettlement(SettlementUpdateRequest request) {
+        log.info("[editSettlement Service] 요청: {}", request);
+        Settlement settlement = settlementRepository.findById(request.settlementId())
+                .orElseThrow(() -> ErrorCode.SETTLEMENT_NOT_FOUND.domainException("존재하지 않는 정산입니다."));
+
+        // 승인된 정산은 정보를 수정할 수 없음
+        if (settlement.getStatus() == SettlementStatus.CONFIRMED) {
+            throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("이미 승인된 정산은 정보를 수정할 수 없습니다.");
+        }
+
+        Settlement updatedSettlement = settlement.updateBankInfo(request.bank(), request.account());
+        return SettlementUpdateResponse.fromSettlement(updatedSettlement);
+    }
+
+    @Transactional
+    public Long findSettlementIdByPerformanceId(Long performanceId) {
+        List<Settlement> settlements = settlementRepository.findSettlementByPerformanceId(performanceId);
+        Settlement latest = settlements.stream()
+                .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
+                .orElse(null);
+
+        Long settlementId = latest != null ? latest.getId() : null;
+
+        // 로그 출력
+        log.info("공연ID: {}, SettlementID: {}", performanceId, settlementId);
+
+        return settlementId;
+    }
+
     @Transactional
     public SettlementResponse confirmSettlement(Long settlementId) {
         // 정산 객체 조회
@@ -107,6 +142,10 @@ public class SettlementService {
 
         // 정산 상태 변경 및 완료 시간 설정
         settlement.confirm();
+
+        // TODO 시연시 주석 제거
+        // 정산 완료 안내 문자
+//        smsService.settlementsConfirmed(settlement, performance);
 
         // SettlementResponse 생성 및 반환
         return SettlementResponse.fromEntity(settlement, performance.getTitle());

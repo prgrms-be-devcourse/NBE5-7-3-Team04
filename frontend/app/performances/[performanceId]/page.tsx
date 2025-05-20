@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<PerformanceParams>)
 
 export default async function PerformanceDetailPage({ params }: PageProps<PerformanceParams>) {
   const { performanceId } = await params
-  return (
+    return (
     <Suspense fallback={
       <div className="container py-8 flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center">

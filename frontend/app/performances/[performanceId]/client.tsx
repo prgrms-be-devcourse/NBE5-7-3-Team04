@@ -34,6 +34,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { formatKSTDate, formatKSTDateTime } from "@/src/api/utils/date";
 
 interface PerformanceSchedule {
     id: number;
@@ -404,9 +405,7 @@ export default function PerformanceDetailClient({
     // KST로 시간 변환
     const formatTimeToKST = (dateString: string) => {
         try {
-            const date = parseISO(dateString);
-            const kstDate = addHours(date, 9); // UTC to KST
-            return format(kstDate, "yyyy.MM.dd HH:mm", { locale: ko });
+            return formatKSTDateTime(dateString);
         } catch (error) {
             return "날짜 정보 없음";
         }
@@ -419,11 +418,7 @@ export default function PerformanceDetailClient({
         }
 
         try {
-            const date = parseISO(dateString);
-            const kstDate = addHours(date, 9); // UTC to KST
-            return format(kstDate, "yyyy년 MM월 dd일 HH:mm", {
-                locale: ko,
-            });
+            return formatKSTDate(dateString);
         } catch (error) {
             console.error("날짜 파싱 오류:", error);
             return "날짜 정보 없음";
@@ -552,11 +547,11 @@ export default function PerformanceDetailClient({
                                                             공연 기간
                                                         </div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {formatTimeToKST(
+                                                            {formatKSTDate(
                                                                 performance.startDate
                                                             )}{" "}
                                                             ~{" "}
-                                                            {formatTimeToKST(
+                                                            {formatKSTDate(
                                                                 performance.endDate
                                                             )}
                                                         </div>
@@ -657,13 +652,13 @@ export default function PerformanceDetailClient({
                                     <div className="mt-2 text-muted-foreground">
                                         <p>
                                             시작일:{" "}
-                                            {formatTimeToKST(
+                                            {formatKSTDateTime(
                                                 performance.startDate
                                             )}
                                         </p>
                                         <p>
                                             종료일:{" "}
-                                            {formatTimeToKST(
+                                            {formatKSTDateTime(
                                                 performance.endDate
                                             )}
                                         </p>

@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/components/ui/use-toast"
 import { getCsrfToken } from "@/lib/admin-auth"
 import Image from "next/image"
-import { formatKSTDateTime } from "@/src/utils/date"
+import { formatKSTDateTime } from "@/src/api/utils/date"
 
 interface RefundDetail {
   refundId: number

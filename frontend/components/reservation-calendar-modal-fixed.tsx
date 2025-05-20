@@ -35,7 +35,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { CustomCalendar } from "@/components/custom-calendar";
 import { createReservation, getPerformanceDetail } from "@/src/api/api";
-import { formatKSTDateTime } from "@/src/utils/date";
+import { formatKSTDateTime, formatKSTDate, formatKSTTime } from "@/src/api/utils/date";
 
 interface PerformanceSchedule {
     id: number;
@@ -134,8 +134,7 @@ export function ReservationCalendarModalFixed({
     const sessionsByDate =
         performance?.schedules.reduce((acc, schedule) => {
             if (schedule.isCanceled) return acc;
-            const dateStr = format(parseISO(schedule.startTime), "yyyy-MM-dd");
-            console.log("Processing schedule date:", dateStr);
+            const dateStr = formatKSTDate(schedule.startTime);
             if (!acc[dateStr]) {
                 acc[dateStr] = [];
             }
@@ -150,10 +149,8 @@ export function ReservationCalendarModalFixed({
 
     // 선택한 날짜에 해당하는 세션들
     const selectedDateStr = initialSelectedDate
-        ? format(initialSelectedDate, "yyyy-MM-dd")
+        ? formatKSTDate(initialSelectedDate.toISOString())
         : null;
-    console.log("Selected date string:", selectedDateStr);
-    console.log("Available dates:", Object.keys(sessionsByDate));
 
     const sessionsForSelectedDate = selectedDateStr
         ? sessionsByDate[selectedDateStr] || []
@@ -162,7 +159,7 @@ export function ReservationCalendarModalFixed({
     console.log("Selected Date:", initialSelectedDate);
     console.log(
         "Formatted Selected Date:",
-        initialSelectedDate ? format(initialSelectedDate, "yyyy-MM-dd") : null
+        initialSelectedDate ? formatKSTDate(initialSelectedDate.toISOString()) : null
     );
     console.log("Sessions By Date:", sessionsByDate);
     console.log("Sessions For Selected Date:", sessionsForSelectedDate);
@@ -332,11 +329,11 @@ export function ReservationCalendarModalFixed({
                                 <div className="flex items-center gap-2 mb-4">
                                     <CalendarIcon className="h-5 w-5 text-muted-foreground" />
                                     <span className="font-medium">
-                                        {initialSelectedDate
-                                            ? formatDateSafely(
-                                                  initialSelectedDate.toISOString()
-                                              )
-                                            : "날짜를 선택해주세요"}
+                                        {sessionsForSelectedDate.length > 0
+                                            ? formatDateSafely(sessionsForSelectedDate[0].startTime)
+                                            : initialSelectedDate
+                                                ? formatDateSafely(initialSelectedDate.toISOString())
+                                                : "날짜를 선택해주세요"}
                                     </span>
                                 </div>
 
@@ -384,13 +381,9 @@ export function ReservationCalendarModalFixed({
                                                         >
                                                             <div className="flex justify-between items-center">
                                                                 <span className="font-medium">
-                                                                    {formatTime(
-                                                                        schedule.startTime
-                                                                    )}{" "}
+                                                                    {formatKSTTime(schedule.startTime)}{" "}
                                                                     -{" "}
-                                                                    {formatTime(
-                                                                        schedule.endTime
-                                                                    )}
+                                                                    {formatKSTTime(schedule.endTime)}
                                                                 </span>
                                                                 <span className="text-sm font-medium">
                                                                     {performance?.price?.toLocaleString()}
@@ -399,9 +392,7 @@ export function ReservationCalendarModalFixed({
                                                             </div>
                                                             <div className="text-xs text-muted-foreground flex justify-between items-center mt-1">
                                                                 <span>
-                                                                    {formatDateSafely(
-                                                                        schedule.startTime
-                                                                    )}
+                                                                    {formatKSTDate(schedule.startTime)}
                                                                 </span>
                                                                 <div className="flex items-center gap-1">
                                                                     {soldOut ? (

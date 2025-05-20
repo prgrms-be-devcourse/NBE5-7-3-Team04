@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { getCsrfToken } from "@/lib/admin-auth"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { getPerformanceImageUrl } from "@/lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -17,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Image from "next/image"
-import { formatKSTDateTime } from "@/src/utils/date"
+import { formatKSTDateTime } from "@/src/api/utils/date"
 
 interface PerformanceSchedule {
   id: number
@@ -323,13 +324,20 @@ export default function PerformanceApprovalPage() {
           {selectedPerformance && (
             <div className="space-y-6">
               <div className="flex gap-6">
-                <div className="relative w-40 h-52 bg-white rounded-md overflow-hidden border">
-                  <Image
-                    src={selectedPerformance.fileUrl || "/logo-icon.png"}
-                    alt={selectedPerformance.title}
-                    fill
-                    className="object-cover"
-                  />
+                <div className="flex-shrink-0 w-40 aspect-[3/4] min-w-[100px] relative">
+                  {selectedPerformance && selectedPerformance.fileUrl ? (
+                    <img
+                      src={getPerformanceImageUrl(selectedPerformance.fileUrl)}
+                      alt={selectedPerformance.title}
+                      className="w-full h-full object-cover rounded border mb-2 absolute top-0 left-0"
+                      style={{ aspectRatio: '3/4' }}
+                      onError={e => { e.currentTarget.src = "/placeholder.svg" }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 border rounded aspect-[3/4]">
+                      이미지 없음
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 space-y-4">
                   <div>
