@@ -30,7 +30,7 @@ USER nobody
 ENTRYPOINT [                                                \
     "java",                                                 \
     "-jar",                                                 \
-    "-Duser.timezone=Asia/Seoul",                         \
+    "-Duser.timezone=Asia/Seoul",                           \
     "-Djava.security.egd=file:/dev/./urandom",              \
     "-Dsun.net.inetaddr.ttl=0",                             \
     "app.jar"              \
