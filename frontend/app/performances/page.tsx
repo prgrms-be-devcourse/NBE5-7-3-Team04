@@ -52,7 +52,7 @@ export default function PerformancesPage() {
         useState(initialSearchQuery);
 
     // 디바운스 처리
-    useEffect(() => {
+  useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchQuery(searchQuery);
         }, 500); // 500ms 딜레이
@@ -63,13 +63,13 @@ export default function PerformancesPage() {
     // 검색 실행
     const executeSearch = useCallback(
         async (query: string, cat: string, pageNum: number) => {
-            try {
+    try {
                 setLoading(true);
                 setError(null);
 
-                const params: any = {
+      const params: any = {
                     page: pageNum,
-                    size: 12,
+        size: 12,
                 };
 
                 if (query) params.title = query;
@@ -87,12 +87,12 @@ export default function PerformancesPage() {
                 if (cat !== "all") searchParams.set("category", cat);
                 searchParams.set("page", pageNum.toString());
                 router.replace(`/performances?${searchParams.toString()}`, { scroll: false });
-            } catch (err) {
+    } catch (err) {
                 console.error("검색 오류:", err);
                 setError("검색 중 오류가 발생했습니다.");
-            } finally {
+    } finally {
                 setLoading(false);
-            }
+    }
         },
         [router]
     );
@@ -136,7 +136,7 @@ export default function PerformancesPage() {
         executeSearch(searchQuery, category, 0);
     };
 
-    const handlePageChange = (newPage: number) => {
+  const handlePageChange = (newPage: number) => {
         if (debouncedSearchQuery || category !== "all") {
             executeSearch(debouncedSearchQuery, category, newPage);
         } else {
@@ -197,7 +197,7 @@ export default function PerformancesPage() {
         }
     };
 
-    return (
+  return (
         <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white">
             <div className="container py-12 px-4 md:px-6">
                 <div className="flex flex-col gap-8">
@@ -208,40 +208,40 @@ export default function PerformancesPage() {
                         <p className="text-lg text-muted-foreground">
                             다양한 공연을 검색하고 예매하세요
                         </p>
-                    </div>
+        </div>
 
                     <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
-                        <CardHeader className="pb-3">
+          <CardHeader className="pb-3">
                             <CardTitle className="text-xl">검색</CardTitle>
                             <CardDescription>
                                 공연명, 장소, 카테고리로 검색할 수 있습니다.
                             </CardDescription>
-                        </CardHeader>
-                        <CardContent>
+          </CardHeader>
+          <CardContent>
                             <form
                                 onSubmit={handleSearch}
                                 className="flex flex-col sm:flex-row gap-4"
                             >
-                                <div className="relative flex-1">
+              <div className="relative flex-1">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        type="search"
-                                        placeholder="공연명 검색..."
+                <Input
+                  type="search"
+                  placeholder="공연명 검색..."
                                         className="pl-10 h-12 text-lg"
-                                        value={searchQuery}
+                  value={searchQuery}
                                         onChange={(e) =>
                                             setSearchQuery(e.target.value)
                                         }
-                                    />
-                                </div>
+                />
+              </div>
                                 <Select
                                     value={category}
                                     onValueChange={setCategory}
                                 >
                                     <SelectTrigger className="w-[180px] h-12 text-lg">
-                                        <SelectValue placeholder="카테고리" />
-                                    </SelectTrigger>
-                                    <SelectContent>
+                  <SelectValue placeholder="카테고리" />
+                </SelectTrigger>
+                <SelectContent>
                                         <SelectItem value="all">
                                             모든 카테고리
                                         </SelectItem>
@@ -254,35 +254,35 @@ export default function PerformancesPage() {
                                         <SelectItem value="OPERA">
                                             오페라
                                         </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                </SelectContent>
+              </Select>
                                 <Button
                                     type="submit"
                                     className="h-12 px-8 text-lg bg-purple-600 hover:bg-purple-700"
                                 >
                                     검색
                                 </Button>
-                            </form>
-                        </CardContent>
-                    </Card>
+            </form>
+          </CardContent>
+        </Card>
 
-                    {loading ? (
-                        <div className="flex items-center justify-center py-12">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
                             <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
                             <span className="ml-2 text-lg">
                                 공연 정보를 불러오는 중...
                             </span>
-                        </div>
-                    ) : error ? (
+          </div>
+        ) : error ? (
                         <div className="text-center py-12 text-red-500 text-lg">
                             {error}
                         </div>
-                    ) : performances.length === 0 ? (
+        ) : performances.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground text-lg">
-                            검색 결과가 없습니다. 다른 검색어로 시도해보세요.
-                        </div>
-                    ) : (
-                        <>
+            검색 결과가 없습니다. 다른 검색어로 시도해보세요.
+          </div>
+        ) : (
+          <>
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {performances.map((performance) => (
                                     <Card
@@ -348,11 +348,11 @@ export default function PerformancesPage() {
                                             </div>
                                         </CardContent>
                                     </Card>
-                                ))}
-                            </div>
+              ))}
+            </div>
 
-                            {totalPages > 1 && (
-                                <div className="flex justify-center mt-8 gap-2">
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8 gap-2">
                                     <Button
                                         variant="outline"
                                         onClick={() =>
@@ -362,7 +362,7 @@ export default function PerformancesPage() {
                                         className="h-10 w-10 p-0"
                                     >
                                         <ChevronLeft className="h-4 w-4" />
-                                    </Button>
+                </Button>
                                     {Array.from(
                                         { length: totalPages },
                                         (_, i) => (
@@ -382,8 +382,8 @@ export default function PerformancesPage() {
                                                         : ""
                                                 }`}
                                             >
-                                                {i + 1}
-                                            </Button>
+                    {i + 1}
+                  </Button>
                                         )
                                     )}
                                     <Button
@@ -395,13 +395,13 @@ export default function PerformancesPage() {
                                         className="h-10 w-10 p-0"
                                     >
                                         <ChevronRight className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
-            </div>
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
         </div>
     );
 }

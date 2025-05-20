@@ -411,3 +411,8 @@ export async function deleteReview(reviewId: number) {
     const response = await api.delete(`/reviews/${reviewId}`);
     return response.data;
 }
+
+export async function getMe() {
+    const response = await api.get("/users/me");
+    return response.data;
+}
