@@ -149,6 +149,13 @@ export async function getUserReservations(page = 0, size = 10) {
     return response.data;
 }
 
+export async function getRefundByReservationId(
+    reservationId: number | string
+) {
+    const response = await api.get(`/refunds/${reservationId}`);
+    return response.data;
+}
+
 export async function getReservationDetail(reservationId: number | string) {
     const response = await api.get(`/reservations/me/${reservationId}`);
     return response.data;
@@ -160,9 +167,10 @@ export async function updateRefundBankInfo(data: {
     bank: string;
     depositorName: string;
 }) {
-    const response = await api.put(
-        `/users/refunds/${data.refundId}/bank-info`,
+    const response = await api.patch(
+        `/refunds`,
         {
+            refundId: data.refundId,
             account: data.account,
             bank: data.bank,
             depositorName: data.depositorName,
