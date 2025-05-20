@@ -19,13 +19,19 @@ export default function Home() {
   const [recommendedPerformances, setRecommendedPerformances] = useState<PerformanceWithImage[]>([])
   const [heroPerformances, setHeroPerformances] = useState<PerformanceWithImage[]>([])
   const [categoryPerformances, setCategoryPerformances] = useState<{
-    SINGING: PerformanceWithImage[];
-    DANCING: PerformanceWithImage[];
-    OPERA: PerformanceWithImage[];
+    CLASSIC_DANCE: PerformanceWithImage[];
+    EVENT_DISPLAY: PerformanceWithImage[];
+    CONCERT: PerformanceWithImage[];
+    MUSICAL_OPERA: PerformanceWithImage[];
+    THEATER: PerformanceWithImage[];
+    ETC: PerformanceWithImage[];
   }>({
-    SINGING: [],
-    DANCING: [],
-    OPERA: []
+    CLASSIC_DANCE: [],
+    EVENT_DISPLAY: [],
+    CONCERT: [],
+    MUSICAL_OPERA: [],
+    THEATER: [],
+    ETC: []
   })
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -36,10 +42,13 @@ export default function Home() {
       setError(null)
       try {
         // 1. 카테고리별 10개씩 최신순으로 가져오기
-        const [singing, dancing, opera] = await Promise.all([
-          searchPerformances({ category: 'SINGING', size: 10, sort: ['startDate,desc'] }),
-          searchPerformances({ category: 'DANCING', size: 10, sort: ['startDate,desc'] }),
-          searchPerformances({ category: 'OPERA', size: 10, sort: ['startDate,desc'] }),
+        const [classicDance, eventDisplay, concert, musicalOpera, theater, etc] = await Promise.all([
+          searchPerformances({ category: 'CLASSIC_DANCE', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'EVENT_DISPLAY', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'CONCERT', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'MUSICAL_OPERA', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'THEATER', size: 10, sort: ['startDate,desc'] }),
+          searchPerformances({ category: 'ETC', size: 10, sort: ['startDate,desc'] }),
         ])
 
         // 2. 이미지 URL 매핑
@@ -48,19 +57,32 @@ export default function Home() {
           image: getPerformanceImageUrl(p.fileUrl)
         })
 
-        const singingWithImages = (singing.content || []).map(addImageUrl)
-        const dancingWithImages = (dancing.content || []).map(addImageUrl)
-        const operaWithImages = (opera.content || []).map(addImageUrl)
+        const classicDanceWithImages = (classicDance.content || []).map(addImageUrl)
+        const eventDisplayWithImages = (eventDisplay.content || []).map(addImageUrl)
+        const concertWithImages = (concert.content || []).map(addImageUrl)
+        const musicalOperaWithImages = (musicalOpera.content || []).map(addImageUrl)
+        const theaterWithImages = (theater.content || []).map(addImageUrl)
+        const etcWithImages = (etc.content || []).map(addImageUrl)
 
         // 3. 카테고리별 데이터 설정
         setCategoryPerformances({
-          SINGING: singingWithImages,
-          DANCING: dancingWithImages,
-          OPERA: operaWithImages
+          CLASSIC_DANCE: classicDanceWithImages,
+          EVENT_DISPLAY: eventDisplayWithImages,
+          CONCERT: concertWithImages,
+          MUSICAL_OPERA: musicalOperaWithImages,
+          THEATER: theaterWithImages,
+          ETC: etcWithImages
         })
 
         // 4. 전체 데이터 합치기
-        const allPerformances = [...singingWithImages, ...dancingWithImages, ...operaWithImages]
+        const allPerformances = [
+          ...classicDanceWithImages,
+          ...eventDisplayWithImages,
+          ...concertWithImages,
+          ...musicalOperaWithImages,
+          ...theaterWithImages,
+          ...etcWithImages
+        ]
         
         // 5. 각 용도별 데이터 설정
         setPerformances(allPerformances)

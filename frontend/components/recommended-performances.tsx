@@ -12,9 +12,12 @@ import { formatKSTDate } from "@/src/api/utils/date"
 
 interface RecommendedPerformancesProps {
   categoryPerformances: {
-    SINGING: Performance[]
-    DANCING: Performance[]
-    OPERA: Performance[]
+    CLASSIC_DANCE: Performance[]
+    EVENT_DISPLAY: Performance[]
+    CONCERT: Performance[]
+    MUSICAL_OPERA: Performance[]
+    THEATER: Performance[]
+    ETC: Performance[]
   }
 }
 
@@ -29,9 +32,12 @@ export function RecommendedPerformances({ categoryPerformances }: RecommendedPer
   // 랜덤 공연 목록 생성
   useEffect(() => {
     const allPerformances = [
-      ...categoryPerformances.SINGING,
-      ...categoryPerformances.DANCING,
-      ...categoryPerformances.OPERA
+      ...categoryPerformances.CLASSIC_DANCE,
+      ...categoryPerformances.EVENT_DISPLAY,
+      ...categoryPerformances.CONCERT,
+      ...categoryPerformances.MUSICAL_OPERA,
+      ...categoryPerformances.THEATER,
+      ...categoryPerformances.ETC
     ]
     setRandomPerformances(allPerformances.sort(() => Math.random() - 0.5).slice(0, 10))
   }, [categoryPerformances])
@@ -94,9 +100,12 @@ export function RecommendedPerformances({ categoryPerformances }: RecommendedPer
 
   const categories = [
     { id: 'ALL', label: '전체' },
-    { id: 'SINGING', label: '콘서트' },
-    { id: 'DANCING', label: '무용' },
-    { id: 'OPERA', label: '오페라' }
+    { id: 'CLASSIC_DANCE', label: '클래식/무용' },
+    { id: 'EVENT_DISPLAY', label: '이벤트/전시' },
+    { id: 'CONCERT', label: '콘서트' },
+    { id: 'MUSICAL_OPERA', label: '뮤지컬/오페라' },
+    { id: 'THEATER', label: '연극' },
+    { id: 'ETC', label: '기타' }
   ]
 
   const filteredPerformances = selectedCategory === 'ALL'
@@ -175,8 +184,11 @@ export function RecommendedPerformances({ categoryPerformances }: RecommendedPer
                           />
                           <div className="absolute top-3 left-3">
                             <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200">
-                              {performance.category === "SINGING" ? "콘서트" : 
-                               performance.category === "DANCING" ? "무용" : "오페라"}
+                              {performance.category === "CLASSIC_DANCE" ? "클래식/무용" : 
+                               performance.category === "EVENT_DISPLAY" ? "이벤트/전시" :
+                               performance.category === "CONCERT" ? "콘서트" :
+                               performance.category === "MUSICAL_OPERA" ? "뮤지컬/오페라" :
+                               performance.category === "THEATER" ? "연극" : "기타"}
                             </Badge>
                           </div>
                         </div>
