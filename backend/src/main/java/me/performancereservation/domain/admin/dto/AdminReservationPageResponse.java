@@ -26,6 +26,7 @@ public record AdminReservationPageResponse(
         int quantity,
         int totalPrice,
         ReservationStatus status,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

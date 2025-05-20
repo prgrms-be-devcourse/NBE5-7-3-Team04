@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
 import { getCsrfToken } from "@/lib/admin-auth"
-import { formatKSTDateTime } from "@/src/api/utils/date"
+import { formatKSTDateTime, formatKSTDate } from "@/src/api/utils/date"
 
 interface Settlement {
   settlementId: number
@@ -183,7 +183,7 @@ export default function SettlementsPage() {
                     </TableCell>
                     <TableCell>{settlement.bank} {settlement.account}</TableCell>
                     <TableCell>
-                      {settlement.settledAt ? formatKSTDateTime(settlement.settledAt) : '-'}
+                      {settlement.settledAt ? formatKSTDate(settlement.settledAt) : '-'}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
@@ -263,7 +263,7 @@ export default function SettlementsPage() {
                   </div>
                   {selectedSettlement.settledAt && (
                     <div>
-                      <p className="text-sm font-medium">정산일</p>
+                      <p className="text-sm font-medium">정산일시</p>
                       <p className="text-sm text-muted-foreground">
                         {formatKSTDateTime(selectedSettlement.settledAt)}
                       </p>

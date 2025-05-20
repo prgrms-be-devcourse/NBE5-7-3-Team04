@@ -15,6 +15,8 @@ public record RefundDetailResponse(
         String bank,
         String depositorName,
         RefundStatus refundStatus,
+        LocalDateTime createdDate,
+        LocalDateTime updatedDate,
 
         // Reservation에서 가져오는 데이터
         Integer quantity,
@@ -40,6 +42,8 @@ public record RefundDetailResponse(
                 refund.getBank(),
                 refund.getDepositorName(),
                 refund.getStatus(),
+                refund.getCreatedAt(),
+                refund.getUpdatedAt(),
 
                 reservationQuantity,
                 startTime,
