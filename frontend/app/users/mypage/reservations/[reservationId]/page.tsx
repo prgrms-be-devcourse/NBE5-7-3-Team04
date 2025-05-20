@@ -56,6 +56,7 @@ export default function ReservationDetailPage() {
   const [accountNumber, setAccountNumber] = useState("");
   const [accountHolder, setAccountHolder] = useState("");
   const [isEditingRefund, setIsEditingRefund] = useState(false);
+  const [isRegisteringRefund, setIsRegisteringRefund] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -91,7 +92,11 @@ export default function ReservationDetailPage() {
             // API에서 받은 한글 은행명을 약어로 변환하여 상태 설정
             const englishBankName = bankNameMap[data.bank] || "";
             setBankName(englishBankName);
-            
+            if (!data.bank && !data.account && !data.depositorName) {
+              setIsRegisteringRefund(true);
+            } else {
+              setIsRegisteringRefund(false);
+            }
             setAccountNumber(data.account || "");
             setAccountHolder(data.depositorName || "");
             // 필드가 모두 채워져 있으면 수정 모드 아님 (입력 불가)
@@ -330,7 +335,7 @@ export default function ReservationDetailPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-base">환불 정보</CardTitle>
                   {/* 수정 버튼 (정보가 있고, 수정 모드가 아닐 때) */}
-                  {areRefundFieldsFilled && !isEditingRefund && (
+                  {areRefundFieldsFilled && !isEditingRefund && !isRegisteringRefund &&(
                     <Button
                       variant="outline"
                       onClick={() => setIsEditingRefund(true)}
@@ -339,7 +344,7 @@ export default function ReservationDetailPage() {
                     </Button>
                   )}
                   {/* 수정 취소 버튼 (수정 모드일 때) */}
-                  {isEditingRefund && (
+                  {areRefundFieldsFilled && isEditingRefund && !isRegisteringRefund &&(
                     <Button
                       variant="outline"
                       onClick={() => setIsEditingRefund(false)}
@@ -409,9 +414,18 @@ export default function ReservationDetailPage() {
                           return;
                         }
                         try {
+                          const bankNameReverseMap: { [key: string]: string } = {
+                            shinhan: "신한은행",
+                            kb: "국민은행",
+                            woori: "우리은행",
+                            hana: "하나은행",
+                            ibk: "기업은행",
+                            toss: "토스뱅크",
+                          };
+
                           await updateRefundBankInfo({
                             refundId: refundInfo?.refundId,
-                            bank: bankName,
+                            bank: bankNameReverseMap[bankName],
                             account: accountNumber,
                             depositorName: accountHolder,
                           });
@@ -420,7 +434,13 @@ export default function ReservationDetailPage() {
                             description: "환불 정보가 저장되었습니다.",
                           });
                           setIsEditingRefund(false); // 수정 완료 후 보기 모드로 전환
-                          window.location.reload(); // 새로고침으로 최신 정보 반영
+                          if(isRegisteringRefund) {
+                            window.location.reload();
+                          } else {
+                            const updatedData = await getRefundByReservationId(reservationId);
+                            // 상태 세팅
+                            setRefundInfo(updatedData);
+                          }
                         } catch (e) {
                           toast({
                             title: "저장 오류",
@@ -430,7 +450,7 @@ export default function ReservationDetailPage() {
                         }
                       }}
                     >
-                      {areRefundFieldsFilled ? "수정 완료" : "등록하기"}
+                      {isRegisteringRefund ? "등록하기" : "수정 완료"}
                     </Button>
                   )}
                 </CardFooter>
