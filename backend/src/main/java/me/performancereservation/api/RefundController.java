@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.api.docs.RefundApiDocs;
 import me.performancereservation.domain.refund.RefundService;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
+import me.performancereservation.domain.refund.dto.RefundResponse;
 import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
@@ -48,6 +49,23 @@ public class RefundController implements RefundApiDocs {
                 .body(refundService.findAllRefundsDetailByUserId(userId, pageable));
     }
 
+    /** 예매 내역 환불 정보용
+     *
+     * @param authentication
+     * @return RefundResponse
+     */
+    @GetMapping("/{reservationId}")
+    public ResponseEntity<RefundResponse> getRefund(
+            @AuthenticationPrincipal CustomOAuth2User authentication,
+            @PathVariable Long reservationId) {
+
+        Long userId = authentication.getUser().getId();
+
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(refundService.findRefundByUserId(userId, reservationId));
+    }
+
     /**
      * 계좌, 은행명, 입금자명을 dto로 받아서 설정.
      * /refunds
@@ -59,9 +77,10 @@ public class RefundController implements RefundApiDocs {
     public ResponseEntity<Void> updateBankInfo(
             @AuthenticationPrincipal CustomOAuth2User authentication,
             @RequestBody UpdateBankInfoRequest request) {
-
+        log.info("은행 정보 호출");
         Long userId = authentication.getUser().getId();
 
+        log.info("refund = {}", request.toString());
         refundService.updateBankInfo(userId, request);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

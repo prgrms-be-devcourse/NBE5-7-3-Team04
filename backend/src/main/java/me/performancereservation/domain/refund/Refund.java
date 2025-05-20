@@ -36,9 +36,7 @@ public class Refund extends BaseEntity {
     }
 
     public void ready() {
-        if (this.status == RefundStatus.READY) {
-            throw ErrorCode.INVALID_REFUND_STATUS.domainException("이미 환불 준비된 상태입니다.");
-        }
+
         this.status = RefundStatus.READY;
     }
 

@@ -74,4 +74,7 @@ public interface RefundRepository extends JpaRepository<Refund, Long> {
      */
     @Query("SELECT r.reservationId FROM Refund r WHERE r.reservationId IN :reservationIds")
     List<Long> findRefundByReservationIdIn(@Param("reservationIds") List<Long> reservationIds);
+
+    // 유저 환불 정보
+    Optional<Refund> findByUserIdAndReservationId(Long userId, Long reservationId);
 }

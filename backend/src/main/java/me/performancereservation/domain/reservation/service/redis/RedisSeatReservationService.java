@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.performance.model.SchedulePerformanceInfo;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
+import me.performancereservation.domain.refund.RefundService;
+import me.performancereservation.domain.refund.dto.RefundResponse;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
@@ -32,6 +34,8 @@ public class RedisSeatReservationService implements SeatReservationService {
 
     private final RedisSeatService redisSeatService;
     private final RedisReservationService redisReservationService;
+
+    private final RefundService refundService;
 
     private final ReservationMapper reservationMapper;
 
@@ -104,7 +108,7 @@ public class RedisSeatReservationService implements SeatReservationService {
      */
     @Override
     @Transactional
-    public void cancel(Long reservationId, Long userId) {
+    public Long cancel(Long reservationId, Long userId) {
         // 예약 조회
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.domainException("예약이 존재하지 않습니다."));
@@ -121,5 +125,8 @@ public class RedisSeatReservationService implements SeatReservationService {
 
         // 예약 취소 처리
         redisReservationCancelExecutor.executeForUserCancel(reservation);
+        Long refundId = refundService.getRefundIdByUserId(userId, reservationId);
+        log.info("취소 서비스 환불 ID = {}", refundId);
+        return refundService.getRefundIdByUserId(userId, reservationId);
     }
 }
