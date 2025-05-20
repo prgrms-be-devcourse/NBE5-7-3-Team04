@@ -22,10 +22,11 @@ interface CustomCalendarProps {
   onSelect?: (date: Date | undefined) => void
   availableDates?: Date[]
   className?: string
+  initialMonth?: Date
 }
 
-export function CustomCalendar({ selectedDate, onSelect, availableDates = [], className }: CustomCalendarProps) {
-  const [currentMonth, setCurrentMonth] = React.useState(new Date())
+export function CustomCalendar({ selectedDate, onSelect, availableDates = [], className, initialMonth }: CustomCalendarProps) {
+  const [currentMonth, setCurrentMonth] = React.useState(() => initialMonth ?? new Date())
 
   // 현재 월의 모든 날짜 가져오기
   const getDaysInMonth = () => {
