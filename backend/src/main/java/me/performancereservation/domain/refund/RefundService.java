@@ -9,6 +9,7 @@ import me.performancereservation.domain.refund.enums.RefundStatus;
 import me.performancereservation.domain.refund.mapper.RefundDetailMapper;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RefundService {
 
+    private final SMSService smsService;
     private final RefundRepository refundRepository;
     private final ReservationRepository reservationRepository;
     private final RefundDetailMapper refundDetailMapper;
@@ -125,14 +127,23 @@ public class RefundService {
 
         // refund domain에서 상태 업데이트
         refund.confirm();
+
+        // TODO 시연시 주석 제거
+        // 환불 승인 안내 문자
+//        smsService.refundConfirmed(refund);
     }
 
     ///  계좌, 은행, 입금자명 설정, READY state 설정
     @Transactional
-    public Refund updateBankInfo(UpdateBankInfoRequest request) {
+    public Refund updateBankInfo(Long userId, UpdateBankInfoRequest request) {
         // 해당 refund 존재하는지 유효성검사
         Refund refund = refundRepository.findById(request.refundId())
                 .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + request.refundId()));
+
+        // 정보를 변경하려는 환불의 user id가 현재 로그인된 user id와 다를 경우 거부
+        if (refund.getUserId() != userId) {
+            ErrorCode.UNAUTHORIZED_REFUND_UPDATE.domainException("본인의 환불만 변경할 수 있습니다.");
+        }
 
         // 계좌정보 설정
         refund.updateBankInfo(request.account(), request.bank(), request.depositorName());

@@ -4,6 +4,7 @@ import me.performancereservation.domain.performance.model.SchedulePerformanceInf
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
+import me.performancereservation.domain.reservation.dto.ReservationDetailResponse;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
@@ -186,7 +187,8 @@ class ReservationQueryServiceTest {
             LocalDateTime.now(),
             LocalDateTime.now().plusMinutes(30),
             10000,
-            20000
+            20000,
+                List.of()
         );
         
         // when
@@ -196,9 +198,9 @@ class ReservationQueryServiceTest {
             .thenReturn(Optional.of(scheduleInfo));
         when(reservationMapper.toResponseDto(any(Reservation.class), any(SchedulePerformanceInfo.class)))
             .thenReturn(expectedResponse);
-        
-        ReservationResponse result = queryService.getByReservationId(reservationId, userId);
-        
+
+        ReservationDetailResponse result = queryService.getByReservationId(reservationId, userId);
+
         // then
         assertNotNull(result);
         assertEquals(expectedResponse, result);

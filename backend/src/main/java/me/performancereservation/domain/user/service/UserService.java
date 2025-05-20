@@ -1,19 +1,20 @@
 package me.performancereservation.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.domain.user.dto.request.UserManagerRequestRequest;
 import me.performancereservation.domain.user.entitiy.ManagerRequest;
-import me.performancereservation.domain.user.dto.UserOnboardingRequest;
+import me.performancereservation.domain.user.dto.request.UserOnboardingRequest;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.ManagerRequestStatus;
 import me.performancereservation.domain.user.enums.Role;
 import me.performancereservation.domain.user.repository.ManagerRequestRepository;
 import me.performancereservation.domain.user.repository.UserRepository;
 import me.performancereservation.global.exception.ErrorCode;
-import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
-import me.performancereservation.domain.auth.service.AuthService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -73,12 +74,42 @@ public class UserService {
      * @param userId
      */
     @Transactional
-    public void submitManagerRequest(Long userId) {
+    public void submitManagerRequest(Long userId, UserManagerRequestRequest request) {
+        if(!canRequestManagerRole(userId)){
+            throw ErrorCode.MANAGER_REQUEST_ALREADY_EXISTS.domainException("이미 공연자 권한 요청 중이거나 공연 관리자 입니다");
+        }
+
         ManagerRequest managerRequest = ManagerRequest.builder()
                 .userId(userId)
+                .reason(request.reason())
+                .experience(request.experience())
+                .organizationName(request.organizationName())
+                .organizationContact(request.organizationContact())
                 .status(ManagerRequestStatus.PENDING)
                 .build();
 
         managerRequestRepository.save(managerRequest);
+    }
+
+    /**
+     * 매니저 권한 신청 가능 여부 확인
+     * 이미 매니저이거나 신청 중인 요청이 있으면 신청 불가
+     *
+     * @param userId 사용자 ID
+     * @return 신청 가능 여부
+     */
+    public boolean canRequestManagerRole(Long userId) {
+        // 이미 승인된 요청이 있는지 확인 (이미 매니저인 경우)
+        if (managerRequestRepository.hasApprovedRequest(userId)) {
+            return false;
+        }
+
+        // 대기 중인 요청이 있는지 확인
+        if (managerRequestRepository.hasPendingRequest(userId)) {
+            return false;
+        }
+
+        // 승인된 요청도 없고 대기 중인 요청도 없으면 신청 가능
+        return true;
     }
 }

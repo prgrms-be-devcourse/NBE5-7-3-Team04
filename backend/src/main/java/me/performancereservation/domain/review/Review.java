@@ -19,18 +19,19 @@ public class Review extends BaseEntity {
 
     private Long performanceId;
 
-    private Long scheduleId;
-
     private Long userId;
 
     @Column(nullable = false, length = 1000)
     private String comments; //또는 text 형식?
 
     @Builder
-    public Review(Long userId, Long performanceId, Long scheduleId, String comments) {
+    public Review(Long userId, Long performanceId, String comments) {
         this.performanceId = performanceId;
-        this.scheduleId = scheduleId;
         this.userId = userId;
+        this.comments = comments;
+    }
+
+    public void updateComments(String comments) {
         this.comments = comments;
     }
 }

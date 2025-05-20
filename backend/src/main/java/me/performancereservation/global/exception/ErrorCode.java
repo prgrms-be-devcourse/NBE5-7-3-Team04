@@ -35,6 +35,7 @@ public enum ErrorCode {
     TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST,"존재하지 않는 토큰입니다."),
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    MANAGER_REQUEST_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 공연자 권한 요청 중이거나 공연 관리자 입니다"),
 
     // 공연 관련
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 공연입니다."),
@@ -43,7 +44,7 @@ public enum ErrorCode {
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     PERFORMANCE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 공연입니다."),
     SCHEDULE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 회차입니다."),
-    INVALID_SCHEDULE_PERIOD(HttpStatus.BAD_REQUEST, "유요하지 않은 등록 기간입니다."),
+    INVALID_SCHEDULE_PERIOD(HttpStatus.BAD_REQUEST, "유효하지 않은 등록 기간입니다."),
 
     // 공연 승인 관련
     PERFORMANCE_STATUS_NOT_PENDING(HttpStatus.BAD_REQUEST, "PENDING 상태의 공연만 승인, 거부 할 수 있습니다."),
@@ -68,16 +69,19 @@ public enum ErrorCode {
     REFUND_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 환불ID입니다."),
     DUPLICATE_REFUND(HttpStatus.CONFLICT, "이미 존재하는 환불내역입니다."),
     INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 환불 상태입니다."),
+    UNAUTHORIZED_REFUND_UPDATE(HttpStatus.UNAUTHORIZED, "본인의 환불 내역만 변경할 수 있습니다."),
 
     // 정산 관련
     SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 정산입니다."),
     INVALID_SETTLEMENT_REQUEST(HttpStatus.BAD_REQUEST, "공연 종료 후 7일이 지나야 정산 신청이 가능합니다."),
     INVALID_SETTLEMENT_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 정산 상태입니다."),
+    UNAUTHORIZED_SETTLEMENT_UPDATE(HttpStatus.UNAUTHORIZED, "본인의 정산 내역만 변경할 수 있습니다."),
 
     // 리뷰 관련
     DUPLICATE_REVIEW(HttpStatus.CONFLICT,"이미 리뷰를 작성하셨습니다."),
     UNAUTHORIZED_REVIEW(HttpStatus.UNAUTHORIZED,"예매한 공연에만 리뷰를 작성하실 수 있습니다."),
     INVALID_SCHEDULE(HttpStatus.BAD_REQUEST,"해당 공연에 속하지 않는 회차입니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
 
     //찜 관련
     DUPLICATED_BOOKMARK(HttpStatus.CONFLICT, "이미 같은 공연에 찜이 존재합니다."),

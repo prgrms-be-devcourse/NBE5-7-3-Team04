@@ -6,6 +6,7 @@ import me.performancereservation.domain.performance.repository.PerformanceSchedu
 import me.performancereservation.domain.reservation.ReservationRepository;
 import me.performancereservation.domain.review.Review;
 import me.performancereservation.domain.review.dto.request.ReviewCreateRequest;
+import me.performancereservation.domain.review.dto.request.ReviewUpdateRequest;
 import me.performancereservation.domain.review.dto.respornse.ReviewResponse;
 import me.performancereservation.domain.review.mapper.ReviewMapper;
 import me.performancereservation.domain.review.repository.ReviewRepository;
@@ -31,7 +32,6 @@ public class ReviewService {
     private final PerformanceRepository performanceRepository;
     private final ReservationRepository reservationRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
-    private Review review;
 
 
     /**
@@ -43,10 +43,9 @@ public class ReviewService {
     public void createReview(Long userId, ReviewCreateRequest request) {
 
         checkExistPerformance(request.performanceId());
-        checkExistSchedule(request.performanceId(), request.scheduledId());
         checkValidateUser(userId, request.performanceId());
 
-        reviewMapper.toEntity(userId, request);
+        Review review = reviewMapper.toEntity(userId, request);
         reviewRepository.save(review);
     }
 
@@ -67,24 +66,43 @@ public class ReviewService {
         return reviews.map(review -> reviewMapper.toReviewResponse(review, userMap.get(review.getUserId())));
     }
 
+    // 리뷰 수정
+    @Transactional
+    public void updateReview(Long reviewId, ReviewUpdateRequest request, Long userId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> ErrorCode.REVIEW_NOT_FOUND.domainException("리뷰를 찾을 수 없습니다."));
+
+        if (!review.getUserId().equals(userId)) {
+            throw ErrorCode.UNAUTHORIZED.domainException("리뷰를 수정할 권한이 없습니다.");
+        }
+
+        review.updateComments(request.comment());
+    }
+
+    // 리뷰 삭제
+    @Transactional
+    public void deleteReview(Long reviewId, Long userId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> ErrorCode.REVIEW_NOT_FOUND.domainException("리뷰를 찾을 수 없습니다."));
+
+        if (!review.getUserId().equals(userId)) {
+            throw ErrorCode.UNAUTHORIZED.domainException("리뷰를 삭제할 권한이 없습니다.");
+        }
+
+        reviewRepository.delete(review);
+    }
+
     //찾아온 후 비어있는지 확인하는 방법보단 단순 존재 여부를 확인하기 위해 exist를 사용하였습니다.
     private void checkExistPerformance(Long performanceId) {
         performanceRepository.findById(performanceId)
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
     }
 
-    private void checkExistSchedule(Long performanceId, Long scheduleId) {
-        boolean exists = performanceScheduleRepository.existsByIdAndPerformanceId(performanceId, scheduleId);
-        if (!exists) {
-            throw ErrorCode.INVALID_SCHEDULE.domainException("해당 공연에 속하지 않는 회차입니다.");
-        }
-    }
-
-    private void checkValidateUser(Long userId, Long scheduleId) {
-        if (!reservationRepository.existsByUserIdAndScheduleId(userId, scheduleId)) {
+    private void checkValidateUser(Long userId, Long performanceId) {
+        if (!reservationRepository.existsByUserIdAndPerformanceId(userId, performanceId)) {
             throw ErrorCode.UNAUTHORIZED_REVIEW.domainException("예매 내역이 없는 공연 회차에는 리뷰를 작성할 수 없습니다.");
         }
-        if (reviewRepository.existsByUserIdAndScheduleId(userId, scheduleId)) {
+        if (reviewRepository.existsByUserIdAndPerformanceId(userId, performanceId)) {
             throw ErrorCode.DUPLICATE_REVIEW.domainException("이미 리뷰를 작성하셨습니다.");
         }
     }

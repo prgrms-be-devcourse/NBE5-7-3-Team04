@@ -8,6 +8,9 @@ import me.performancereservation.domain.performance.repository.PerformanceSchedu
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
+import me.performancereservation.domain.sms.SMSService;
+import me.performancereservation.domain.user.entitiy.User;
+import me.performancereservation.domain.user.repository.UserRepository;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +22,8 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class AdminReservationService {
+    private final SMSService smsService;
+    private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final AdminReservationRepository adminReservationRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
@@ -63,12 +68,14 @@ public class AdminReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.domainException("예약이 존재하지 않습니다."));
 
-
         PerformanceSchedule schedule = performanceScheduleRepository.findById(reservation.getScheduleId())
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.domainException("회차가 존재하지 않습니다."));
 
         reservation.confirm();
         schedule.decreaseRemainingSeats(reservation.getQuantity());
+
+        // 예약 승인 안내 문자
+//        smsService.reservationConfirmed(reservation);
     }
 
 }

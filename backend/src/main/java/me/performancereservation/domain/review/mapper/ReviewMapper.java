@@ -17,18 +17,18 @@ public class ReviewMapper {
     public ReviewResponse toReviewResponse(Review review, User user) {
         return new ReviewResponse(
                 review.getId(),
+                user.getId(),
                 user.getName(),
-                review.getScheduleId(),
-                review.getComments()
+                review.getComments(),
+                review.getCreatedAt()
         );
     }
 
     public Review toEntity(Long userId, ReviewCreateRequest request) {
         return Review.builder()
                 .performanceId(request.performanceId())
-                .scheduleId(request.scheduledId())
                 .userId(userId)
-                .comments(request.comments())
+                .comments(request.comment())
                 .build();
     }
 }

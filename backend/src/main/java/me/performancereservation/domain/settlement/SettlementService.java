@@ -8,7 +8,10 @@ import me.performancereservation.domain.performance.repository.PerformanceSchedu
 import me.performancereservation.domain.performance.service.PerformanceService;
 import me.performancereservation.domain.settlement.dto.SettlementRequest;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
+import me.performancereservation.domain.settlement.dto.SettlementUpdateRequest;
+import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse;
 import me.performancereservation.domain.settlement.enums.SettlementStatus;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SettlementService {
+    private final SMSService smsService;
     private final SettlementRepository settlementRepository;
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
@@ -35,15 +39,32 @@ public class SettlementService {
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
 
         // 공연 스케줄 조회
-        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
+        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId());
+        log.info("불러온 스케줄 리스트: {}개", schedules != null ? schedules.size() : null);
+        if (schedules != null) {
+            for (PerformanceSchedule schedule : schedules) {
+                log.info("schedule: id={}, startTime={}, endTime={}",
+                        schedule != null ? schedule.getId() : null,
+                        schedule != null ? schedule.getStartTime() : null,
+                        schedule != null ? schedule.getEndTime() : null);
+            }
+        }
+        if (schedules == null) {
+            schedules = List.of(); // null이면 빈 리스트로 처리
+        }
 
-        // 가장 늦은 공연 날짜 확인
+        // 가장 늦은 공연 날짜 확인 (스케쥴이 없으면 latestSchedule도 null)
         LocalDateTime latestSchedule = schedules.stream()
+                .filter(java.util.Objects::nonNull)
                 .map(PerformanceSchedule::getStartTime)
+                .filter(java.util.Objects::nonNull)
                 .max(LocalDateTime::compareTo)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("공연 스케줄이 존재하지 않습니다."));
+                .orElse(null);
 
-        // 정산 신청 가능 날짜 체크 (7일 이내)
+        // 정산 신청 가능 날짜 체크 (스케쥴이 없으면 바로 예외)
+        if (latestSchedule == null) {
+            throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("공연 스케줄이 존재하지 않습니다.");
+        }
         if (latestSchedule.plusDays(7).isAfter(LocalDateTime.now())) {
             throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("공연 종료 후 7일이 지나야 정산 신청이 가능합니다.");
         }
@@ -68,11 +89,45 @@ public class SettlementService {
         int price = performance.getPrice();
         int totalSeats = performance.getTotalSeats();
 
+        log.info("정산금액 계산 ======= 가격 {} 좌석수 {}", price, totalSeats);
+        log.info("schedules = {}", schedules);
+
         // 스케쥴 리스트로 총 정산금액 누적 계산
         return schedules.stream()
                 .filter(schedule -> !schedule.isCanceled()) // 취소된 스케쥴은 계산하지 않음
                 .mapToInt(schedule -> price * (totalSeats - schedule.getRemainingSeats()))
                 .sum();
+    }
+
+    /// PENDING 상태 정산의 은행, 계좌정보 수정
+    @Transactional
+    public SettlementUpdateResponse updateSettlement(SettlementUpdateRequest request) {
+        log.info("[editSettlement Service] 요청: {}", request);
+        Settlement settlement = settlementRepository.findById(request.settlementId())
+                .orElseThrow(() -> ErrorCode.SETTLEMENT_NOT_FOUND.domainException("존재하지 않는 정산입니다."));
+
+        // 승인된 정산은 정보를 수정할 수 없음
+        if (settlement.getStatus() == SettlementStatus.CONFIRMED) {
+            throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("이미 승인된 정산은 정보를 수정할 수 없습니다.");
+        }
+
+        Settlement updatedSettlement = settlement.updateBankInfo(request.bank(), request.account());
+        return SettlementUpdateResponse.fromSettlement(updatedSettlement);
+    }
+
+    @Transactional
+    public Long findSettlementIdByPerformanceId(Long performanceId) {
+        List<Settlement> settlements = settlementRepository.findSettlementByPerformanceId(performanceId);
+        Settlement latest = settlements.stream()
+                .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
+                .orElse(null);
+
+        Long settlementId = latest != null ? latest.getId() : null;
+
+        // 로그 출력
+        log.info("공연ID: {}, SettlementID: {}", performanceId, settlementId);
+
+        return settlementId;
     }
 
     @Transactional
@@ -87,6 +142,10 @@ public class SettlementService {
 
         // 정산 상태 변경 및 완료 시간 설정
         settlement.confirm();
+
+        // TODO 시연시 주석 제거
+        // 정산 완료 안내 문자
+//        smsService.settlementsConfirmed(settlement, performance);
 
         // SettlementResponse 생성 및 반환
         return SettlementResponse.fromEntity(settlement, performance.getTitle());

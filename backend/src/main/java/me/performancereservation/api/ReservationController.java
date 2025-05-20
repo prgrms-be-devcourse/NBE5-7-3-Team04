@@ -2,6 +2,9 @@ package me.performancereservation.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import me.performancereservation.api.docs.ReservationApiDocs;
+import me.performancereservation.domain.reservation.dto.ReservationDetailResponse;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.service.ReservationQueryService;
 import me.performancereservation.domain.reservation.service.redis.RedisReservationBulkCancelService;
@@ -18,21 +21,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/reservations")
 @RequiredArgsConstructor
-public class ReservationController {
+public class ReservationController implements ReservationApiDocs {
     private final RedisSeatReservationService seatReservationService;
-    private final RedisReservationBulkCancelService bulkCancelService;
     private final ReservationQueryService reservationQueryService;
 
+    @Override
     @PostMapping
     public ResponseEntity<ReservationResponse> reserve(
             @RequestBody @Valid ReservationRequest request,
             @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
-
         ReservationResponse result = seatReservationService.reserve(
+                request.performanceId(),
                 request.scheduleId(),
                 authentication.getUser().getId(),
                 request.quantity()
@@ -41,19 +45,23 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
+    @Override
     @PostMapping("/{reservationId}/cancel")
     public ResponseEntity<Void> cancel(
             @PathVariable Long reservationId,
-             @AuthenticationPrincipal CustomOAuth2User authentication
+            @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
+        log.info("예약 취소 호출");
         seatReservationService.cancel(
                 reservationId,
                 authentication.getUser().getId()
-        ) ;
+        );
+        log.info("예약 취소 성공");
 
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<Page<ReservationPageResponse>> getUserReservations(
             @AuthenticationPrincipal CustomOAuth2User authentication,
@@ -66,8 +74,9 @@ public class ReservationController {
         return ResponseEntity.ok(result);
     }
 
+    @Override
     @GetMapping("/me/{reservationId}")
-    public ResponseEntity<ReservationResponse> getReservationById(
+    public ResponseEntity<ReservationDetailResponse> getReservationById(
             @AuthenticationPrincipal CustomOAuth2User authentication,
             @PathVariable Long reservationId
     ) {

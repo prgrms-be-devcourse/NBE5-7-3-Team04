@@ -21,7 +21,11 @@ public class AdminManagerRequestMapper {
                 managerRequest.getId(),
                 user.getId(),
                 user.getName(),
-                user.getPhoneNumber()
+                user.getPhoneNumber(),
+                managerRequest.getOrganizationName(),
+                managerRequest.getOrganizationContact(),
+                managerRequest.getExperience(),
+                managerRequest.getReason()
         );
     }
 }

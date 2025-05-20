@@ -7,6 +7,7 @@ import me.performancereservation.domain.performance.entities.PerformanceSchedule
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.global.storage.redis.RedisSeatService;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RedisReservationBulkCancelService {
+    private final SMSService smsService;
     private final RedisSeatService redisSeatService;
 
     private final PerformanceScheduleRepository performanceScheduleRepository;
@@ -60,6 +62,10 @@ public class RedisReservationBulkCancelService {
             
             // 예약 취소 처리
             redisReservationCancelExecutor.executeForPerformanceCancel(reservation);
+
+            // TODO 시연시 주석 제거 근데 이건 그대로 주석처리 해도 될것 같기도 논의 필요?
+            // 공연 취소 안내 문자
+//            smsService.performanceCanceled(reservation);
         }
     }
 
@@ -88,6 +94,10 @@ public class RedisReservationBulkCancelService {
 
             // 예약 취소 처리
             redisReservationCancelExecutor.executeForPerformanceCancel(reservation);
+
+            // TODO 시연시 주석 제거 근데 이건 그대로 주석처리 해도 될것 같기도 논의 필요?
+            // 공연 취소 안내 문자
+//            smsService.performanceCanceled(reservation);
         }
     }
 }

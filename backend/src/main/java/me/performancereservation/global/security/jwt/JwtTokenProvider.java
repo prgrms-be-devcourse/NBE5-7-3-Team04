@@ -49,8 +49,10 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(String.valueOf(user.getId()))
+                .claim("name", user.getName())
+                .claim("phone_number", user.getPhoneNumber())
                 .claim("email", user.getEmail())
-                .claim("role", user.getRole().name())
+                .claim("role", "ROLE_" + user.getRole().name()) //권한 부여 시 앞에 ROLE 붙어야함
                 .setIssuedAt(now)
                 .setExpiration(expire)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -121,5 +123,4 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
-
 }

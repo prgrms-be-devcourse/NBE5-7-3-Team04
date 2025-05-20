@@ -1,6 +1,7 @@
 package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
+import me.performancereservation.api.docs.UserPerformanceApiDocs;
 import me.performancereservation.domain.performance.dto.performance.response.PerformanceDetailResponse;
 import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
@@ -22,7 +23,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-public class UserPerformanceController {
+public class UserPerformanceController implements UserPerformanceApiDocs {
 
     private final PerformanceService performanceService;
     private final PerformanceScheduleService performanceScheduleService;
@@ -33,7 +34,8 @@ public class UserPerformanceController {
      *                 쿼리에서 바로 정렬하여 가져오도록 변경 (디폴트 페이징 정렬 설정 제거)
      * @return 200 + performanceResponses
      */
-    @GetMapping
+    @Override
+    @GetMapping("/performances")
     public ResponseEntity<Page<PerformancePageResponse>> getPerformanceList(Pageable pageable) {
         Page<PerformancePageResponse> performancePageResponse = performanceService.getPerformanceList(pageable);
         return ResponseEntity.ok(performancePageResponse);
@@ -44,6 +46,7 @@ public class UserPerformanceController {
      * @param performanceId
      * @return 200 + performanceResponse
      */
+    @Override
     @GetMapping("/performances/{performanceId}")
     public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId,
                                                                           @AuthenticationPrincipal CustomOAuth2User principal) {
@@ -66,6 +69,7 @@ public class UserPerformanceController {
      * @param pageable 페이징
      * @return performanceListResponses
      */
+    @Override
     @GetMapping("/search")
     public ResponseEntity<Page<PerformancePageResponse>> searchPerformanceList(@RequestParam(required = false) String title,
                                                                                @RequestParam(required = false) String venue,
@@ -77,5 +81,4 @@ public class UserPerformanceController {
         Page<PerformancePageResponse> performancePageResponse = performanceService.searchPerformances(title, venue, start, end, category, pageable);
         return ResponseEntity.ok(performancePageResponse);
     }
-
 }

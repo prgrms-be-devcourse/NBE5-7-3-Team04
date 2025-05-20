@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if(accessToken !=null) {
             Claims claims = jwtTokenProvider.validateToken(accessToken, ErrorCode.INVALID_ACCESS_TOKEN);
             Authentication auth = jwtTokenProvider.getAuthentication(accessToken);
-                SecurityContextHolder.getContext().setAuthentication(auth);
+            SecurityContextHolder.getContext().setAuthentication(auth);
             }
         //다음 필터로 요청 전달
         filterChain.doFilter(request, response);

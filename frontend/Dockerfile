@@ -1,22 +1,30 @@
-# Vite 앱 빌드
-FROM node:18 AS build
+# 빌드
+FROM node:20 AS builder
 WORKDIR /app
 COPY . .
-RUN npm install
 
-# CSS 파일이 없는 경우 빈 파일 생성
-RUN if [ ! -f ./src/App.css ]; then \
-      echo "App.css not found, creating empty file" && \
-      touch ./src/App.css; \
-    fi
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_CLOUDFRONT_URL
+ARG NEXT_PUBLIC_AUTH_API_URL
 
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_CLOUDFRONT_URL=$NEXT_PUBLIC_CLOUDFRONT_URL
+ENV NEXT_PUBLIC_AUTH_API_URL=$NEXT_PUBLIC_AUTH_API_URL
+
+# RUN npm install --legacy-peer-deps
+RUN npm i
 RUN npm run build
 
-# nginx로 정적 파일 서빙
-FROM nginx:stable-alpine
+# 실행
+FROM node:20 AS runner
+WORKDIR /app
 
-COPY --from=build /app/dist /usr/share/nginx/html
-# nginx 설정 추가
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+ENV TZ=Asia/Seoul
+
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/.next .next
+COPY --from=builder /app/public public
+COPY --from=builder /app/node_modules node_modules
+
+EXPOSE 3000
+CMD ["npm", "run", "start"]

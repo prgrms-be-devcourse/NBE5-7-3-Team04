@@ -18,6 +18,8 @@ public class Reservation extends BaseEntity {
 
     private Long userId; // (FK) 유저 ID
 
+    private Long performanceId; // (FK) 공연 ID
+
     private Long scheduleId; // (FK) 공연회차 ID
 
     private int quantity; // 티켓 수량
@@ -31,9 +33,10 @@ public class Reservation extends BaseEntity {
     }
 
     @Builder
-    public Reservation(Long id, Long userId, Long scheduleId, int quantity, ReservationStatus status) {
+    public Reservation(Long id, Long userId, Long performanceId, Long scheduleId, int quantity, ReservationStatus status) {
         this.id = id;
         this.userId = userId;
+        this.performanceId = performanceId;
         this.scheduleId = scheduleId;
         this.quantity = quantity;
         this.status = status;
