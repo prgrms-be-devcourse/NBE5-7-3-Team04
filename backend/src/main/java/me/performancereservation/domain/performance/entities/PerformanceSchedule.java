@@ -49,6 +49,14 @@ public class PerformanceSchedule extends BaseEntity {
         this.remainingSeats -= quantity;
     }
 
+    public void increaseRemainingSeats(int quantity) {
+        if (quantity <= 0) {
+            throw ErrorCode.NO_REMAINING_SEATS.domainException("좌석수가 1이상이 아님");
+        }
+
+        this.remainingSeats += quantity;
+    }
+
     public boolean hasPermission(Long performanceId) {
         return performanceId != null && performanceId.equals(this.performanceId);
     }
