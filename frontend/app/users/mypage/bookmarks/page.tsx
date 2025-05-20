@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar } from "lucide-react"
 import { formatKSTDateTime } from "@/src/api/utils/date"
+import { getPerformanceImageUrl } from "@/lib/utils"
 
 const mapStatus = (status: string) => {
   switch (status) {
@@ -111,7 +112,7 @@ export default function BookmarksPage() {
               >
                 <div className="aspect-[3/4] relative overflow-hidden">
                   <img
-                    src={performance.fileUrl || "/placeholder.svg?height=300&width=400"}
+                    src={getPerformanceImageUrl(performance.fileUrl) || "/placeholder.svg?height=300&width=400"}
                     alt={performance.title}
                     className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                   />
