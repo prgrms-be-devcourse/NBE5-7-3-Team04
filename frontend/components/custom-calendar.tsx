@@ -28,6 +28,13 @@ interface CustomCalendarProps {
 export function CustomCalendar({ selectedDate, onSelect, availableDates = [], className, initialMonth }: CustomCalendarProps) {
   const [currentMonth, setCurrentMonth] = React.useState(() => initialMonth ?? new Date())
 
+  // initialMonth prop이 바뀔 때마다 currentMonth를 갱신
+  React.useEffect(() => {
+    if (initialMonth) {
+      setCurrentMonth(initialMonth)
+    }
+  }, [initialMonth])
+
   // 현재 월의 모든 날짜 가져오기
   const getDaysInMonth = () => {
     const start = startOfMonth(currentMonth)
