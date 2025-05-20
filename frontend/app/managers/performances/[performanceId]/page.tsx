@@ -105,16 +105,25 @@ export default async function PerformanceDetailPage({ params }: PageProps<Perfor
 
   const handleAddSchedule = async (data: { startTime: string; endTime: string }) => {
     try {
-      await registerPerformanceSchedule(performanceId, data)
-      setAddScheduleDialogOpen(false)
+      // KST로 시간 설정 (UTC+9)
+      const startDate = new Date(data.startTime);
+      const endDate = new Date(data.endTime);
+      const kstStartDate = new Date(startDate.getTime() + (9 * 60 * 60 * 1000));
+      const kstEndDate = new Date(endDate.getTime() + (9 * 60 * 60 * 1000));
+
+      await registerPerformanceSchedule(performanceId, {
+        startTime: kstStartDate,
+        endTime: kstEndDate,
+      });
+      setAddScheduleDialogOpen(false);
       // 성공 후 데이터 다시 불러오기
-      const updatedData = await getManagerPerformanceDetails(performanceId)
-      setPerformance(updatedData)
+      const updatedData = await getManagerPerformanceDetails(performanceId);
+      setPerformance(updatedData);
     } catch (err) {
-      console.error("공연 일정 추가 오류:", err)
-      setError("공연 일정 추가 중 오류가 발생했습니다.")
+      console.error("공연 일정 추가 오류:", err);
+      setError("공연 일정 추가 중 오류가 발생했습니다.");
     }
-  }
+  };
 
   // 공연 상태에 따른 배지 스타일 결정
   const getStatusVariant = (status: string) => {

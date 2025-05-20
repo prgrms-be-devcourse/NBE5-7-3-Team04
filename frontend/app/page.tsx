@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { searchPerformances } from '@/src/api/api'
+import { searchPerformances, getMe } from '@/src/api/api'
 import { Performance } from '@/src/api/performance'
 import { Hero } from '@/components/hero'
 import { RecommendedPerformances } from '@/components/recommended-performances'
@@ -9,12 +9,14 @@ import { getPerformanceImageUrl } from '@/lib/utils'
 import { formatKSTDateTime } from "@/src/api/utils/date";
 import { Calendar } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
+import { useRouter } from 'next/navigation';
 
 interface PerformanceWithImage extends Performance {
   image: string
 }
 
 export default function Home() {
+  const router = useRouter();
   const [performances, setPerformances] = useState<PerformanceWithImage[]>([])
   const [recommendedPerformances, setRecommendedPerformances] = useState<PerformanceWithImage[]>([])
   const [heroPerformances, setHeroPerformances] = useState<PerformanceWithImage[]>([])
@@ -93,11 +95,61 @@ export default function Home() {
         setError('공연 정보를 불러오는 중 오류가 발생했습니다.')
       } finally {
         setIsLoading(false)
-  }
+      }
     }
 
     fetchPerformances()
   }, [])
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkUserStatus = async () => {
+      console.log("[Home Page] checkUserStatus 시작");
+      const token = localStorage.getItem("token");
+      console.log("[Home Page] Current token:", token);
+
+      if (!token) {
+        console.log("[Home Page] 토큰이 없음 - 함수 종료");
+        return;
+      }
+
+      try {
+        console.log("[Home Page] getMe() 호출 시작");
+        const userData = await getMe();
+        console.log("[Home Page] getMe() 응답:", userData);
+
+        if (isMounted && userData && (!userData.phoneNumber || !userData.email)) {
+          console.log("[Home Page] 온보딩 필요 - phoneNumber 또는 email 없음");
+          console.log("[Home Page] /oauth2/sign-up로 리다이렉션 시작");
+          router.push("/oauth2/sign-up");
+        } else {
+          console.log("[Home Page] 온보딩 불필요 - 정상 상태");
+        }
+      } catch (error: any) {
+        console.error("[Home Page] 에러 발생:", {
+          status: error?.response?.status,
+          message: error?.message,
+          data: error?.response?.data
+        });
+        
+        if (isMounted && error?.response?.status !== 401) {
+          console.log("[Home Page] 401이 아닌 에러로 인한 토큰 제거");
+          localStorage.removeItem("token");
+        } else {
+          console.log("[Home Page] 401 에러 발생 - 토큰 유지");
+        }
+      }
+    };
+
+    console.log("[Home Page] useEffect 실행");
+    checkUserStatus();
+
+    return () => {
+      console.log("[Home Page] useEffect cleanup");
+      isMounted = false;
+    };
+  }, [router]);
 
   if (isLoading) {
     return (

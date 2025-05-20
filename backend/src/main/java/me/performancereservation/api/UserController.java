@@ -28,7 +28,7 @@ public class UserController implements UserApiDocs {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal CustomOAuth2User principal) {
         User user = principal.getUser();
-        return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRole()));
+        return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getPhoneNumber() ,user.getRole()));
     }
 
     @Override

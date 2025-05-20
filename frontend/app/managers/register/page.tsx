@@ -127,6 +127,10 @@ export default function RegisterPerformancePage() {
         return
       }
 
+      // KST로 시간 설정 (UTC+9)
+      const kstStartDate = new Date(startDate.getTime() + (9 * 60 * 60 * 1000));
+      const kstEndDate = new Date(endDate.getTime() + (9 * 60 * 60 * 1000));
+
       // 공연 등록
       const data = {
         title,
@@ -134,8 +138,8 @@ export default function RegisterPerformancePage() {
         price: Number(price),
         totalSeats: Number(totalSeats),
         category,
-        startDate,
-        endDate,
+        startDate: kstStartDate,
+        endDate: kstEndDate,
         description,
         fileId: uploadedFileId,
       }
