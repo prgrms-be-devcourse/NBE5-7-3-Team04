@@ -173,9 +173,15 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
     setScheduleLoading(true);
     try {
       for (const sch of newSchedules) {
+        // KST로 시간 설정 (UTC+9)
+        const startDate = new Date(sch.startTime);
+        const endDate = new Date(sch.endTime);
+        const kstStartDate = new Date(startDate.getTime() + (9 * 60 * 60 * 1000));
+        const kstEndDate = new Date(endDate.getTime() + (9 * 60 * 60 * 1000));
+
         await registerPerformanceSchedule(performanceId, {
-          startTime: new Date(sch.startTime),
-          endTime: new Date(sch.endTime),
+          startTime: kstStartDate,
+          endTime: kstEndDate,
         });
       }
       setScheduleModalOpen(false);
