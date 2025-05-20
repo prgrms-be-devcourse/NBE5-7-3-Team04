@@ -308,13 +308,13 @@ export default function RefundsPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium">신청일</p>
+                        <p className="text-sm font-medium">신청일시</p>
                         <p className="text-sm text-muted-foreground">
                           {formatKSTDateTime(selectedRefund.createdDate)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">환불일</p>
+                        <p className="text-sm font-medium">환불일시</p>
                         <p className="text-sm text-muted-foreground">
                           {selectedRefund.refundStatus === 'CONFIRMED' ? formatKSTDateTime(selectedRefund.updatedDate) : '-'}
                         </p>
