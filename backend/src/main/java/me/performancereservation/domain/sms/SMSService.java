@@ -85,7 +85,8 @@ public class SMSService {
         sendSMS(parsePhoneNumber(user.getPhoneNumber()),
                 "간편한 티켓 예매는 TICKET 4 U\n" +
                         "공연 " + performance.getTitle() + "에 대한 예매가 승인 되었습니다.\n" +
-                        "티켓 번호:" + reservation.getId());
+                        "티켓 번호:" + reservation.getId() + "\n" +
+                        "티켓 수량: "+ reservation.getQuantity());
     }
 
     //환불 승인 안내 문자
@@ -141,9 +142,6 @@ public class SMSService {
         Message coolsms = new Message();
         coolsms.setFrom(fromNumber);
         coolsms.setTo(phoneNumber);
-
-        // 메시지는 다음과 같이 셋팅해 주시면 됩니다!
-        // message = "test \n티켓 번호: 123-456 \n환불규정";
 
         // 매개변수로 받은 문자열로 메시지 셋팅
         coolsms.setText(message);
