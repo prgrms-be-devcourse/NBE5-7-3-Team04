@@ -43,8 +43,8 @@ public interface PerformanceScheduleRepository extends JpaRepository<Performance
     """)
     List<Long> findIdsByPerformanceId(@Param("performanceId") Long performanceId);
 
-    // 공연 아이디로 모든 회차 가져오기
-    List<PerformanceSchedule> findByPerformanceId(Long id);
+    // 공연 아이디로 모든 회차 가져오기(시작 시간 오름차순 - 시작 시간이 빠른것 부터)
+    List<PerformanceSchedule> findByPerformanceIdOrderByStartTimeAsc(Long id);
 
     boolean existsByIdAndPerformanceId(Long id, Long performanceId);
 }

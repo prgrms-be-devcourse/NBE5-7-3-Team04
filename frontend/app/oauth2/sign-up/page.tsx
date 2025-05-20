@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { userOnboarding } from "@/src/api/api";
+import { userOnboarding, getMe } from "@/src/api/api";
 import { saveToken } from "@/src/auth/user";
 
 export default function OAuth2SignUpPage() {
@@ -22,16 +22,37 @@ export default function OAuth2SignUpPage() {
   const [initialEmail, setInitialEmail] = useState("");
 
   useEffect(() => {
-    const accessToken = searchParams.get("accessToken");
-    const refreshToken = searchParams.get("refreshToken");
+    const checkToken = async () => {
+      const accessToken = searchParams.get("accessToken");
+      const refreshToken = searchParams.get("refreshToken");
+      const storedToken = localStorage.getItem("token");
 
-    if (accessToken && refreshToken) {
-      saveToken(accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
+      if (accessToken && refreshToken) {
+        saveToken(accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        await parseAndSetUserInfo(accessToken);
+      } else if (storedToken) {
+        try {
+          const userData = await getMe();
+          setFormData((prev) => ({
+            ...prev,
+            email: userData.email || "",
+            name: userData.name || "",
+          }));
+          setInitialEmail(userData.email || "");
+          setTokenReady(true);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          router.replace("/login?error=invalid_token");
+        }
+      } else {
+        router.replace("/login?error=missing_token");
+      }
+    };
 
-      // JWT에서 정보 파싱
+    const parseAndSetUserInfo = async (token: string) => {
       try {
-        const base64Url = accessToken.split(".")[1];
+        const base64Url = token.split(".")[1];
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const jsonPayload = decodeURIComponent(
           atob(base64)
@@ -47,16 +68,14 @@ export default function OAuth2SignUpPage() {
           name,
         }));
         setInitialEmail(email);
+        setTokenReady(true);
       } catch (e) {
         console.error("Error parsing token:", e);
         router.replace("/login?error=invalid_token");
-        return;
       }
+    };
 
-      setTokenReady(true);
-    } else {
-      router.replace("/login?error=missing_token");
-    }
+    checkToken();
   }, [router, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,7 +90,7 @@ export default function OAuth2SignUpPage() {
       toast.success("회원가입이 완료되었습니다.");
 
       // 토큰이 이미 저장되어 있으므로 추가 저장 불필요
-      router.replace("/");
+      window.location.href = "/";
     } catch (error) {
       toast.error("회원가입 중 오류가 발생했습니다.");
       console.error(error);

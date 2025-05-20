@@ -57,27 +57,32 @@ api.interceptors.request.use(
 
 // 응답 인터셉터
 api.interceptors.response.use(
-    (response: AxiosResponse) => response,
+    (response: AxiosResponse) => {
+        console.log("[API Interceptor] 응답 성공:", {
+            url: response.config.url,
+            method: response.config.method,
+            status: response.status
+        });
+        return response;
+    },
     (error: AxiosError) => {
         if (error.response) {
-            // 서버가 응답을 반환한 경우
-            console.error("Response error:", {
+            console.error("[API Interceptor] 응답 에러:", {
+                url: error.config?.url,
+                method: error.config?.method,
                 status: error.response.status,
                 data: error.response.data,
                 headers: error.response.headers,
             });
 
             if (error.response.status === 401) {
-                // 토큰이 만료되었거나 유효하지 않은 경우
+                console.log("[API Interceptor] 401 에러 발생 - 토큰 제거");
                 localStorage.removeItem("token");
-                window.location.href = "/login";
             }
         } else if (error.request) {
-            // 요청은 보냈지만 응답을 받지 못한 경우
-            console.error("No response received:", error.request);
+            console.error("[API Interceptor] 요청은 보냈지만 응답 없음:", error.request);
         } else {
-            // 요청 설정 중에 에러가 발생한 경우
-            console.error("Request setup error:", error.message);
+            console.error("[API Interceptor] 요청 설정 중 에러:", error.message);
         }
         return Promise.reject(error);
     }
@@ -303,8 +308,8 @@ export async function registerPerformance(data: {
 export async function registerPerformanceSchedule(
     performanceId: number | string,
     data: {
-        startTime: string;
-        endTime: string;
+        startTime: Date;
+        endTime: Date;
     }
 ) {
     return fetchAPI(`/managers/performances/${performanceId}/register`, {
@@ -413,6 +418,18 @@ export async function deleteReview(reviewId: number) {
 }
 
 export async function getMe() {
-    const response = await api.get("/users/me");
-    return response.data;
+    console.log("[getMe] 함수 호출");
+    try {
+        const response = await api.get("/users/me", {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
+        console.log("[getMe] 응답 성공:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("[getMe] 에러 발생:", error);
+        throw error;
+    }
 }

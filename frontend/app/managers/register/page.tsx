@@ -127,6 +127,10 @@ export default function RegisterPerformancePage() {
         return
       }
 
+      // KST로 시간 설정 (UTC+9)
+      const kstStartDate = new Date(startDate.getTime() + (9 * 60 * 60 * 1000));
+      const kstEndDate = new Date(endDate.getTime() + (9 * 60 * 60 * 1000));
+
       // 공연 등록
       const data = {
         title,
@@ -134,8 +138,8 @@ export default function RegisterPerformancePage() {
         price: Number(price),
         totalSeats: Number(totalSeats),
         category,
-        startDate,
-        endDate,
+        startDate: kstStartDate,
+        endDate: kstEndDate,
         description,
         fileId: uploadedFileId,
       }
@@ -228,9 +232,12 @@ export default function RegisterPerformancePage() {
                         <SelectValue placeholder="카테고리 선택" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="OPERA">오페라</SelectItem>
-                        <SelectItem value="DANCING">춤 공연</SelectItem>
-                        <SelectItem value="SINGING">노래</SelectItem>
+                        <SelectItem value="CLASSIC_DANCE">클래식 + 무용</SelectItem>
+                        <SelectItem value="EVENT_DISPLAY">행사 + 전시</SelectItem>
+                        <SelectItem value="CONCERT">콘서트</SelectItem>
+                        <SelectItem value="MUSICAL_OPERA">뮤지컬 + 오페라</SelectItem>
+                        <SelectItem value="THEATER">연극</SelectItem>
+                        <SelectItem value="ETC">기타</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
