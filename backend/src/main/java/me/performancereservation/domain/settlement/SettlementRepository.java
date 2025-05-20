@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface SettlementRepository extends JpaRepository<Settlement, Long> {
     // 공연 관리자의 정산 목록 조회 (Performance와 조인하여 title 포함)
     @Query("""
@@ -37,4 +39,6 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
             WHERE s.status = :status
             """)
     Page<SettlementResponse> findAllSettlementsByStatus(@Param("status") SettlementStatus status, Pageable pageable);
+
+    List<Settlement> findSettlementByPerformanceId(Long performanceId);
 }

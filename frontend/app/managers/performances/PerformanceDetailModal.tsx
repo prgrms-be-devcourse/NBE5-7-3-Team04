@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getManagerPerformanceDetailV1, updateManagerPerformance, cancelPerformance, cancelPerformanceSchedule, registerPerformanceSchedule } from "@/src/api/api-manager"
 import { Loader2, AlertCircle } from "lucide-react"
-import { formatKSTDateTime } from "@/src/utils/date"
+import { formatKSTDateTime } from "@/src/api/utils/date"
 import { Button } from "@/components/ui/button"
 import { uploadFileToS3 } from "@/src/api/api-file"
 import { Label } from "@/components/ui/label"
@@ -330,7 +330,7 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
         ) : null}
         {/* 스케줄 추가 버튼 */}
         <div className="flex justify-end mb-2 gap-2">
-          <Button size="sm" variant="secondary" className="mr-2" onClick={() => setScheduleModalOpen(true)}>스케줄 추가</Button>
+          <Button size="sm" variant="secondary" className="mr-2" onClick={() => setScheduleModalOpen(true)} disabled={performance?.status !== 'CONFIRMED' && performance?.status !== 'PENDING'}>스케줄 추가</Button>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>수정</Button>
         </div>
 

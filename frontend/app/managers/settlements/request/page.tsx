@@ -9,11 +9,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getManagerPerformancesV1, createSettlement, getManagerPerformanceDetailV1 } from "@/src/api/api-manager"
+import { getManagerPerformancesV1, createSettlement, getManagerPerformanceDetailV1, getSettlementIdByPerformanceId } from "@/src/api/api-manager"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/src/auth/user"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import dayjs from "dayjs"
+import { searchManagerPerformances } from "@/src/api/api"
 
 export default function SettlementRequestPage() {
   const searchParams = useSearchParams()
@@ -22,6 +23,7 @@ export default function SettlementRequestPage() {
   const { isLoading: authLoading, userRole } = useAuth()
 
   const [performances, setPerformances] = useState<any[]>([])
+  const [settledPerformanceIds, setSettledPerformanceIds] = useState<number[]>([])
   const [selectedPerformanceId, setSelectedPerformanceId] = useState<string>(initialPerformanceId || "")
   const [account, setAccount] = useState("")
   const [bank, setBank] = useState("")
@@ -40,15 +42,30 @@ export default function SettlementRequestPage() {
       try {
         setLoading(true)
         setError(null)
-        const data = await getManagerPerformancesV1()
-        // 7일 전 날짜 계산
-        const sevenDaysAgo = dayjs().subtract(7, "day").endOf("day")
-        // status가 COMPLETED이고 endDate가 7일 이전인 공연만 필터링
-        const filteredPerformances = data.content.filter((p: any) =>
-          p.status === "COMPLETED" &&
-          dayjs(p.endDate).isBefore(sevenDaysAgo)
-        )
-        setPerformances(filteredPerformances)
+        // COMPLETED 상태 공연만 검색
+        const data = await searchManagerPerformances({ status: "COMPLETED", size: 100 });
+        console.log("정산 대상 공연 검색 결과:", data);
+        
+        // 각 공연의 정산 생성 여부 확인
+        const settledIds: number[] = [];
+        for (const performance of data.content) {
+          try {
+            const settlementId = await getSettlementIdByPerformanceId(performance.id);
+            console.log(`공연 ${performance.id}의 settlementId 응답값:`, settlementId, typeof settlementId);
+            if (typeof settlementId === 'number' && settlementId > 0) {
+              settledIds.push(performance.id);
+              console.log(`공연 ${performance.id}는 이미 정산이 생성되어 있습니다.`);
+            }
+            // settlementId가 없거나 0, 빈 문자열, null, undefined면 선택 가능
+          } catch (err) {
+            // 에러가 발생해도 비활성화하지 않음
+            console.warn(`공연 ${performance.id}의 정산 정보 조회 중 오류 발생:`, err);
+          }
+        }
+        console.log("이미 정산이 생성된 공연 ID 목록:", settledIds);
+        
+        setSettledPerformanceIds(settledIds);
+        setPerformances(data.content || []);
       } catch (err) {
         console.error("공연 목록 가져오기 오류:", err)
         setError("공연 목록을 불러오는 중 오류가 발생했습니다.")
@@ -145,9 +162,18 @@ export default function SettlementRequestPage() {
                       </SelectTrigger>
                       <SelectContent>
                         {performances.map((performance) => (
-                          <SelectItem key={performance.id} value={performance.id.toString()}>
+                          <SelectItem 
+                            key={performance.id} 
+                            value={performance.id.toString()}
+                            disabled={settledPerformanceIds.includes(performance.id)}
+                          >
                             <div className="flex flex-row items-center justify-between w-full">
-                              <span>{performance.title}</span>
+                              <span>
+                                {performance.title}
+                                {settledPerformanceIds.includes(performance.id) && 
+                                  <span className="text-xs text-muted-foreground ml-2">(이미 정산 신청됨)</span>
+                                }
+                              </span>
                               <span className="text-xs text-muted-foreground ml-4 whitespace-nowrap">
                                 {dayjs(performance.startDate).format('YYYY.MM.DD')} ~ {dayjs(performance.endDate).format('YYYY.MM.DD')}
                               </span>
@@ -161,13 +187,18 @@ export default function SettlementRequestPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="bank">은행명</Label>
-                  <Input
-                    id="bank"
-                    placeholder="은행명을 입력하세요"
-                    value={bank}
-                    onChange={(e) => setBank(e.target.value)}
-                    required
-                  />
+                  <Select value={bank} onValueChange={setBank} required>
+                    <SelectTrigger id="bank">
+                      <SelectValue placeholder="은행 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="신한은행">신한은행</SelectItem>
+                      <SelectItem value="국민은행">국민은행</SelectItem>
+                      <SelectItem value="우리은행">우리은행</SelectItem>
+                      <SelectItem value="하나은행">하나은행</SelectItem>
+                      <SelectItem value="기업은행">기업은행</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">

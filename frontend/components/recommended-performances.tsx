@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Performance } from '@/src/api/performance'
 import { getPerformanceImageUrl } from '@/lib/utils'
-import { formatKSTDate } from "@/src/utils/date"
+import { formatKSTDate } from "@/src/api/utils/date"
 
 interface RecommendedPerformancesProps {
   categoryPerformances: {
