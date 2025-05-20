@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { formatKSTDateTime } from "@/src/utils/date";
+import { formatKSTDateTime } from "@/src/api/utils/date";
 
 export default function ReservationsPage() {
   const [reservations, setReservations] = useState<ReservationResponse[]>([]);

@@ -188,4 +188,27 @@ export async function registerPerformanceSchedule(performanceId: number | string
 }): Promise<number> {
   const response = await api.post(`/managers/performances/${performanceId}/register`, data);
   return response.data;
-} 
+}
+
+/**
+ * 공연 관리자가 정산 정보를 수정합니다.
+ * 이미 승인된(CONFIRMED) 정산은 수정할 수 없습니다.
+ * PATCH /api/v1/managers/settlements/edit
+ */
+export async function editManagerSettlement(data: { settlementId: number; bank: string; account: string }) {
+  const response = await api.patch('/managers/settlements/edit', data);
+  return response.data;
+}
+
+/**
+ * 공연별 정산 존재 여부 확인
+ * GET /api/v1/managers/settlements?performanceId={performanceId}
+ * @param performanceId 정산 생성 여부를 확인할 공연 id
+ * @returns 정산 id(숫자) 또는 null
+ */
+export async function getSettlementIdByPerformanceId(performanceId: number | string): Promise<number | null> {
+  const response = await api.get(`/managers/settlements?performanceId=${performanceId}`);
+  // API가 0 또는 null을 반환할 수 있음
+  return response.data ?? null;
+}
+

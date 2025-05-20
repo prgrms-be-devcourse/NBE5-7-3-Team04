@@ -1,5 +1,5 @@
 import { getPerformances } from '../api/performance';
-import { getImageUrl } from '../utils/image';
+import { getImageUrl } from '../api/utils/image';
 
 export default async function Home() {
   try {

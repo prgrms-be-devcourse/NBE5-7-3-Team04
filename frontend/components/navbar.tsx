@@ -20,13 +20,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
-import { useAuth, logout } from "@/src/auth/user"
+import { useAuth } from "@/src/auth/user"
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
   const router = useRouter()
-  const { isAuthenticated, userRole, user } = useAuth()
+  const { isAuthenticated, isAdmin, isManager, user, logout } = useAuth()
 
   // 검색 기능
   const handleSearch = async (e: React.FormEvent) => {
@@ -51,9 +51,6 @@ export function Navbar() {
   if (pathname.startsWith("/admin")) {
     return null
   }
-
-  const isManager = userRole === "MANAGER"
-  const isAdmin = userRole === "ADMIN"
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl">

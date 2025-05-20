@@ -34,7 +34,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { formatKSTDate, formatKSTDateTime } from "@/src/utils/date";
+import { formatKSTDate, formatKSTDateTime } from "@/src/api/utils/date";
 
 interface PerformanceSchedule {
     id: number;

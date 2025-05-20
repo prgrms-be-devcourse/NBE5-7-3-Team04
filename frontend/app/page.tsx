@@ -6,7 +6,7 @@ import { Performance } from '@/src/api/performance'
 import { Hero } from '@/components/hero'
 import { RecommendedPerformances } from '@/components/recommended-performances'
 import { getPerformanceImageUrl } from '@/lib/utils'
-import { formatKSTDateTime } from "@/src/utils/date";
+import { formatKSTDateTime } from "@/src/api/utils/date";
 import { Calendar } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
 

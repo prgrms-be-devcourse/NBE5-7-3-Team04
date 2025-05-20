@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Ticket, Calendar, Clock, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { formatKSTDateTime } from "@/src/utils/date"
+import { formatKSTDateTime } from "@/src/api/utils/date"
 
 interface ReservationData {
   reservationId: number;

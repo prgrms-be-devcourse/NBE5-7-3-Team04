@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { formatKSTDateTime } from "@/src/utils/date"
+import { formatKSTDateTime } from "@/src/api/utils/date"
 import { CalendarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
