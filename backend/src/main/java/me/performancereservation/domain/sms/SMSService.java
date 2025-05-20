@@ -48,22 +48,30 @@ public class SMSService {
 
     //공연 승인 안내 문자
     public void performanceConfirmed(Performance performance, User user) {
-        sendSMS(user.getPhoneNumber(), "신청하신 공연 (" + performance.getTitle() + ") 가 승인 되었습니다.");
+        sendSMS(user.getPhoneNumber(),
+                "간편한 티켓 예매는 TICKET 4 U\n" +
+                "신청하신 공연 (" + performance.getTitle() + ") 가 승인 되었습니다.");
     }
 
     // 공연 거부 안내 문자
     public void performanceRejected(Performance performance, User user) {
-        sendSMS(user.getPhoneNumber(), "신청하신 공연 (" + performance.getTitle() + ") 가 거부 되었습니다.");
+        sendSMS(user.getPhoneNumber(),
+                "간편한 티켓 예매는 TICKET 4 U\n" +
+                "신청하신 공연 (" + performance.getTitle() + ") 가 거부 되었습니다.");
     }
 
     // 공연 관리자 승인 안내 문자
     public void managerRequestApproved(User user) {
-        sendSMS(user.getPhoneNumber(), "공연 관리자 신청이 승인되었습니다.");
+        sendSMS(user.getPhoneNumber(),
+                "간편한 티켓 예매는 TICKET 4 U\n" +
+                        "공연 관리자 신청이 승인되었습니다.");
     }
 
     // 공연 관리자 거부 안내 문자
     public void managerRequestRejected(User user) {
-        sendSMS(user.getPhoneNumber(), "공연 관리자 신청이 거부되었습니다.");
+        sendSMS(user.getPhoneNumber(),
+                "간편한 티켓 예매는 TICKET 4 U\n" +
+                        "공연 관리자 신청이 거부되었습니다.");
     }
 
     // 예약 승인 안내 문자
@@ -75,8 +83,9 @@ public class SMSService {
                 .orElseThrow(() -> ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다."));
 
         sendSMS(user.getPhoneNumber(),
-                "공연 " + performance.getTitle() + "에 대한 예매가 승인 되었습니다.\n" +
-                "티켓 번호:" + reservation.getId());
+                "간편한 티켓 예매는 TICKET 4 U\n" +
+                        "공연 " + performance.getTitle() + "에 대한 예매가 승인 되었습니다.\n" +
+                        "티켓 번호:" + reservation.getId());
     }
 
     //환불 승인 안내 문자
@@ -89,10 +98,11 @@ public class SMSService {
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + reservation.getPerformanceId()));
 
         sendSMS(user.getPhoneNumber(),
-                "공연 환불이 승인 되었습니다.\n" +
-                "예매 번호: " + reservation.getId() + "\n" +
-                "공연 제목: " + performance.getTitle() + "\n" +
-                "총 환불 금액: " + reservation.getQuantity() * performance.getPrice());
+                "간편한 티켓 예매는 TICKET 4 U\n" +
+                        "공연 환불이 승인 되었습니다.\n" +
+                        "예매 번호: " + reservation.getId() + "\n" +
+                        "공연 제목: " + performance.getTitle() + "\n" +
+                        "총 환불 금액: " + reservation.getQuantity() * performance.getPrice());
     }
 
     // 정산 완료 안내 문자
@@ -101,10 +111,27 @@ public class SMSService {
                 .orElseThrow(() -> ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다."));
 
         sendSMS(user.getPhoneNumber(),
-                "공연 환불이 승인 되었습니다.\n" +
+                "간편한 티켓 예매는 TICKET 4 U\n" +
+                        "공연 환불이 승인 되었습니다.\n" +
                         "공연 제목: " + performance.getTitle() + "\n" +
                         "공연 시작 일시: " + performance.getStartDate() +
                         "총 정산 금액: " + settlement.getTotalAmount());
+    }
+
+    // 공연 취소 사용자 안내 문자
+    public void performanceCanceled(Reservation reservation) {
+        User user = userRepository.findById(reservation.getUserId())
+                .orElseThrow(() -> ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다."));
+        Performance performance = performanceRepository.findById(reservation.getPerformanceId())
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + reservation.getPerformanceId()));
+
+        sendSMS(user.getPhoneNumber(),
+                "간편한 티켓 예매는 TICKET 4 U\n" +
+                        "다음 예매가 취소 되었습니다.\n" +
+                        "마이 페이지에서 환불 받을 계좌 정보를 입력해주세요.\n" +
+                        "예매 번호: " + reservation.getId() + "\n" +
+                        "공연 제목: " + performance.getTitle() + "\n" +
+                        "환불 예정 금액: " + reservation.getQuantity() * performance.getPrice());
     }
 
 
@@ -125,4 +152,5 @@ public class SMSService {
         SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(coolsms));
         log.info("response = {}", response);
     }
+
 }
