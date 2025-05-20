@@ -108,63 +108,70 @@ export default function ReservationDetailPage() {
           {/* 공연 정보(설명) Card - 빨간 테두리 */}
           <Card>
             <CardHeader>
-              <div className="flex flex-col gap-2">
-                {/* 공연 이미지 */}
-                <img
-                  src={getPerformanceImageUrl(reservation.fileUrl)}
-                  alt={reservation.title}
-                  className="w-full h-48 object-cover rounded-md mb-2"
-                />
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>
-                      <a
-                        href={`/performances/${reservation.performanceId}`}
-                        className="hover:underline text-lg text-blue-700 font-bold"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {reservation.title}
-                      </a>
-                    </CardTitle>
-                    <CardDescription>예매한 공연 정보</CardDescription>
+              {/* 이미지와 정보 컨테이너 */}
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* 공연 이미지 (왼쪽) */}
+                <div className="w-full md:w-1/2 flex-shrink-0">
+                  <img
+                    src={getPerformanceImageUrl(reservation.fileUrl)}
+                    alt={reservation.title}
+                    className="w-full h-48 object-cover rounded-md"
+                  />
+                </div>
+                {/* 공연 정보 텍스트 (오른쪽) */}
+                <div className="flex-1 flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>
+                        <a
+                          href={`/performances/${reservation.performanceId}`}
+                          className="hover:underline text-lg text-blue-700 font-bold"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {reservation.title}
+                        </a>
+                      </CardTitle>
+                      <CardDescription>예매한 공연 정보</CardDescription>
+                    </div>
+                    <Badge variant={statusVariant}>
+                      {getStatusLabel(reservation.status)}
+                    </Badge>
                   </div>
-                  <Badge variant={statusVariant}>
-                    {getStatusLabel(reservation.status)}
-                  </Badge>
+                  {reservation.description && (
+                    <div
+                      className="text-gray-700 text-sm truncate"
+                      style={{ maxWidth: "100%" }}
+                      title={reservation.description}
+                    >
+                      {reservation.description}
+                    </div>
+                  )}
+                  <div className="grid gap-2 text-sm">
+                    {/* 회차 시작/ 종료 시간 */}
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>
+                        {reservation.startTime
+                          ? `시작: ${formatKSTDateTime(reservation.startTime)}`
+                          : ""}
+                        {reservation.endTime
+                          ? ` ~ 종료: ${formatKSTDateTime(reservation.endTime)}`
+                          : ""}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <div>{reservation.venue}</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {reservation.description && (
-                <div
-                  className="mb-2 text-gray-700 text-sm truncate"
-                  style={{ maxWidth: "100%" }}
-                  title={reservation.description}
-                >
-                  {reservation.description}
-                </div>
-              )}
-              <div className="mt-2 grid gap-2 text-sm">
-                {/* 회차 시작/종료 시간 */}
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {reservation.startTime
-                      ? `시작: ${formatKSTDateTime(reservation.startTime)}`
-                      : ""}
-                    {reservation.endTime
-                      ? ` ~ 종료: ${formatKSTDateTime(reservation.endTime)}`
-                      : ""}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <div>{reservation.venue}</div>
-                  </div>
-                </div>
-              </div>
+            <CardContent>
+              {/* Description, Times, Venue moved to CardHeader flex container */}
             </CardContent>
           </Card>
 
