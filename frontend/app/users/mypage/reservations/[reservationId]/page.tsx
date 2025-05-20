@@ -109,13 +109,13 @@ export default function ReservationDetailPage() {
           <Card>
             <CardHeader>
               {/* 이미지와 정보 컨테이너 */}
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col md:flex-row gap-4 h-full">
                 {/* 공연 이미지 (왼쪽) */}
                 <div className="w-full md:w-1/2 flex-shrink-0">
                   <img
                     src={getPerformanceImageUrl(reservation.fileUrl)}
                     alt={reservation.title}
-                    className="w-full h-48 object-cover rounded-md"
+                    className="w-full h-full object-cover rounded-md"
                   />
                 </div>
                 {/* 공연 정보 텍스트 (오른쪽) */}
