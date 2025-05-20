@@ -329,11 +329,13 @@ export function ReservationCalendarModalFixed({
                                 <div className="flex items-center gap-2 mb-4">
                                     <CalendarIcon className="h-5 w-5 text-muted-foreground" />
                                     <span className="font-medium">
-                                        {sessionsForSelectedDate.length > 0
-                                            ? formatDateSafely(sessionsForSelectedDate[0].startTime)
-                                            : initialSelectedDate
-                                                ? formatDateSafely(initialSelectedDate.toISOString())
-                                                : "날짜를 선택해주세요"}
+                                        {selectedSchedule
+                                            ? formatDateSafely(selectedSchedule.startTime)
+                                            : sessionsForSelectedDate.length > 0
+                                                ? formatDateSafely(sessionsForSelectedDate[0].startTime)
+                                                : initialSelectedDate
+                                                    ? formatDateSafely(initialSelectedDate.toISOString())
+                                                    : "날짜를 선택해주세요"}
                                     </span>
                                 </div>
 
