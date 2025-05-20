@@ -99,11 +99,12 @@ export function CancelReservationDialog({
                   <SelectValue placeholder="은행 선택" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="shinhan">신한은행</SelectItem>
-                  <SelectItem value="kb">국민은행</SelectItem>
-                  <SelectItem value="woori">우리은행</SelectItem>
-                  <SelectItem value="hana">하나은행</SelectItem>
-                  <SelectItem value="ibk">기업은행</SelectItem>
+                  <SelectItem value="신한은행">신한은행</SelectItem>
+                  <SelectItem value="국민은행">국민은행</SelectItem>
+                  <SelectItem value="우리은행">우리은행</SelectItem>
+                  <SelectItem value="하나은행">하나은행</SelectItem>
+                  <SelectItem value="기업은행">기업은행</SelectItem>
+                  <SelectItem value="토스뱅크">토스뱅크</SelectItem>
                 </SelectContent>
               </Select>
             </div>
