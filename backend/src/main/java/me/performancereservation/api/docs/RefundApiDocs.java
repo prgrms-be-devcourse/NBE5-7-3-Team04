@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
+import me.performancereservation.domain.refund.dto.RefundResponse;
 import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
 import me.performancereservation.global.exception.ErrorResponse;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Refund API", description = "환불 관련 API")
 public interface RefundApiDocs {
@@ -44,5 +47,17 @@ public interface RefundApiDocs {
     ResponseEntity<Void> updateBankInfo(
         @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User authentication,
         @Parameter(description = "계좌 정보", required = true) UpdateBankInfoRequest request
+    );
+
+    @Operation(summary = "예약 환불 정보 조회", description = "예약 상세 페이지 환불 정보를 출력합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "조회 실패 (환불 정보 없음)",
+                content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
+    ResponseEntity<RefundResponse> getRefund(
+            @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User authentication,
+            @Parameter(description = "예약 ID", required = true) @PathVariable Long reservationId
     );
 } 

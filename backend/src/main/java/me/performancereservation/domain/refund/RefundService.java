@@ -75,6 +75,19 @@ public class RefundService {
         return refundDetailMapper.toRefundDetailResponsePage(results);
     }
 
+    @Transactional(readOnly = true)
+    public RefundResponse findRefundByUserId(Long userId, Long reservationId) {
+        Refund refund = refundRepository.findByUserIdAndReservationId(userId, reservationId)
+                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId));
+        return RefundResponse.fromEntity(refund);
+    }
+
+    @Transactional(readOnly = true)
+    public Long getRefundIdByUserId(Long userId, Long reservationId) {
+        return refundRepository.findByUserIdAndReservationId(userId, reservationId)
+                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId)).getId();
+    }
+
     /// 입력받은 id의 환불 디테일 페이지 조회
     @Transactional(readOnly = true)
     public Page<RefundDetailResponse> findAllRefundsDetailByUserId(Long userId, Pageable pageable) {

@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getReservationDetail, cancelReservation } from "@/src/api/api";
+import {
+  getReservationDetail,
+  cancelReservation,
+  getRefundByReservationId,
+  updateRefundBankInfo,
+} from "@/src/api/api";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,6 +31,16 @@ import { Separator } from "@/components/ui/separator";
 import { CancelReservationDialog } from "@/components/cancel-reservation-dialog";
 import { getPerformanceImageUrl } from "@/lib/utils";
 import { formatKSTDateTime } from "@/src/api/utils/date";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ReservationDetailPage() {
   const params = useParams();
@@ -34,6 +49,14 @@ export default function ReservationDetailPage() {
   const [reservation, setReservation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refundInfo, setRefundInfo] = useState<any>(null);
+  const [refundLoading, setRefundLoading] = useState(false);
+  const [refundError, setRefundError] = useState<string | null>(null);
+  const [bankName, setBankName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+  const [isEditingRefund, setIsEditingRefund] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!reservationId) return;
@@ -45,9 +68,53 @@ export default function ReservationDetailPage() {
       })
       .catch(() => setError("예매 정보를 불러오지 못했습니다."))
       .finally(() => setLoading(false));
-  }, [reservationId]);
 
-  if (loading) return <div className="p-8 text-center">로딩 중...</div>;
+    // 예약 상태가 취소 관련일 경우 환불 정보 조회
+    if (
+      reservation?.status === "CANCEL_PENDING"
+    ) {
+      setRefundLoading(true);
+      getRefundByReservationId(reservationId)
+        .then((data) => {
+          setRefundInfo(data);
+          if (data) {
+            // 한글 은행명을 약어로 변환하는 매핑
+            const bankNameMap: { [key: string]: string } = {
+              "신한은행": "shinhan",
+              "국민은행": "kb",
+              "우리은행": "woori",
+              "하나은행": "hana",
+              "기업은행": "ibk",
+              "토스뱅크": "toss",
+            };
+            
+            // API에서 받은 한글 은행명을 약어로 변환하여 상태 설정
+            const englishBankName = bankNameMap[data.bank] || "";
+            setBankName(englishBankName);
+            
+            setAccountNumber(data.account || "");
+            setAccountHolder(data.depositorName || "");
+            // 필드가 모두 채워져 있으면 수정 모드 아님 (입력 불가)
+            if (data.bank && data.account && data.depositorName) {
+              setIsEditingRefund(false);
+            } else {
+              setIsEditingRefund(true); // 필드가 비어있으면 등록 모드 (입력 가능)
+            }
+          } else {
+            setIsEditingRefund(true); // 데이터 없으면 등록 모드
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching refund info:", err);
+          setRefundError("환불 정보를 불러오지 못했습니다.");
+          setIsEditingRefund(true); // 오류 발생 시 등록 모드 (입력 가능)
+        })
+        .finally(() => setRefundLoading(false));
+    }
+  }, [reservationId, reservation?.status]); // reservation.status를 의존성 배열에 추가
+
+  if (loading || refundLoading)
+    return <div className="p-8 text-center">로딩 중...</div>;
   if (error || !reservation)
     return (
       <div className="p-8 text-center text-red-500">
@@ -82,6 +149,9 @@ export default function ReservationDetailPage() {
   const isCancelDisabled =
     reservation.status === "CANCEL_PENDING" ||
     reservation.status === "CANCEL_CONFIRMED";
+
+  // 환불 정보 필드 값 모두 채워져 있는지 확인
+  const areRefundFieldsFilled = bankName && accountNumber && accountHolder;
 
   return (
     <div className="container">
@@ -242,13 +312,133 @@ export default function ReservationDetailPage() {
                   <CancelReservationDialog
                     reservationId={reservation.reservationId}
                     disabled={isCancelDisabled}
+                    refundId={refundInfo?.refundId}
                   />
                 )}
               </CardFooter>
             </Card>
           </div>
         </div>
-        {/* 티켓 정보 Card - 파란 테두리, 하단 단독 배치 */}
+        {/* 환불 정보 Card (취소 상태일 때만 표시) */}
+        {(reservation.status === "CANCEL_PENDING") && (
+          <div className="mt-6">
+            {refundError && (
+              <div className="p-4 text-red-500">{refundError}</div>
+            )}
+            {!refundLoading && !refundError && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base">환불 정보</CardTitle>
+                  {/* 수정 버튼 (정보가 있고, 수정 모드가 아닐 때) */}
+                  {areRefundFieldsFilled && !isEditingRefund && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEditingRefund(true)}
+                    >
+                      정보 수정
+                    </Button>
+                  )}
+                  {/* 수정 취소 버튼 (수정 모드일 때) */}
+                  {isEditingRefund && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEditingRefund(false)}
+                    >
+                      수정 취소
+                    </Button>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="refund-bank">은행명</Label>
+                      <Select
+                        value={bankName}
+                        onValueChange={setBankName}
+                        disabled={!isEditingRefund}
+                        required={isEditingRefund}
+                      >
+                        <SelectTrigger id="refund-bank">
+                          <SelectValue placeholder="은행 선택" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="shinhan">신한은행</SelectItem>
+                          <SelectItem value="kb">국민은행</SelectItem>
+                          <SelectItem value="woori">우리은행</SelectItem>
+                          <SelectItem value="hana">하나은행</SelectItem>
+                          <SelectItem value="ibk">기업은행</SelectItem>
+                          <SelectItem value="toss">토스뱅크</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="refund-account">계좌번호</Label>
+                      <Input
+                        id="refund-account"
+                        value={accountNumber}
+                        onChange={(e) => setAccountNumber(e.target.value)}
+                        placeholder="'-' 없이 입력해주세요"
+                        disabled={!isEditingRefund}
+                        required={isEditingRefund}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="refund-holder">예금주</Label>
+                      <Input
+                        id="refund-holder"
+                        value={accountHolder}
+                        onChange={(e) => setAccountHolder(e.target.value)}
+                        disabled={!isEditingRefund}
+                        required={isEditingRefund}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  {/* 등록 또는 수정 완료 버튼 (수정 모드일 때) */}
+                  {isEditingRefund && (
+                    <Button
+                      onClick={async () => {
+                        // 등록 또는 수정 완료 API 호출
+                        if (!bankName || !accountNumber || !accountHolder) {
+                          toast({
+                            title: "입력 오류",
+                            description: "은행명, 계좌번호, 예금주를 모두 입력해주세요.",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        try {
+                          await updateRefundBankInfo({
+                            refundId: refundInfo?.refundId,
+                            bank: bankName,
+                            account: accountNumber,
+                            depositorName: accountHolder,
+                          });
+                          toast({
+                            title: "성공",
+                            description: "환불 정보가 저장되었습니다.",
+                          });
+                          setIsEditingRefund(false); // 수정 완료 후 보기 모드로 전환
+                          window.location.reload(); // 새로고침으로 최신 정보 반영
+                        } catch (e) {
+                          toast({
+                            title: "저장 오류",
+                            description: "환불 정보 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                    >
+                      {areRefundFieldsFilled ? "수정 완료" : "등록하기"}
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            )}
+          </div>
+        )}
+        {/* 티켓 정보 Card */}
         <div className="mt-6">
           <Card>
             <CardHeader>

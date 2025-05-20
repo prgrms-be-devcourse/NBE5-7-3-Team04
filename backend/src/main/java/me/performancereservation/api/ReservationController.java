@@ -21,6 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -47,18 +50,22 @@ public class ReservationController implements ReservationApiDocs {
 
     @Override
     @PostMapping("/{reservationId}/cancel")
-    public ResponseEntity<Void> cancel(
+    public ResponseEntity<Map<String, Long>> cancel(
             @PathVariable Long reservationId,
             @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
         log.info("예약 취소 호출");
-        seatReservationService.cancel(
+        Long refundId = seatReservationService.cancel(
                 reservationId,
                 authentication.getUser().getId()
         );
         log.info("예약 취소 성공");
 
-        return ResponseEntity.noContent().build();
+        Map<String, Long> response = new HashMap<>();
+        response.put("refundId", refundId);
+        log.info("refundId: {}", refundId);
+
+        return ResponseEntity.ok(response);
     }
 
     @Override

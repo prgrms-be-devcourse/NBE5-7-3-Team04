@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import java.util.Map;
+
 @Tag(name = "Reservation API", description = "예매 관련 API")
 public interface ReservationApiDocs {
 
@@ -61,7 +63,7 @@ public interface ReservationApiDocs {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
-    ResponseEntity<Void> cancel(
+    ResponseEntity<Map<String, Long>> cancel(
         @Parameter(description = "예매 ID", required = true) Long reservationId,
         @Parameter(description = "인증된 사용자 정보") @AuthenticationPrincipal CustomOAuth2User authentication
     );
