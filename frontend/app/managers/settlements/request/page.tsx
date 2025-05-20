@@ -46,9 +46,17 @@ export default function SettlementRequestPage() {
         const data = await searchManagerPerformances({ status: "COMPLETED", size: 100 });
         console.log("정산 대상 공연 검색 결과:", data);
         
+        // endDate+7일 <= 오늘인 공연만 필터링
+        const now = new Date();
+        const filteredPerformances = (data.content || []).filter((performance: any) => {
+          const endDate = new Date(performance.endDate);
+          const endDatePlus7 = new Date(endDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+          return endDatePlus7 <= now;
+        });
+
         // 각 공연의 정산 생성 여부 확인
         const settledIds: number[] = [];
-        for (const performance of data.content) {
+        for (const performance of filteredPerformances) {
           try {
             const settlementId = await getSettlementIdByPerformanceId(performance.id);
             console.log(`공연 ${performance.id}의 settlementId 응답값:`, settlementId, typeof settlementId);
@@ -65,7 +73,7 @@ export default function SettlementRequestPage() {
         console.log("이미 정산이 생성된 공연 ID 목록:", settledIds);
         
         setSettledPerformanceIds(settledIds);
-        setPerformances(data.content || []);
+        setPerformances(filteredPerformances);
       } catch (err) {
         console.error("공연 목록 가져오기 오류:", err)
         setError("공연 목록을 불러오는 중 오류가 발생했습니다.")
