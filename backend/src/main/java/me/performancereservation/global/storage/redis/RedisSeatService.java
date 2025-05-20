@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class RedisSeatService {
     private final StringRedisTemplate redisTemplate;
 
+//    @Value("${spring.data.redis.schedule-seats}")
     @Value("${spring.data.redis.schedule-seats}")
     private String stockPrefix;
 
