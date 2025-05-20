@@ -42,9 +42,12 @@ interface Performance {
 }
 
 const categoryMap: Record<string, string> = {
-  OPERA: "오페라",
-  DANCING: "춤",
-  SINGING: "노래"
+  CLASSIC_DANCE: "클래식/무용",
+  EVENT_DISPLAY: "행사/전시",
+  CONCERT: "콘서트",
+  MUSICAL_OPERA: "뮤지컬/오페라",
+  THEATER: "연극",
+  ETC: "기타"
 }
 
 const statusMap: Record<string, string> = {
