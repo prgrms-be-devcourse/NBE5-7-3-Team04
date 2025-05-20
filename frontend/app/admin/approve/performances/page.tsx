@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Image from "next/image"
-import { formatKSTDateTime } from "@/src/api/utils/date"
+import { formatKSTDateTime, formatKSTDate } from "@/src/api/utils/date"
 
 interface PerformanceSchedule {
   id: number
@@ -74,13 +74,6 @@ const getStatusBadgeVariant = (status: string) => {
     default:
       return "outline"
   }
-}
-
-// 공연 기간을 KST로 변환하여 'YYYY. M. D' 형태로 반환하는 함수
-function toKSTDateString(isoString: string) {
-  const date = new Date(isoString)
-  date.setHours(date.getHours() + 9)
-  return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`
 }
 
 export default function PerformanceApprovalPage() {
@@ -267,7 +260,7 @@ export default function PerformanceApprovalPage() {
                         <td className="p-2 align-middle whitespace-nowrap">{performance.price.toLocaleString()}원</td>
                         <td className="p-2 align-middle whitespace-nowrap">{performance.totalSeats}석</td>
                         <td className="p-2 align-middle whitespace-nowrap">
-                          {toKSTDateString(performance.startDate)} ~ {toKSTDateString(performance.endDate)}
+                          {formatKSTDate(performance.startDate)} ~ {formatKSTDate(performance.endDate)}
                         </td>
                         <td className="p-2 align-middle whitespace-nowrap">
                           <Badge variant={getStatusBadgeVariant(performance.status)}>
@@ -349,7 +342,7 @@ export default function PerformanceApprovalPage() {
                     <div>가격: {selectedPerformance.price.toLocaleString()}원</div>
                     <div>좌석 수: {selectedPerformance.totalSeats}석</div>
                     <div>카테고리: {categoryMap[selectedPerformance.category] || selectedPerformance.category}</div>
-                    <div>기간: {toKSTDateString(selectedPerformance.startDate)} ~ {toKSTDateString(selectedPerformance.endDate)}</div>
+                    <div>기간: {formatKSTDate(selectedPerformance.startDate)} ~ {formatKSTDate(selectedPerformance.endDate)}</div>
                   </div>
                 </div>
               </div>
@@ -362,11 +355,14 @@ export default function PerformanceApprovalPage() {
               <div>
                 <h4 className="font-medium mb-2">공연 회차</h4>
                 <div className="space-y-2">
-                  {selectedPerformance.schedules.map((schedule, idx) => (
-                    <div key={schedule.id} className="text-sm">
-                      {idx + 1}회차: {formatKSTDateTime(schedule.startTime)} ~ {formatKSTDateTime(schedule.endTime)}
-                    </div>
-                  ))}
+                  {selectedPerformance.schedules
+                    .slice()
+                    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                    .map((schedule, idx) => (
+                      <div key={schedule.id} className="text-sm">
+                        {idx + 1}회차: {formatKSTDateTime(schedule.startTime)} ~ {formatKSTDateTime(schedule.endTime)}
+                      </div>
+                    ))}
                 </div>
               </div>
 

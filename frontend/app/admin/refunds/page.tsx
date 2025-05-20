@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/components/ui/use-toast"
 import { getCsrfToken } from "@/lib/admin-auth"
 import Image from "next/image"
-import { formatKSTDateTime } from "@/src/api/utils/date"
+import { formatKSTDateTime, formatKSTDate } from "@/src/api/utils/date"
+import { getPerformanceImageUrl } from "@/lib/utils"
 
 interface RefundDetail {
   refundId: number
@@ -29,6 +30,8 @@ interface RefundDetail {
   category: string
   performanceDate: string
   description: string
+  createdDate: string
+  updatedDate: string
 }
 
 const statusMap: Record<string, string> = {
@@ -46,6 +49,28 @@ export default function RefundsPage() {
   const [selectedRefund, setSelectedRefund] = useState<RefundDetail | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { toast } = useToast()
+  const [userNames, setUserNames] = useState<Record<number, string>>({})
+  const loadingUserIds = useRef<Set<number>>(new Set())
+
+  const fetchUserName = async (userId: number) => {
+    if (userNames[userId] || loadingUserIds.current.has(userId)) return
+    loadingUserIds.current.add(userId)
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/user/${userId}`, {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const name = await response.text()
+        setUserNames(prev => ({ ...prev, [userId]: name }))
+      } else {
+        setUserNames(prev => ({ ...prev, [userId]: '이름 조회 실패' }))
+      }
+    } catch {
+      setUserNames(prev => ({ ...prev, [userId]: '이름 조회 실패' }))
+    } finally {
+      loadingUserIds.current.delete(userId)
+    }
+  }
 
   const fetchRefunds = async (page: number) => {
     try {
@@ -57,8 +82,30 @@ export default function RefundsPage() {
       if (!response.ok) throw new Error('환불 데이터를 가져오는데 실패했습니다')
       
       const data = await response.json()
-      setRefunds(data.content)
       setTotalCount(data.totalElements)
+
+      // userId 목록 추출 및 중복 제거
+      const userIds = Array.from(new Set(data.content.map((refund: RefundDetail) => refund.userId))) as number[]
+      // 아직 이름이 없는 userId만 조회
+      const userIdToFetch = userIds.filter(id => !(id in userNames))
+      if (userIdToFetch.length > 0) {
+        const results = await Promise.all(userIdToFetch.map(async (userId) => {
+          try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/user/${userId}`, { credentials: 'include' })
+            if (res.ok) {
+              const name = await res.text()
+              return [userId, name]
+            } else {
+              return [userId, '이름 조회 실패']
+            }
+          } catch {
+            return [userId, '이름 조회 실패']
+          }
+        }))
+        const namesObj = Object.fromEntries(results)
+        setUserNames(prev => ({ ...prev, ...namesObj }))
+      }
+      setRefunds(data.content)
     } catch (error) {
       console.error('Error fetching refunds:', error)
       toast({
@@ -74,7 +121,6 @@ export default function RefundsPage() {
   const handleStatusChange = (value: string) => {
     setSelectedStatus(value)
     setCurrentPage(0)
-    fetchRefunds(0)
   }
 
   const handleConfirmRefund = async (refundId: number) => {
@@ -129,8 +175,9 @@ export default function RefundsPage() {
   }
 
   useEffect(() => {
+    setIsLoading(true)
     fetchRefunds(currentPage)
-  }, [currentPage])
+  }, [currentPage, selectedStatus])
 
   return (
     <div className="flex flex-col gap-6">
@@ -168,6 +215,7 @@ export default function RefundsPage() {
                 <TableHead>상태</TableHead>
                 <TableHead>금액</TableHead>
                 <TableHead>신청일</TableHead>
+                <TableHead>환불일</TableHead>
                 <TableHead className="text-right">상세</TableHead>
               </TableRow>
             </TableHeader>
@@ -184,7 +232,7 @@ export default function RefundsPage() {
                 refunds.map((refund) => (
                   <TableRow key={refund.refundId}>
                     <TableCell className="font-medium">{refund.title}</TableCell>
-                    <TableCell>{refund.depositorName}</TableCell>
+                    <TableCell>{userNames[refund.userId] ?? ''}</TableCell>
                     <TableCell>
                       <Badge variant={
                         refund.refundStatus === 'CONFIRMED' ? 'default' :
@@ -194,7 +242,8 @@ export default function RefundsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>{(refund.price * refund.quantity).toLocaleString()}원</TableCell>
-                    <TableCell>{formatKSTDateTime(refund.startTime)}</TableCell>
+                    <TableCell>{formatKSTDate(refund.createdDate)}</TableCell>
+                    <TableCell>{refund.refundStatus === 'CONFIRMED' ? formatKSTDate(refund.updatedDate) : ''}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="outline"
@@ -248,17 +297,7 @@ export default function RefundsPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-6">
-              <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="relative w-40 h-40 bg-white rounded-md overflow-hidden border">
-                    <Image
-                      src={`/api/files/${selectedRefund.fileId}`}
-                      alt={selectedRefund.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
+              <div className="flex gap-4">
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold">{selectedRefund.title}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{selectedRefund.description}</p>
@@ -267,11 +306,19 @@ export default function RefundsPage() {
                       <p className="text-sm font-medium">공연 장소</p>
                       <p className="text-sm text-muted-foreground">{selectedRefund.venue}</p>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">공연 일시</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatKSTDateTime(selectedRefund.performanceDate)}
-                      </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium">신청일</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatKSTDateTime(selectedRefund.createdDate)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">환불일</p>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedRefund.refundStatus === 'CONFIRMED' ? formatKSTDateTime(selectedRefund.updatedDate) : '-'}
+                        </p>
+                      </div>
                     </div>
                     <div>
                       <p className="text-sm font-medium">예매 수량</p>

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
 import { getCsrfToken } from "@/lib/admin-auth"
-import { formatKSTDateTime } from "@/src/api/utils/date"
+import { formatKSTDateTime, formatKSTDate } from "@/src/api/utils/date"
 
 interface Reservation {
   reservationId: number
@@ -22,6 +22,7 @@ interface Reservation {
   totalPrice: number
   status: 'PAYMENTS_PENDING' | 'PAYMENTS_CONFIRMED' | 'CANCEL_PENDING' | 'CANCEL_CONFIRMED'
   createdAt: string
+  updatedAt: string
 }
 
 const statusMap: Record<string, string> = {
@@ -165,6 +166,7 @@ export default function ReservationsPage() {
                 <TableHead>수량</TableHead>
                 <TableHead>금액</TableHead>
                 <TableHead>예매일</TableHead>
+                <TableHead>취소일</TableHead>
                 <TableHead className="text-right">상세</TableHead>
               </TableRow>
             </TableHeader>
@@ -193,7 +195,10 @@ export default function ReservationsPage() {
                     </TableCell>
                     <TableCell>{reservation.quantity}매</TableCell>
                     <TableCell>{reservation.totalPrice.toLocaleString()}원</TableCell>
-                    <TableCell>{formatKSTDateTime(reservation.createdAt)}</TableCell>
+                    <TableCell>{formatKSTDate(reservation.createdAt)}</TableCell>
+                    <TableCell>
+                      {reservation.status === 'CANCEL_CONFIRMED' ? formatKSTDate(reservation.updatedAt) : ''}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="outline"
@@ -271,11 +276,15 @@ export default function ReservationsPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium">예매일</p>
-                    <p className="text-sm text-muted-foreground">
-                      {formatKSTDateTime(selectedReservation.createdAt)}
-                    </p>
+                    <p className="text-sm font-medium">예매일시</p>
+                    <p className="text-sm text-muted-foreground">{formatKSTDateTime(selectedReservation.createdAt)}</p>
                   </div>
+                  {selectedReservation.status === 'CANCEL_CONFIRMED' && (
+                    <div>
+                      <p className="text-sm font-medium">취소일시</p>
+                      <p className="text-sm text-muted-foreground">{formatKSTDateTime(selectedReservation.updatedAt)}</p>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex justify-end gap-2">

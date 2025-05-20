@@ -31,7 +31,8 @@ public interface AdminReservationRepository extends JpaRepository<Reservation, L
         r.quantity,
         (p.price * r.quantity),
         r.status,
-        r.createdAt
+        r.createdAt,
+        r.updatedAt
     )
     FROM Reservation r
     JOIN User u ON r.userId = u.id
@@ -64,7 +65,8 @@ public interface AdminReservationRepository extends JpaRepository<Reservation, L
         r.quantity,
         (p.price * r.quantity),
         r.status,
-        r.createdAt
+        r.createdAt,
+        r.updatedAt
     )
     FROM Reservation r
     JOIN User u ON r.userId = u.id
