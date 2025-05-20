@@ -39,7 +39,7 @@ public class SettlementService {
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
 
         // 공연 스케줄 조회
-        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
+        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId());
         log.info("불러온 스케줄 리스트: {}개", schedules != null ? schedules.size() : null);
         if (schedules != null) {
             for (PerformanceSchedule schedule : schedules) {

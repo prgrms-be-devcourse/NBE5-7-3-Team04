@@ -104,7 +104,7 @@ public class PerformanceService {
         // 공연 취소
         performance.cancel();
         // 해당 공연 회차 전체 취소
-        performanceScheduleRepository.findByPerformanceId(performance.getId())
+        performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId())
                 .forEach(PerformanceSchedule::cancel);
 
         // 예약 취소 이벤트 호출
@@ -151,7 +151,7 @@ public class PerformanceService {
 
         // 회차 조회
         List<PerformanceSchedule> schedules = performanceScheduleRepository
-                .findByPerformanceId(performance.getId());
+                .findByPerformanceIdOrderByStartTimeAsc(performance.getId());
 
         boolean bookmarked = false;
         if(userId != null) {
@@ -207,7 +207,7 @@ public class PerformanceService {
         }
 
         // 연결된 회차 조회
-        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
+        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId());
 
         // 회차 Response 객체 변환
         List<PerformanceScheduleResponse> scheduleResponses = schedules.stream().map(PerformanceScheduleMapper::toResponse).toList();
@@ -300,7 +300,7 @@ public class PerformanceService {
             tickets.forEach(Ticket::expire);
 
             // 레디스 좌석 정보 제거
-            List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
+            List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId());
 
             schedules.forEach(schedule -> {
                 redisSeatService.deleteSeatStock(schedule.getId());
