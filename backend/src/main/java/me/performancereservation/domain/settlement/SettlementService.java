@@ -9,6 +9,7 @@ import me.performancereservation.domain.performance.service.PerformanceService;
 import me.performancereservation.domain.settlement.dto.SettlementRequest;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
 import me.performancereservation.domain.settlement.enums.SettlementStatus;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SettlementService {
+    private final SMSService smsService;
     private final SettlementRepository settlementRepository;
     private final PerformanceRepository performanceRepository;
     private final PerformanceScheduleRepository performanceScheduleRepository;
@@ -87,6 +89,10 @@ public class SettlementService {
 
         // 정산 상태 변경 및 완료 시간 설정
         settlement.confirm();
+
+        // TODO 시연시 주석 제거
+        // 정산 완료 안내 문자
+//        smsService.settlementsConfirmed(settlement, performance);
 
         // SettlementResponse 생성 및 반환
         return SettlementResponse.fromEntity(settlement, performance.getTitle());

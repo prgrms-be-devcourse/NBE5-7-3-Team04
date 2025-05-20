@@ -16,6 +16,7 @@ import me.performancereservation.domain.file.FileRepository;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.domain.user.entitiy.ManagerRequest;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.ManagerRequestStatus;
@@ -36,12 +37,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminPerformanceService {
 
-    private final AdminPerformanceRepository adminPerformanceRepository;
-    private final AdminPerformanceScheduleRepository adminPerformanceScheduleRepository;
-    private final AdminManagerRequestRepository adminManagerRequestRepository;
-    private final AdminUserRepository adminUserRepository;
+    private final SMSService smsService;
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
+    private final AdminUserRepository adminUserRepository;
+    private final AdminPerformanceRepository adminPerformanceRepository;
+    private final AdminManagerRequestRepository adminManagerRequestRepository;
+    private final AdminPerformanceScheduleRepository adminPerformanceScheduleRepository;
 
     /** 어드민이 PENDING 상태의 공연 목록을 조회
      * PENDING 상태의 공연과 포스터, 스케줄, 공연 관리자 정보를 묶어 반환
@@ -131,8 +133,16 @@ public class AdminPerformanceService {
             throw ErrorCode.PERFORMANCE_STATUS_NOT_PENDING.domainException("PENDING 상태의 공연만 승인 할 수 있습니다.");
         }
 
+        // 요청자의 사용자 정보 조회
+        User user = userRepository.findById(performance.getManagerId())
+                .orElseThrow(() -> ErrorCode.USER_NOT_FOUND.domainException("해당하는 공연자를 찾을 수 없습니다."));
+
         // 공연 승인
         performance.confirm();
+
+        // TODO 시연시 주석 제거
+        // 공연 승인 완료 메시지 전송
+//        smsService.performanceConfirmed(performance, user);
     }
 
     /** 공연을 거부
@@ -148,8 +158,16 @@ public class AdminPerformanceService {
             throw ErrorCode.PERFORMANCE_STATUS_NOT_PENDING.domainException("PENDING 상태의 공연만 승인, 거부 할 수 있습니다.");
         }
 
+        // 요청자의 사용자 정보 조회
+        User user = userRepository.findById(performance.getManagerId())
+                .orElseThrow(() -> ErrorCode.USER_NOT_FOUND.domainException("해당하는 공연자를 찾을 수 없습니다."));
+
         // 공연 거부
         performance.reject();
+
+        // TODO 시연시 주석 제거
+        // 공연 거부 안내 문자
+//        smsService.performanceRejected(performance, user);
     }
 
     /** 어드민이 PENDING 상태의 매니저 요청 목록을 조회
@@ -212,6 +230,10 @@ public class AdminPerformanceService {
 
         // 사용자 ROLE 변경
         user.promoteManager();
+
+        // TODO 시연시 주석 제거
+        // 공연 관리자 승인 안내 문자
+//        smsService.managerRequestApproved(user);
     }
 
     /** 공연 관리자 요청을 거부
@@ -227,7 +249,15 @@ public class AdminPerformanceService {
             throw ErrorCode.MANAGER_REQUEST_STATUS_NOT_PENDING.domainException("PENDING 상태의 공연 관리자 요청만 승인, 거부가 가능합니다.");
         }
 
+        // 요청자의 사용자 정보 조회
+        User user = userRepository.findById(managerRequest.getUserId())
+                .orElseThrow(() -> ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다."));
+
         //공연 관리자 요청 거부
         managerRequest.reject();
+
+        // TODO 시연시 주석 제거
+        // 공연 관리자 거부 안내 문자
+//        smsService.managerRequestRejected(user);
     }
 }
