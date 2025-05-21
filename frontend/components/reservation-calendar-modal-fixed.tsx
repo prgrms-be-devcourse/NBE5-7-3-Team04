@@ -156,13 +156,6 @@ export function ReservationCalendarModalFixed({
         ? sessionsByDate[selectedDateStr] || []
         : [];
 
-    console.log("Selected Date:", initialSelectedDate);
-    console.log(
-        "Formatted Selected Date:",
-        initialSelectedDate ? formatKSTDate(initialSelectedDate.toISOString()) : null
-    );
-    console.log("Sessions By Date:", sessionsByDate);
-    console.log("Sessions For Selected Date:", sessionsForSelectedDate);
 
     // 선택한 세션
     const selectedSchedule = selectedScheduleId

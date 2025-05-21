@@ -58,25 +58,12 @@ api.interceptors.request.use(
 // 응답 인터셉터
 api.interceptors.response.use(
     (response: AxiosResponse) => {
-        console.log("[API Interceptor] 응답 성공:", {
-            url: response.config.url,
-            method: response.config.method,
-            status: response.status
-        });
         return response;
     },
     (error: AxiosError) => {
         if (error.response) {
-            console.error("[API Interceptor] 응답 에러:", {
-                url: error.config?.url,
-                method: error.config?.method,
-                status: error.response.status,
-                data: error.response.data,
-                headers: error.response.headers,
-            });
 
             if (error.response.status === 401) {
-                console.log("[API Interceptor] 401 에러 발생 - 토큰 제거");
                 localStorage.removeItem("token");
             }
         } else if (error.request) {
@@ -426,7 +413,7 @@ export async function deleteReview(reviewId: number) {
 }
 
 export async function getMe() {
-    console.log("[getMe] 함수 호출");
+
     try {
         const response = await api.get("/users/me", {
             headers: {
@@ -434,7 +421,6 @@ export async function getMe() {
                 'Pragma': 'no-cache'
             }
         });
-        console.log("[getMe] 응답 성공:", response.data);
         return response.data;
     } catch (error) {
         console.error("[getMe] 에러 발생:", error);

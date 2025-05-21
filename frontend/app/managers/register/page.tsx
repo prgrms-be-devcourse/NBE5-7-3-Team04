@@ -73,14 +73,10 @@ export default function RegisterPerformancePage() {
       return null
     }
     try {
-      console.log('새 이미지 업로드 시작:', file);
       const response = await uploadFileToS3(file)
-      console.log('S3 업로드 결과:', response);
       
       if (response && response.id) {
         const fileId = String(response.id);
-        console.log('S3에서 받은 파일 ID:', fileId);
-        console.log('파일 ID 타입:', typeof fileId);
         setFileId(Number(fileId));
         return Number(fileId);
       } else {

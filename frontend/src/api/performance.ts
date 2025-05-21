@@ -23,9 +23,9 @@ export interface PerformancePageResponse {
 
 export async function getPerformances(page = 0, size = 10): Promise<PerformancePageResponse> {
   try {
-    console.log('Fetching performances with params:', { page, size })
+
     const response = await api.get(`/users/performances?page=${page}&size=${size}`)
-    console.log('API Response:', response.data)
+
     
     if (!response.data || !Array.isArray(response.data.content)) {
       console.error('Invalid response format:', response.data)
@@ -47,9 +47,9 @@ export async function getPerformances(page = 0, size = 10): Promise<PerformanceP
 
 export async function getPerformanceDetail(id: string | number): Promise<Performance> {
   try {
-    console.log('Fetching performance detail for id:', id)
+
     const response = await api.get(`/users/performances/${id}`)
-    console.log('Performance detail response:', response.data)
+
     return response.data
   } catch (error) {
     console.error('Error in getPerformanceDetail:', error)

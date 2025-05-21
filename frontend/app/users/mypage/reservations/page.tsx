@@ -33,7 +33,6 @@ export default function ReservationsPage() {
     try {
       setLoading(true);
       const data = await getReservations({ page: pageNum, size: 10 });
-      console.log("API Response:", data); // API 응답 확인
       if (data && data.content) {
         setReservations(data.content);
         setTotalPages(
