@@ -505,7 +505,7 @@ export default function PerformanceDetailClient({
                                                         : performance.status ===
                                                           "COMPLETED"
                                                         ? "종료"
-                                                        : "예매예정"}
+                                                        : "예매 불가"}
                                                 </Badge>
                                                 {performance.category && (
                                                     <Badge variant="outline">
