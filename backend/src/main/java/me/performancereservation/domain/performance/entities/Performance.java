@@ -86,7 +86,7 @@ public class Performance extends BaseEntity {
     }
 
     public boolean isRegistrationPeriod(LocalDateTime startDate, LocalDateTime endDate) {
-        return !startDate.isBefore(this.startDate) && !endDate.isAfter(this.endDate);
+        return (!startDate.isBefore(this.startDate) && !endDate.isAfter(this.endDate)) && (startDate.isBefore(endDate));
     }
 
     public boolean hasFile() {
