@@ -138,8 +138,12 @@ public class RefundService {
         Refund refund = refundRepository.findById(id)
                 .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + id));
 
+        Reservation reservation = reservationRepository.findById(refund.getReservationId())
+                .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.domainException("존재하지 않는 예약입니다. reservationId: " + refund.getReservationId()));
+
         // refund domain에서 상태 업데이트
         refund.confirm();
+        reservation.cancelConfirm();
 
         // TODO 시연시 주석 제거
         // 환불 승인 안내 문자

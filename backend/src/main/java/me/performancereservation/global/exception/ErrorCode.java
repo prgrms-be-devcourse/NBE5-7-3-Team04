@@ -44,7 +44,8 @@ public enum ErrorCode {
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
     PERFORMANCE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 공연입니다."),
     SCHEDULE_ALREADY_CANCELED(HttpStatus.CONFLICT, "이미 취소된 회차입니다."),
-    INVALID_SCHEDULE_PERIOD(HttpStatus.BAD_REQUEST, "유효하지 않은 등록 기간입니다."),
+    INVALID_SCHEDULE_PERIOD(HttpStatus.BAD_REQUEST, "유효하지 않은 회차 등록 기간입니다."),
+    INVALID_PERFORMANCE_PERIOD(HttpStatus.BAD_REQUEST, "유효하지 않은 공연 등록 기간입니다."),
 
     // 공연 승인 관련
     PERFORMANCE_STATUS_NOT_PENDING(HttpStatus.BAD_REQUEST, "PENDING 상태의 공연만 승인, 거부 할 수 있습니다."),
