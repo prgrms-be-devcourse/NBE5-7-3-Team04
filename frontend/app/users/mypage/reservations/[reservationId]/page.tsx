@@ -213,8 +213,16 @@ export default function ReservationDetailPage() {
                   </div>
                   {reservation.description && (
                     <div
-                      className="text-gray-700 text-sm truncate"
-                      style={{ maxWidth: "100%" }}
+                      className="text-gray-700 text-sm line-clamp-2 break-all"
+                      style={{
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2, // 2줄만 보이게
+                        WebkitBoxOrient: "vertical",
+                        wordBreak: "break-all", // 긴 단어도 줄바꿈
+                        overflowWrap: "break-word", // 특수문자 등도 줄바꿈
+                        maxWidth: "100%",
+                      }}
                       title={reservation.description}
                     >
                       {reservation.description}
@@ -224,14 +232,18 @@ export default function ReservationDetailPage() {
                     {/* 회차 시작/ 종료 시간 */}
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>
-                        {reservation.startTime
-                          ? `시작: ${formatKSTDateTime(reservation.startTime)}`
-                          : ""}
-                        {reservation.endTime
-                          ? ` ~ 종료: ${formatKSTDateTime(reservation.endTime)}`
-                          : ""}
-                      </span>
+                      <div className="flex flex-col text-sm">
+                        <span>
+                          {reservation.startTime
+                            ? `시작: ${formatKSTDateTime(reservation.startTime)}`
+                            : ""}
+                        </span>
+                        {reservation.endTime && (
+                          <span className="pl-7"> {/* pl-7로 들여쓰기 조정 */}
+                            ~ 종료: {formatKSTDateTime(reservation.endTime)}
+                          </span>
+                        )}
+                    </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
