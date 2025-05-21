@@ -44,17 +44,14 @@ export default function SettlementRequestPage() {
         setError(null)
         // COMPLETED 상태 공연만 검색
         const data = await searchManagerPerformances({ status: "COMPLETED", size: 100 });
-        console.log("정산 대상 공연 검색 결과:", data);
         
         // 각 공연의 정산 생성 여부 확인
         const settledIds: number[] = [];
         for (const performance of data.content) {
           try {
             const settlementId = await getSettlementIdByPerformanceId(performance.id);
-            console.log(`공연 ${performance.id}의 settlementId 응답값:`, settlementId, typeof settlementId);
             if (typeof settlementId === 'number' && settlementId > 0) {
               settledIds.push(performance.id);
-              console.log(`공연 ${performance.id}는 이미 정산이 생성되어 있습니다.`);
             }
             // settlementId가 없거나 0, 빈 문자열, null, undefined면 선택 가능
           } catch (err) {
@@ -62,7 +59,6 @@ export default function SettlementRequestPage() {
             console.warn(`공연 ${performance.id}의 정산 정보 조회 중 오류 발생:`, err);
           }
         }
-        console.log("이미 정산이 생성된 공연 ID 목록:", settledIds);
         
         setSettledPerformanceIds(settledIds);
         setPerformances(data.content || []);
@@ -92,7 +88,6 @@ export default function SettlementRequestPage() {
       // 공연 디테일 정보 조회 및 로그 출력
       try {
         const detail = await getManagerPerformanceDetailV1(Number(selectedPerformanceId));
-        console.log('선택한 공연 디테일:', detail);
       } catch (detailErr) {
         console.error('공연 디테일 조회 오류:', detailErr);
       }
@@ -104,9 +99,7 @@ export default function SettlementRequestPage() {
         bank,
       }
 
-      console.log('정산 신청 데이터:', data);
       const settlementId = await createSettlement(data);
-      console.log('정산 신청 성공 - ID:', settlementId);
       
       setSuccess(true)
 

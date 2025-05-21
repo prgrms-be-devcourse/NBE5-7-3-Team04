@@ -34,7 +34,6 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
     setError(null)
     getManagerPerformanceDetailV1(performanceId)
       .then((data) => {
-        console.log('상세정보 응답:', data);
         setPerformance(data);
       })
       .catch(() => setError("공연 정보를 불러오지 못했습니다."))
@@ -87,7 +86,6 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
     setEditLoading(true);
     try {
       let fileId = editFileId;
-      console.log('handleEditSubmit - editFileId:', editFileId, typeof editFileId);
       if (editImage) {
         const uploadRes = await uploadFileToS3(editImage);
         if (uploadRes && uploadRes.id) {
@@ -96,18 +94,13 @@ export function PerformanceDetailModal({ open, onOpenChange, performanceId }: { 
           throw new Error('S3 업로드 응답에서 파일 ID를 찾을 수 없습니다.');
         }
       }
-      console.log('performance.fileId:', performance?.fileId, typeof performance?.fileId);
-      console.log('editFileId:', editFileId, typeof editFileId);
-      console.log('최종 fileId:', fileId, typeof fileId);
       const updateData = {
         description: editDescription,
         fileId: fileId !== null && fileId !== undefined ? String(fileId) : undefined,
       };
-      console.log('공연 수정 API 요청 데이터:', updateData);
       
       // 공연 정보 수정 API 호출
       const response = await updateManagerPerformance(performanceId!, updateData);
-      console.log('공연 수정 API 응답:', response);
       
       if (response.success) {
         alert("공연 정보가 성공적으로 수정되었습니다.");

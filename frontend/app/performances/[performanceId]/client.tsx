@@ -267,10 +267,8 @@ export default function PerformanceDetailClient({
     };
 
     const handleBookmark = async () => {
-        console.log("Bookmark clicked, isAuthenticated:", isAuthenticated);
 
         if (!isAuthenticated) {
-            console.log("User is not authenticated, showing login toast");
             toast({
                 title: "로그인이 필요합니다",
                 description: "찜 기능을 사용하려면 로그인해주세요.",
@@ -281,12 +279,6 @@ export default function PerformanceDetailClient({
         }
 
         try {
-            console.log(
-                "Toggling bookmark state from:",
-                isBookmarked,
-                "to:",
-                !isBookmarked
-            );
             if (isBookmarked) {
                 await removeBookmark(performanceId);
                 toast({

@@ -105,48 +105,30 @@ export default function Home() {
     let isMounted = true;
 
     const checkUserStatus = async () => {
-      console.log("[Home Page] checkUserStatus 시작");
       const token = localStorage.getItem("token");
-      console.log("[Home Page] Current token:", token);
 
       if (!token) {
-        console.log("[Home Page] 토큰이 없음 - 함수 종료");
         return;
       }
 
       try {
-        console.log("[Home Page] getMe() 호출 시작");
         const userData = await getMe();
-        console.log("[Home Page] getMe() 응답:", userData);
 
         if (isMounted && userData && (!userData.phoneNumber || !userData.email)) {
-          console.log("[Home Page] 온보딩 필요 - phoneNumber 또는 email 없음");
-          console.log("[Home Page] /oauth2/sign-up로 리다이렉션 시작");
           router.push("/oauth2/sign-up");
         } else {
-          console.log("[Home Page] 온보딩 불필요 - 정상 상태");
         }
       } catch (error: any) {
-        console.error("[Home Page] 에러 발생:", {
-          status: error?.response?.status,
-          message: error?.message,
-          data: error?.response?.data
-        });
-        
         if (isMounted && error?.response?.status !== 401) {
-          console.log("[Home Page] 401이 아닌 에러로 인한 토큰 제거");
           localStorage.removeItem("token");
         } else {
-          console.log("[Home Page] 401 에러 발생 - 토큰 유지");
         }
       }
     };
 
-    console.log("[Home Page] useEffect 실행");
     checkUserStatus();
 
     return () => {
-      console.log("[Home Page] useEffect cleanup");
       isMounted = false;
     };
   }, [router]);

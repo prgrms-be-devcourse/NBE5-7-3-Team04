@@ -22,11 +22,9 @@ export default function OAuthCallback() {
 
         // 사용자 정보 확인
         const userData = await getMe();
-        console.log("User data:", userData); // 디버깅용 로그
         
         // 온보딩 상태 확인
         if (!userData.phoneNumber || !userData.email) {
-          console.log("Redirecting to onboarding..."); // 디버깅용 로그
           window.location.href = "/oauth2/sign-up";
           return;
         }

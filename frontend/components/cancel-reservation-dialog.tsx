@@ -63,16 +63,9 @@ export function CancelReservationDialog({
       // 응답에서 refundId 추출 (응답 데이터 구조에 따라 수정 필요)
       // 예를 들어 응답 데이터가 바로 { refundId: ..., ... } 형태라면:
       const obtainedRefundId = cancelResponse?.refundId; // <-- refundId 추출
-      console.log("obtainedRefundId", obtainedRefundId);
 
       // 환불 정보 업데이트 API 호출 (refundId가 있고, 입력 필드가 비어있지 않을 때만)
       if (obtainedRefundId && (bankName || accountNumber || accountHolder)) {
-        console.log("Calling updateRefundBankInfo with:", {
-          refundId: obtainedRefundId,
-          bank: bankName,
-          account: accountNumber,
-          depositorName: accountHolder,
-        }); // <-- 이 로그 추가
 
         await updateRefundBankInfo({
           refundId: obtainedRefundId, // <-- 여기서 사용
@@ -81,12 +74,6 @@ export function CancelReservationDialog({
           depositorName: accountHolder,
         });
       } else {
-        console.log("Skipping updateRefundBankInfo: refundId not obtained or no bank info entered", {
-          obtainedRefundId: obtainedRefundId,
-          bankName,
-          accountNumber,
-          accountHolder
-        });
       }
 
       toast({

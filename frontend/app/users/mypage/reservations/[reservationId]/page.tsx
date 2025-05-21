@@ -64,7 +64,6 @@ export default function ReservationDetailPage() {
     setLoading(true);
     getReservationDetail(reservationId)
       .then((data) => {
-        console.log("reservation detail:", JSON.stringify(data, null, 2));
         setReservation(data);
       })
       .catch(() => setError("예매 정보를 불러오지 못했습니다."))
@@ -110,7 +109,6 @@ export default function ReservationDetailPage() {
           }
         })
         .catch((err) => {
-          console.error("Error fetching refund info:", err);
           setRefundError("환불 정보를 불러오지 못했습니다.");
           setIsEditingRefund(true); // 오류 발생 시 등록 모드 (입력 가능)
         })
