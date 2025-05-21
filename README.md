@@ -1,10 +1,10 @@
 # 4조 공연 예매 서비스
 
-팀원: [김광현](https://), [탁서윤](https://), [이상진](https://), [황치연](https://), [김수혁](https://)
+팀원: [김광현](https://github.com/kwang2134), [탁서윤](https://github.com/peng255), [이상진](https://github.com/silkair), [황치연](https://github.com/inswal843), [김수혁](https://github.com/Soohyeok447)
 
 ## 프로젝트 소개
-
-(이미지)
+![logo-text](https://github.com/user-attachments/assets/ab6fbaf6-9c84-4ed2-8cd3-650705d23e42)
+![logo-icon](https://github.com/user-attachments/assets/2befc3d6-65b6-4179-b8ec-9341d53e8b04)
 
 관람객과 공연 기획자 사이에서 공연 예매를 중개해주는 사이트.
 
@@ -54,16 +54,14 @@
 ADMIN : /admin/login으로 접속 후 폼 로그인
 
 ## ERD
-
-![공연예약 (1).png](<attachment:f38dd448-5e9c-4c6b-a860-1f8afa0d030e:공연예약_(1).png>)
+![티켓포유](https://github.com/user-attachments/assets/0281a112-c655-4df7-aa3a-8a0c1252f50d)
 
 ## 시스템 아키텍쳐
-
-![티켓포유 (1).png](<attachment:84429935-fdee-4883-a5d3-1fc79553d123:티켓포유_(1).png>)
+![티켓포유](https://github.com/user-attachments/assets/c01639b4-e0b7-4289-b384-f11cb8878438)
 
 ## 플로우 차트
+![티켓포유 플로우](https://github.com/user-attachments/assets/6048b061-0b8c-4d68-9646-1ab5c2b7c4bd)
 
-![티켓포유 플로우.png](attachment:7f8a2644-3227-4db5-88d7-4270c044cc05:티켓포유_플로우.png)
 
 ## 고려한 점
 
