@@ -179,9 +179,9 @@ export default function ReservationDetailPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 items-stretch">
           {/* 공연 정보(설명) Card - 빨간 테두리 */}
-          <Card>
+          <Card className="h-full">
             <CardHeader>
               {/* 이미지와 정보 컨테이너 */}
               <div className="flex flex-col md:flex-row gap-4 h-full">
@@ -250,7 +250,7 @@ export default function ReservationDetailPage() {
             </CardContent>
           </Card>
 
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 h-full">
             <Card>
               <CardHeader>
                 <CardTitle>결제 정보</CardTitle>
@@ -273,7 +273,7 @@ export default function ReservationDetailPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="h-full">
               <CardHeader>
                 <CardTitle>환불 정책</CardTitle>
               </CardHeader>
