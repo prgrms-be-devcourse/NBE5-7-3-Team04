@@ -12,6 +12,16 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "TICKET4U",
   description: "공연 예매 플랫폼",
+  icons: {
+    icon: [
+      {
+        url: '/logo-icon.png',
+        type: 'image/png',
+      }
+    ],
+    shortcut: '/logo-icon.png',
+    apple: '/logo-icon.png',
+  },
 }
 
 export default function RootLayout({
