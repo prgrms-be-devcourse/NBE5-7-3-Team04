@@ -1,5 +1,6 @@
 package me.performancereservation.domain.performance.service;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.bookmark.BookmarkRepository;
@@ -60,8 +61,15 @@ public class PerformanceService {
      */
     @Transactional
     public Long createPerformance(PerformanceCreateRequest request, Long managerId) {
+        if (!isRegistrationPeriod(request.startDate(), request.endDate())) {
+            throw ErrorCode.INVALID_PERFORMANCE_PERIOD.domainException("시작 시간 : " + request.startDate() + ", 종료 시간 : " + request.endDate());
+        }
 
         return performanceRepository.save(PerformanceMapper.toEntity(request, managerId)).getId();
+    }
+
+    private boolean isRegistrationPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+        return startDate.isBefore(endDate);
     }
 
 
