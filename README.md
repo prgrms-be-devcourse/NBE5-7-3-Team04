@@ -60,7 +60,7 @@ ADMIN : /admin/login으로 접속 후 폼 로그인
 ![티켓포유](https://github.com/user-attachments/assets/0281a112-c655-4df7-aa3a-8a0c1252f50d)
 
 ## 시스템 아키텍쳐
-![티켓포유](https://github.com/user-attachments/assets/c01639b4-e0b7-4289-b384-f11cb8878438)
+![티켓포유](https://github.com/user-attachments/assets/7c0f7b6f-2b87-4fe4-b522-79fdec96ab22)
 
 ## 플로우 차트
 ![티켓포유 플로우](https://github.com/user-attachments/assets/6048b061-0b8c-4d68-9646-1ab5c2b7c4bd)
