@@ -24,4 +24,8 @@ public class Admin {
         this.password = password;
         this.role = Role.ADMIN;
     }
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }

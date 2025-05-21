@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -32,15 +34,22 @@ public class AdminInitializer {
     @Bean
     public CommandLineRunner createAdmin() {
         return args -> {
-            //같은 이름의 어드민이 없는 경우에만 생성
-            if (adminRepository.findById(adminId).isEmpty()) {
-                Admin admin = Admin.builder()
+            Optional<Admin> admin = adminRepository.findById(adminId);
+
+            // 어드민이 없는 경우는 생성
+            if (admin.isEmpty()) {
+                adminRepository.save(Admin.builder()
                         .id(adminId)
                         .password(passwordEncoder.encode(adminPassword))
-                        .build();
+                        .build()
+                );
 
-                adminRepository.save(admin);
                 log.info("Admin 생성 완료");
+            }else{
+                // 있으면 비밀번호 생성
+                admin.get().changePassword(passwordEncoder.encode(adminPassword));
+
+                log.info("Admin 비밀번호 수정 완료");
             }
         };
     }
