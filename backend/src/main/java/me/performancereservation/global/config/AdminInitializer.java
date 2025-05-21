@@ -47,7 +47,9 @@ public class AdminInitializer {
                 log.info("Admin 생성 완료");
             }else{
                 // 있으면 비밀번호 생성
-                admin.get().changePassword(passwordEncoder.encode(adminPassword));
+                Admin savedAdmin = admin.get();
+                savedAdmin.changePassword(passwordEncoder.encode(adminPassword));
+                adminRepository.save(savedAdmin);
 
                 log.info("Admin 비밀번호 수정 완료");
             }
