@@ -85,7 +85,7 @@ public class SMSService {
         sendSMS(parsePhoneNumber(user.getPhoneNumber()),
                 "간편한 티켓 예매는 TICKET 4 U\n" +
                         "공연 " + performance.getTitle() + "에 대한 예매가 승인 되었습니다.\n" +
-                        "티켓 번호:" + reservation.getId() + "\n" +
+                        "예매 번호: " + reservation.getId() + "\n" +
                         "티켓 수량: "+ reservation.getQuantity());
     }
 
