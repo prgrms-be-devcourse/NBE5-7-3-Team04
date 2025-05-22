@@ -142,7 +142,7 @@ public class AdminPerformanceService {
 
         // TODO 시연시 주석 제거
         // 공연 승인 완료 메시지 전송
-//        smsService.performanceConfirmed(performance, user);
+        smsService.performanceConfirmed(performance, user);
     }
 
     /** 공연을 거부
@@ -233,7 +233,7 @@ public class AdminPerformanceService {
 
         // TODO 시연시 주석 제거
         // 공연 관리자 승인 안내 문자
-//        smsService.managerRequestApproved(user);
+        smsService.managerRequestApproved(user);
     }
 
     /** 공연 관리자 요청을 거부
