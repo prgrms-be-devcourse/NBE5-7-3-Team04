@@ -1,6 +1,5 @@
 package me.performancereservation.domain.performance.service;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.bookmark.BookmarkRepository;

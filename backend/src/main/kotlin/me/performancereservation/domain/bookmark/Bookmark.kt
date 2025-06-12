@@ -1,7 +1,6 @@
 package me.performancereservation.domain.bookmark
 
 import jakarta.persistence.*
-import lombok.Builder
 import me.performancereservation.domain.common.BaseEntity
 
 @Entity
