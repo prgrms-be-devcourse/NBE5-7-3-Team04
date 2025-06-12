@@ -16,27 +16,27 @@ class Performance (
     // (FK) 파일 ID - 공연 썸네일 용도
     var fileId: Long? = null,
     // (FK) 공연관리자 ID
-    var managerId: Long? = null,
+    var managerId: Long,
     // 제목
-    var title: String = "",
+    var title: String,
     // 공연 장소
-    var venue: String = "",
+    var venue: String,
     // 가격
-    var price: Int = 0,
+    var price: Int,
     // 총 좌석수
-    var totalSeats: Int = 0,
+    var totalSeats: Int,
     // 공연 분류
     @field:Enumerated(EnumType.STRING)
-    var category: PerformanceCategory = PerformanceCategory.ETC,
+    var category: PerformanceCategory,
     // 공연 시작 일시
-    var startDate: LocalDateTime = LocalDateTime.now(),
+    var startDate: LocalDateTime,
     // 공연 종료 일시
-    var endDate: LocalDateTime = LocalDateTime.now(),
+    var endDate: LocalDateTime,
     // 설명
-    var description: String = "",
+    var description: String,
     // 공연 상태
     @field:Enumerated(EnumType.STRING)
-    var status: PerformanceStatus = PerformanceStatus.PENDING,
+    var status: PerformanceStatus,
 ) : BaseEntity() {
 
     val isPending: Boolean get() = this.status == PerformanceStatus.PENDING

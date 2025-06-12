@@ -12,16 +12,16 @@ class PerformanceSchedule (
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     // (FK) 공연 ID
-    var performanceId: Long = 0,
+    var performanceId: Long,
     // 공연 시작 시간
-    var startTime: LocalDateTime = LocalDateTime.now(),
+    var startTime: LocalDateTime,
     // 공연 종료 시간
-    var endTime: LocalDateTime = LocalDateTime.now(),
+    var endTime: LocalDateTime,
     // 남은 좌석
-    var remainingSeats: Int = 0,
+    var remainingSeats: Int,
     // 회차 취소 여부
     @field:Column(name = "is_canceled")
-    var canceled: Boolean = false
+    var canceled: Boolean
 ) : BaseEntity() {
 
     fun cancel() {
