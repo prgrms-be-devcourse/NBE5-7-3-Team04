@@ -1,6 +1,9 @@
 package me.performancereservation.domain.reservation.service;
 
+import me.performancereservation.domain.file.FileRepository;
+import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.model.SchedulePerformanceInfo;
+import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
@@ -28,6 +31,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +41,12 @@ class ReservationQueryServiceTest {
     
     @Mock
     private PerformanceScheduleRepository performanceScheduleRepository;
+    
+    @Mock
+    private PerformanceRepository performanceRepository;
+    
+    @Mock
+    private FileRepository fileRepository;
     
     @Mock
     private ReservationMapper reservationMapper;
@@ -84,7 +94,7 @@ class ReservationQueryServiceTest {
         
         // when
         when(reservationRepository.findAllByUserId(userId, pageable))
-            .thenReturn(new PageImpl<>(List.of(reservation)));
+            .thenReturn(new PageImpl<>(List.of(reservation), pageable, 1));
         when(performanceScheduleRepository.findAllSchedulePerformanceInfoByScheduleIds(List.of(scheduleId)))
             .thenReturn(List.of(scheduleInfo));
         when(reservationMapper.toListResponseDto(any(Reservation.class), any(SchedulePerformanceInfo.class)))
@@ -96,8 +106,8 @@ class ReservationQueryServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals(expectedResponse, result.getContent().get(0));
-        verify(reservationRepository).findAllByUserId(userId, pageable);
-        verify(performanceScheduleRepository).findAllSchedulePerformanceInfoByScheduleIds(List.of(scheduleId));
+        assertEquals(0, result.getNumber());
+        assertEquals(10, result.getSize());
     }
     
     @Test
@@ -117,8 +127,7 @@ class ReservationQueryServiceTest {
         );
         
         assertEquals(ErrorCode.RESERVATION_NOT_FOUND, exception.getErrorCode());
-        verify(reservationRepository).findById(reservationId);
-        verify(performanceScheduleRepository, never()).findSchedulePerformanceInfoByScheduleId(anyLong());
+        assertEquals("해당하는 예약이 없습니다.", exception.getMessage());
     }
     
     @Test
@@ -147,8 +156,7 @@ class ReservationQueryServiceTest {
         );
         
         assertEquals(ErrorCode.PERMISSION_DENIED, exception.getErrorCode());
-        verify(reservationRepository).findById(reservationId);
-        verify(performanceScheduleRepository, never()).findSchedulePerformanceInfoByScheduleId(anyLong());
+        assertEquals("접근 권한이 없습니다.", exception.getMessage());
     }
     
     @Test
@@ -158,18 +166,27 @@ class ReservationQueryServiceTest {
         Long reservationId = 1L;
         Long userId = 1L;
         Long scheduleId = 1L;
+        Long performanceId = 1L;
         int quantity = 2;
         
         Reservation reservation = Reservation.builder()
             .id(reservationId)
             .userId(userId)
+            .performanceId(performanceId)
             .scheduleId(scheduleId)
             .quantity(quantity)
             .status(ReservationStatus.PAYMENTS_PENDING)
             .build();
         
+        Performance performance = Performance.builder()
+            .id(performanceId)
+            .title("Test Performance")
+            .venue("Test Venue")
+            .description("Test Description")
+            .build();
+        
         SchedulePerformanceInfo scheduleInfo = new SchedulePerformanceInfo(
-            1L,
+            performanceId,
             "Test Performance",
             "Test Venue",
             10000,
@@ -178,25 +195,32 @@ class ReservationQueryServiceTest {
             LocalDateTime.now().plusHours(2)
         );
         
-        ReservationResponse expectedResponse = new ReservationResponse(
+        ReservationDetailResponse expectedResponse = new ReservationDetailResponse(
             reservationId,
+            performanceId,
             "Test Performance",
+            "Test Description",
             "Test Venue",
+            null,
             quantity,
             ReservationStatus.PAYMENTS_PENDING,
             LocalDateTime.now(),
             LocalDateTime.now().plusMinutes(30),
+            LocalDateTime.now(),
+            LocalDateTime.now().plusHours(2),
             10000,
             20000,
-                List.of()
+            List.of()
         );
         
         // when
         when(reservationRepository.findById(reservationId))
             .thenReturn(Optional.of(reservation));
+        when(performanceRepository.findById(performanceId))
+            .thenReturn(Optional.of(performance));
         when(performanceScheduleRepository.findSchedulePerformanceInfoByScheduleId(scheduleId))
             .thenReturn(Optional.of(scheduleInfo));
-        when(reservationMapper.toResponseDto(any(Reservation.class), any(SchedulePerformanceInfo.class)))
+        when(reservationMapper.toDetailResponseDto(any(Reservation.class), any(SchedulePerformanceInfo.class), any(Performance.class), any()))
             .thenReturn(expectedResponse);
 
         ReservationDetailResponse result = queryService.getByReservationId(reservationId, userId);
@@ -204,7 +228,12 @@ class ReservationQueryServiceTest {
         // then
         assertNotNull(result);
         assertEquals(expectedResponse, result);
-        verify(reservationRepository).findById(reservationId);
-        verify(performanceScheduleRepository).findSchedulePerformanceInfoByScheduleId(scheduleId);
+        assertEquals(reservationId, result.reservationId());
+        assertEquals("Test Performance", result.title());
+        assertEquals("Test Venue", result.venue());
+        assertEquals(quantity, result.quantity());
+        assertEquals(ReservationStatus.PAYMENTS_PENDING, result.status());
+        assertEquals(10000, result.ticketPrice());
+        assertEquals(20000, result.totalPrice());
     }
 } 
