@@ -1,7 +1,7 @@
 package me.performancereservation.domain.admin.mapper;
 
 import me.performancereservation.domain.admin.dto.response.PendingManagerRequestPageResponse;
-import me.performancereservation.domain.user.entitiy.ManagerRequest;
+import me.performancereservation.domain.user.entity.ManagerRequest;
 import me.performancereservation.domain.user.entitiy.User;
 
 public class AdminManagerRequestMapper {

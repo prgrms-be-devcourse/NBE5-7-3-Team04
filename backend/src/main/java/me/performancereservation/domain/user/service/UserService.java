@@ -3,7 +3,7 @@ package me.performancereservation.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.user.dto.request.UserManagerRequestRequest;
-import me.performancereservation.domain.user.entitiy.ManagerRequest;
+import me.performancereservation.domain.user.entity.ManagerRequest;
 import me.performancereservation.domain.user.dto.request.UserOnboardingRequest;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.ManagerRequestStatus;
@@ -79,14 +79,7 @@ public class UserService {
             throw ErrorCode.MANAGER_REQUEST_ALREADY_EXISTS.domainException("이미 공연자 권한 요청 중이거나 공연 관리자 입니다");
         }
 
-        ManagerRequest managerRequest = ManagerRequest.builder()
-                .userId(userId)
-                .reason(request.reason())
-                .experience(request.experience())
-                .organizationName(request.organizationName())
-                .organizationContact(request.organizationContact())
-                .status(ManagerRequestStatus.PENDING)
-                .build();
+        ManagerRequest managerRequest = new ManagerRequest(null, userId, request.getOrganizationName(), request.getOrganizationContact(), request.getExperience(), request.getReason(), ManagerRequestStatus.PENDING, null);
 
         managerRequestRepository.save(managerRequest);
     }

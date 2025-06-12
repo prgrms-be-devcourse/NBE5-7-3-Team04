@@ -15,7 +15,7 @@ import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
-import me.performancereservation.domain.user.entitiy.ManagerRequest;
+import me.performancereservation.domain.user.entity.ManagerRequest;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.ManagerRequestStatus;
 import me.performancereservation.domain.user.enums.Role;

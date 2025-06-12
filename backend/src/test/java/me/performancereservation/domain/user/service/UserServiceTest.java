@@ -6,7 +6,7 @@ import me.performancereservation.domain.user.repository.UserRepository;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.domain.user.dto.request.UserOnboardingRequest;
 import me.performancereservation.domain.user.dto.request.UserManagerRequestRequest;
-import me.performancereservation.domain.user.entitiy.ManagerRequest;
+import me.performancereservation.domain.user.entity.ManagerRequest;
 import me.performancereservation.domain.user.enums.ManagerRequestStatus;
 import me.performancereservation.domain.user.repository.ManagerRequestRepository;
 import org.junit.jupiter.api.BeforeEach;

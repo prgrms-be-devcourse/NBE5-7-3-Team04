@@ -24,7 +24,7 @@
 // import me.performancereservation.domain.ticket.Ticket;
 // import me.performancereservation.domain.ticket.TicketRepository;
 // import me.performancereservation.domain.ticket.enums.TicketStatus;
-// import me.performancereservation.domain.user.entitiy.ManagerRequest;
+// import me.performancereservation.domain.user.entity.ManagerRequest;
 // import me.performancereservation.domain.user.entitiy.User;
 // import me.performancereservation.domain.user.enums.ManagerRequestStatus;
 // import me.performancereservation.domain.user.enums.Role;
