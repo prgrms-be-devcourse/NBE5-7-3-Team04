@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import me.performancereservation.api.docs.BookmarkApiDocs;
 import me.performancereservation.domain.bookmark.BookmarkService;
 import me.performancereservation.domain.bookmark.dto.BookmarkedPerformancePageResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

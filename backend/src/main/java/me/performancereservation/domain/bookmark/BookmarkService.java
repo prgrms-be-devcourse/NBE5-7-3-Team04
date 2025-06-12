@@ -42,10 +42,7 @@ public class BookmarkService {
         }
 
         // 찜 생성
-        Bookmark bookmark = Bookmark.builder()
-                .userId(userId)
-                .performanceId(performanceId)
-                .build();
+        Bookmark bookmark = new Bookmark(null, userId, performanceId);
 
         // 찜 저장
         bookmarkRepository.save(bookmark);
