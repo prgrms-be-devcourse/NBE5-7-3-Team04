@@ -12,14 +12,13 @@ object AdminManagerRequestMapper {
      * @param user 사용자 엔티티
      * @return PendingManagerRequestPageResponse
      */
-    @JvmStatic  //TODO: 서비스 코틀린으로 변환시 @JvmStatic 제거 필요
     fun toPendingResponse(
         managerRequest: ManagerRequest,
         user: User
     ): PendingManagerRequestPageResponse {
         return PendingManagerRequestPageResponse(
-            id = managerRequest.id,
-            userId = user.id,
+            id = managerRequest.id!!,
+            userId = user.id!!,
             userName = user.name,
             phoneNumber = user.phoneNumber,
             organizationName = managerRequest.organizationName,

@@ -52,7 +52,7 @@ data class RefundDetailResponse( // Refund에서 데이터 전달
                 reservationQuantity,
                 startTime,
 
-                performance.fileId,
+                performance.fileId!!,
                 performance.title,
                 performance.venue,
                 performance.price,
