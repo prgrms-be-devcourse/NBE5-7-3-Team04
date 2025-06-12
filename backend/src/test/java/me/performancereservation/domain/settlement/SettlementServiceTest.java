@@ -5,11 +5,13 @@ import me.performancereservation.domain.performance.entities.PerformanceSchedule
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
+import me.performancereservation.domain.performance.service.PerformanceService;
 import me.performancereservation.domain.settlement.dto.SettlementRequest;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
 import me.performancereservation.domain.settlement.dto.SettlementUpdateRequest;
 import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse;
 import me.performancereservation.domain.settlement.enums.SettlementStatus;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.global.exception.AppException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,9 @@ import static org.mockito.Mockito.*;
 class SettlementServiceTest {
 
     @Mock
+    private SMSService smsService;
+
+    @Mock
     private SettlementRepository settlementRepository;
 
     @Mock
@@ -42,6 +47,9 @@ class SettlementServiceTest {
 
     @Mock
     private PerformanceScheduleRepository performanceScheduleRepository;
+
+    @Mock
+    private PerformanceService performanceService;
 
     @InjectMocks
     private SettlementService settlementService;
