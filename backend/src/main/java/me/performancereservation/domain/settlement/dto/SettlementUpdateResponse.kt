@@ -1,20 +1,22 @@
-package me.performancereservation.domain.settlement.dto;
+package me.performancereservation.domain.settlement.dto
 
-import jakarta.validation.constraints.NotNull;
-import me.performancereservation.domain.settlement.Settlement;
+import me.performancereservation.domain.settlement.Settlement
 
-public record SettlementUpdateResponse (
-        Long settlementId,
-        Long performanceId,
-        String bank,
-        String account
+data class SettlementUpdateResponse(
+    val settlementId: Long,
+    val performanceId: Long,
+    val bank: String,
+    val account: String
 ) {
-    public static SettlementUpdateResponse fromSettlement(Settlement settlement) {
-        return new SettlementUpdateResponse(
-                settlement.getId(),
-                settlement.getPerformanceId(),
-                settlement.getBank(),
-                settlement.getAccount()
-        );
+    companion object {
+        @JvmStatic
+        fun fromSettlement(settlement: Settlement): SettlementUpdateResponse {
+            return SettlementUpdateResponse(
+                settlement.id!!,
+                settlement.performanceId,
+                settlement.bank,
+                settlement.account
+            )
+        }
     }
 }

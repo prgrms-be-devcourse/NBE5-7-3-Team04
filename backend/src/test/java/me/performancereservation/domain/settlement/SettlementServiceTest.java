@@ -174,9 +174,9 @@ class SettlementServiceTest {
         SettlementUpdateResponse response = settlementService.updateSettlement(request);
 
         // then
-        assertThat(response.settlementId()).isEqualTo(SETTLEMENT_ID);
-        assertThat(response.bank()).isEqualTo("국민은행");
-        assertThat(response.account()).isEqualTo("987-654-321");
+        assertThat(response.getSettlementId()).isEqualTo(SETTLEMENT_ID);
+        assertThat(response.getBank()).isEqualTo("국민은행");
+        assertThat(response.getAccount()).isEqualTo("987-654-321");
         verify(settlementRepository).findById(SETTLEMENT_ID);
     }
 
@@ -208,9 +208,9 @@ class SettlementServiceTest {
         SettlementResponse response = settlementService.confirmSettlement(SETTLEMENT_ID);
 
         // then
-        assertThat(response.settlementId()).isEqualTo(SETTLEMENT_ID);
-        assertThat(response.status()).isEqualTo(SettlementStatus.CONFIRMED);
-        assertThat(response.settledAt()).isNotNull();
+        assertThat(response.getSettlementId()).isEqualTo(SETTLEMENT_ID);
+        assertThat(response.getStatus()).isEqualTo(SettlementStatus.CONFIRMED);
+        assertThat(response.getSettledAt()).isNotNull();
         verify(settlementRepository).findById(SETTLEMENT_ID);
         verify(performanceRepository).findById(PERFORMANCE_ID);
     }
@@ -249,7 +249,7 @@ class SettlementServiceTest {
 
         // then
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).settlementId()).isEqualTo(SETTLEMENT_ID);
+        assertThat(result.getContent().get(0).getSettlementId()).isEqualTo(SETTLEMENT_ID);
         verify(settlementRepository).findAllSettlementsWithUserId(MANAGER_ID, pageable);
     }
 
@@ -275,7 +275,7 @@ class SettlementServiceTest {
 
         // then
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).settlementId()).isEqualTo(SETTLEMENT_ID);
+        assertThat(result.getContent().get(0).getSettlementId()).isEqualTo(SETTLEMENT_ID);
         verify(settlementRepository).findAllSettlementsByStatus(SettlementStatus.PENDING, pageable);
     }
 }

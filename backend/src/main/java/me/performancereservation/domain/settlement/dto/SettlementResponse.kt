@@ -1,31 +1,33 @@
-package me.performancereservation.domain.settlement.dto;
+package me.performancereservation.domain.settlement.dto
 
-import me.performancereservation.domain.settlement.Settlement;
-import me.performancereservation.domain.settlement.enums.SettlementStatus;
+import me.performancereservation.domain.settlement.Settlement
+import me.performancereservation.domain.settlement.enums.SettlementStatus
+import java.time.LocalDateTime
 
-import java.time.LocalDateTime;
+data class SettlementResponse( // settlement 내용에서 가져옴
+    val settlementId: Long,  // PK
+    val totalAmount: Int,  // 계산
 
-public record SettlementResponse(
-        // settlement 내용에서 가져옴
-        long settlementId, // PK
-        int totalAmount, // 계산
-        LocalDateTime settledAt, // 처음에 null
-        String account,
-        String bank,
-        SettlementStatus status,
+    val settledAt: LocalDateTime?,  // 처음에 null
 
-// performance 내용에서 가져옴
-        String title
+    val account: String,
+    val bank: String,
+    val status: SettlementStatus,  // performance 내용에서 가져옴
+
+    val title: String
 ) {
-    public static SettlementResponse fromEntity(Settlement settlement, String title) {
-        return new SettlementResponse(
-                settlement.getId(),
-                settlement.getTotalAmount(),
-                settlement.getSettledAt(),
-                settlement.getAccount(),
-                settlement.getBank(),
-                settlement.getStatus(),
+    companion object {
+        @JvmStatic
+        fun fromEntity(settlement: Settlement, title: String): SettlementResponse {
+            return SettlementResponse(
+                settlement.id!!,
+                settlement.totalAmount,
+                settlement.settledAt,
+                settlement.account,
+                settlement.bank,
+                settlement.status,
                 title
-        );
+            )
+        }
     }
 }
