@@ -1,5 +1,6 @@
 package me.performancereservation.domain.sms
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import lombok.extern.slf4j.Slf4j
 import me.performancereservation.domain.performance.entities.Performance
 import me.performancereservation.domain.performance.repository.PerformanceRepository
@@ -18,7 +19,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
-@Slf4j
+private val log = KotlinLogging.logger {}
+
 @Service
 class SMSService(
     private val userRepository: UserRepository,
@@ -152,7 +154,7 @@ class SMSService(
     private fun sendSMS(phoneNumber: String?, message: String?) {
         // 전화번호가 null이거나 빈 문자열인 경우 전송하지 않음
         if (phoneNumber.isNullOrBlank()) {
-//            log.error("전화번호가 없어 SMS 전송을 건너뜁니다. message: {}", message)
+            log.error("전화번호가 없어 SMS 전송을 건너뜁니다. message: {}", message)
             return
         }
 
@@ -166,7 +168,7 @@ class SMSService(
 
         // 문자 하나 전송
         val response = this.messageService.sendOne(SingleMessageSendingRequest(coolsms))
-//        log.info("response = {}", response)
+        log.info { "${"response = {}"} $response"}
     }
 
     // 사용자 전화 번호의 '-' 제거
