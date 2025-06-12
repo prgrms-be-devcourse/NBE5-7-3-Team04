@@ -1,6 +1,5 @@
 package me.performancereservation.api
 
-import lombok.RequiredArgsConstructor
 import me.performancereservation.api.docs.AdminApiDocs
 import me.performancereservation.domain.admin.service.AdminService
 import org.springframework.http.ResponseEntity

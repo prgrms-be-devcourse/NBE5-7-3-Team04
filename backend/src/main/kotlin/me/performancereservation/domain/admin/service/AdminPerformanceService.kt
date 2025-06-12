@@ -20,6 +20,7 @@ import me.performancereservation.domain.user.repository.UserRepository
 import me.performancereservation.global.exception.ErrorCode
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.collections.get
@@ -104,7 +105,7 @@ class AdminPerformanceService(
      */
     @Transactional
     fun confirmPerformance(performanceId: Long) {
-        val performance = adminPerformanceRepository.findById(performanceId).orElse(null)
+        val performance = adminPerformanceRepository.findByIdOrNull(performanceId)
             ?: throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=$performanceId")
 
         if (!performance.isPending) {
@@ -112,7 +113,7 @@ class AdminPerformanceService(
         }
 
         // 요청자의 사용자 정보 조회
-        val user = userRepository.findById(performance.managerId).orElse(null)
+        val user = userRepository.findByIdOrNull(performance.managerId)
             ?: throw ErrorCode.USER_NOT_FOUND.domainException("해당하는 공연자를 찾을 수 없습니다.")
 
         // 공연 승인
@@ -128,7 +129,7 @@ class AdminPerformanceService(
      */
     @Transactional
     fun rejectPerformance(performanceId: Long) {
-        val performance = adminPerformanceRepository.findById(performanceId).orElse(null)
+        val performance = adminPerformanceRepository.findByIdOrNull(performanceId)
             ?: throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=$performanceId")
 
         if (!performance.isPending) {
@@ -136,7 +137,7 @@ class AdminPerformanceService(
         }
 
         // 요청자의 사용자 정보 조회
-        val user = userRepository.findById(performance.managerId).orElse(null)
+        val user = userRepository.findByIdOrNull(performance.managerId)
             ?: throw ErrorCode.USER_NOT_FOUND.domainException("해당하는 공연자를 찾을 수 없습니다.")
 
         // 공연 거부
@@ -180,8 +181,7 @@ class AdminPerformanceService(
     ): PendingManagerRequestPageResponse {
 
         // 사용자 정보 조회
-        val user = userMap[managerRequest.userId]
-            ?: throw ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다. id=${managerRequest.userId}")
+        val user = userMap[managerRequest.userId]!!
 
         // Mapper를 사용하여 응답 객체 생성
         return AdminManagerRequestMapper.toPendingResponse(managerRequest, user)
@@ -192,7 +192,7 @@ class AdminPerformanceService(
      */
     @Transactional
     fun approveManagerRequest(managerRequestId: Long) {
-        val managerRequest = adminManagerRequestRepository.findById(managerRequestId).orElse(null)
+        val managerRequest = adminManagerRequestRepository.findByIdOrNull(managerRequestId)
             ?: throw ErrorCode.MANAGER_REQUEST_NOT_FOUND.domainException("해당하는 공연 관리자 요청을 찾을 수 없습니다. id=$managerRequestId")
 
         if(!managerRequest.isPending) {
@@ -200,7 +200,7 @@ class AdminPerformanceService(
         }
 
         // 요청자의 사용자 정보 조회
-        val user = userRepository.findById(managerRequest.userId).orElse(null)
+        val user = userRepository.findByIdOrNull(managerRequest.userId)
             ?: throw ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다. id=${managerRequest.userId}")
 
         // 공연 관리자 요청 승인
@@ -219,7 +219,7 @@ class AdminPerformanceService(
      */
     @Transactional
     fun rejectManagerRequest(managerRequestId: Long) {
-        val managerRequest = adminManagerRequestRepository.findById(managerRequestId).orElse(null)
+        val managerRequest = adminManagerRequestRepository.findByIdOrNull(managerRequestId)
             ?: throw ErrorCode.MANAGER_REQUEST_NOT_FOUND.domainException("해당하는 공연 관리자 요청을 찾을 수 없습니다. id=$managerRequestId")
 
         if (!managerRequest.isPending) {
@@ -227,7 +227,7 @@ class AdminPerformanceService(
         }
 
         // 요청자의 사용자 정보 조회
-        val user = userRepository.findById(managerRequest.userId).orElse(null)
+        val user = userRepository.findByIdOrNull(managerRequest.userId)
             ?: throw ErrorCode.USER_NOT_FOUND.domainException("해당하는 사용자를 찾을 수 없습니다.")
 
         // 공연 관리자 요청 거부
