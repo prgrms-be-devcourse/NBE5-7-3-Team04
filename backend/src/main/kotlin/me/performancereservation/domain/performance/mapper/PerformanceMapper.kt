@@ -40,7 +40,7 @@ object PerformanceMapper {
     @JvmStatic
     fun toDetailResponse(
         performance: Performance,
-        fileUrl: String,
+        fileUrl: String?,
         bookmarked: Boolean,
         schedules: List<PerformanceSchedule>
     ): PerformanceDetailResponse {
@@ -89,7 +89,7 @@ object PerformanceMapper {
      * @return PerformanceManagerListResponse
      */
     @JvmStatic
-    fun toManagerListResponse(performance: Performance, fileUrl: String): PerformanceManagerPageResponse {
+    fun toManagerListResponse(performance: Performance, fileUrl: String?): PerformanceManagerPageResponse {
         return PerformanceManagerPageResponse(
             id = performance.id!!,
             fileUrl = fileUrl,
@@ -111,7 +111,7 @@ object PerformanceMapper {
     @JvmStatic
     fun toManagerDetailResponse(
         performance: Performance,
-        fileUrl: String,
+        fileUrl: String?,
         schedules: List<PerformanceScheduleResponse>
     ): PerformanceManagerDetailResponse {
         return PerformanceManagerDetailResponse(

@@ -16,7 +16,7 @@ interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Lon
     JOIN Performance p ON ps.performanceId = p.id
     WHERE ps.id = :scheduleId
     """)
-    fun findSchedulePerformanceInfoByScheduleId(@Param("scheduleId") scheduleId: Long): Optional<SchedulePerformanceInfo>
+    fun findSchedulePerformanceInfoByScheduleId(@Param("scheduleId") scheduleId: Long): SchedulePerformanceInfo?
 
     // scheduleId로 DTO 프로젝션을 이용해서 in절로 SchedulePerformanceInfo 데이터 모델 리스트를 조회
     @Query("""
@@ -36,7 +36,7 @@ interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Lon
     fun findIdsByPerformanceId(@Param("performanceId") performanceId: Long): List<Long>
 
     // 공연 아이디로 모든 회차 가져오기(시작 시간 오름차순 - 시작 시간이 빠른것 부터)
-    fun findByPerformanceIdOrderByStartTimeAsc(id: Long): List<PerformanceSchedule>
+    fun findByPerformanceIdOrderByStartTimeAsc(id: Long?): List<PerformanceSchedule>
 
     fun existsByIdAndPerformanceId(id: Long, performanceId: Long): Boolean
 }
