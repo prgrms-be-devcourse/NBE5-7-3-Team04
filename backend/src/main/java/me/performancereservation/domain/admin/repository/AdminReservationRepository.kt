@@ -1,18 +1,16 @@
-package me.performancereservation.domain.admin.repository;
+package me.performancereservation.domain.admin.repository
 
-import me.performancereservation.domain.admin.dto.AdminReservationPageResponse;
-import me.performancereservation.domain.reservation.Reservation;
-import me.performancereservation.domain.reservation.enums.ReservationStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import me.performancereservation.domain.admin.dto.AdminReservationPageResponse
+import me.performancereservation.domain.reservation.Reservation
+import me.performancereservation.domain.reservation.enums.ReservationStatus
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
+import java.time.LocalDateTime
 
-import java.time.LocalDateTime;
-
-public interface AdminReservationRepository extends JpaRepository<Reservation, Long> {
-
+interface AdminReservationRepository : JpaRepository<Reservation?, Long?> {
     /** 관리자가 예약 목록 조회를 위한 조회 쿼리
      *
      * 4 개의 테이블을 조인해 필요한 필드를 dto 로 반환
@@ -20,7 +18,8 @@ public interface AdminReservationRepository extends JpaRepository<Reservation, L
      * @param pageable
      * @return AdminReservationPageResponse
      */
-    @Query("""
+    @Query(
+        """
     SELECT new me.performancereservation.domain.admin.dto.AdminReservationPageResponse(
         r.id,
         p.id,
@@ -39,8 +38,8 @@ public interface AdminReservationRepository extends JpaRepository<Reservation, L
     JOIN PerformanceSchedule s ON r.scheduleId = s.id
     JOIN Performance p ON s.performanceId = p.id
     ORDER BY r.createdAt DESC
-""")
-    Page<AdminReservationPageResponse> findAdminReservations(Pageable pageable);
+    """)
+    fun findAdminReservations(pageable: Pageable): Page<AdminReservationPageResponse>
 
 
     /** 예약 목록 검색 쿼리
@@ -54,7 +53,8 @@ public interface AdminReservationRepository extends JpaRepository<Reservation, L
      * @param pageable
      * @return AdminReservationPageResponse
      */
-    @Query("""
+    @Query(
+        """
     SELECT new me.performancereservation.domain.admin.dto.AdminReservationPageResponse(
         r.id,
         p.id,
@@ -79,14 +79,13 @@ public interface AdminReservationRepository extends JpaRepository<Reservation, L
         AND (:startDate IS NULL OR r.createdAt >= :startDate)
         AND (:endDate IS NULL OR r.createdAt <= :endDate)
     ORDER BY r.createdAt DESC
-""")
-    Page<AdminReservationPageResponse> searchAdminReservations(
-            @Param("userName") String userName,
-            @Param("performanceTitle") String performanceTitle,
-            @Param("reservationStatus") ReservationStatus reservationStatus,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
-            Pageable pageable
-    );
-
+    """)
+    fun searchAdminReservations(
+        @Param("userName") userName: String?,
+        @Param("performanceTitle") performanceTitle: String?,
+        @Param("reservationStatus") reservationStatus: ReservationStatus?,
+        @Param("startDate") startDate: LocalDateTime?,
+        @Param("endDate") endDate: LocalDateTime?,
+        pageable: Pageable
+    ): Page<AdminReservationPageResponse>
 }
