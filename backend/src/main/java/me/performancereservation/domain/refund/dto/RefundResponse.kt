@@ -5,13 +5,13 @@ import me.performancereservation.domain.refund.enums.RefundStatus
 
 @JvmRecord
 data class RefundResponse(
-    @JvmField val refundId: Long?,  // 환불 id
-    @JvmField val reservationId: Long,  // 예약 id
+    val refundId: Long?,  // 환불 id
+    val reservationId: Long,  // 예약 id
     val userId: Long,  // 사용자 id
-    @JvmField val account: String?,  // 계좌번호
-    @JvmField val bank: String?,  // 환불 상태
+    val account: String?,  // 계좌번호
+    val bank: String?,  // 환불 상태
     val depositorName: String?,
-    @JvmField val status: RefundStatus
+    val status: RefundStatus
 ) {
     companion object {
         /**
