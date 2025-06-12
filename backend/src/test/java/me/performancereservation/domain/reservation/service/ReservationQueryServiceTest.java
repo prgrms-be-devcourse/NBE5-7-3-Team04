@@ -181,12 +181,21 @@ class ReservationQueryServiceTest {
             ReservationStatus.PAYMENTS_PENDING
         );
         
-        Performance performance = Performance.builder()
-            .id(performanceId)
-            .title("Test Performance")
-            .venue("Test Venue")
-            .description("Test Description")
-            .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "Test Performance",
+                "Test Venue",
+                0,
+                0,
+                null,
+                null,
+                null,
+                "Test Description",
+                null
+        );
+
         
         SchedulePerformanceInfo scheduleInfo = new SchedulePerformanceInfo(
             performanceId,
