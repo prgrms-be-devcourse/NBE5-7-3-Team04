@@ -1,53 +1,41 @@
-package me.performancereservation.domain.settlement;
+package me.performancereservation.domain.settlement
 
-import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import me.performancereservation.domain.common.BaseEntity;
-import me.performancereservation.domain.settlement.enums.SettlementStatus;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.*
+import lombok.Builder
+import lombok.Getter
+import lombok.NoArgsConstructor
+import me.performancereservation.domain.common.BaseEntity
+import me.performancereservation.domain.settlement.enums.SettlementStatus
+import java.time.LocalDateTime
 
 @Entity
-@Getter
-@NoArgsConstructor
-public class Settlement extends BaseEntity {
-    @Id
+class Settlement (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 정산 ID
+    @Id
+    var id: Long?, // 정산 ID
 
-    private Long performanceId; // 공연 ID
+    var performanceId: Long, // 공연 ID
 
-    private int totalAmount; // 총 정산 금액
+    var totalAmount: Int, // 총 정산 금액
 
-    private String account; // 계좌번호
+    var account: String, // 계좌번호
 
-    private String bank; // 은행명
+    var bank: String, // 은행명
 
     @Enumerated(EnumType.STRING)
-    private SettlementStatus status; // 정산 상태
+    var status: SettlementStatus // 정산 상태
+) :
+    BaseEntity() {
+    var settledAt: LocalDateTime? = null // 정산완료일시. 생성 시 초기값 null
 
-    private LocalDateTime settledAt; // 정산완료일시. 생성 시 초기값 null
-
-    @Builder
-    public Settlement(Long id, Long performanceId, int totalAmount, String account, String bank, SettlementStatus status) {
-        this.id = id;
-        this.performanceId = performanceId;
-        this.totalAmount = totalAmount;
-        this.account = account;
-        this.bank = bank;
-        this.status = status;
+    fun confirm() {
+        this.settledAt = LocalDateTime.now()
+        this.status = SettlementStatus.CONFIRMED
     }
 
-    public void confirm(){
-        this.settledAt = LocalDateTime.now();
-        this.status = SettlementStatus.CONFIRMED;
-    }
-
-    public Settlement updateBankInfo(String bank, String account){
-        this.bank = bank;
-        this.account = account;
-        return this;
+    fun updateBankInfo(bank: String, account: String): Settlement {
+        this.bank = bank
+        this.account = account
+        return this
     }
 }

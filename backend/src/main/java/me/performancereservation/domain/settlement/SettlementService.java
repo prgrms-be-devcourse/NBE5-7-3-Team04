@@ -74,13 +74,13 @@ public class SettlementService {
 
         // Settlement 객체 생성
         // settledAt은 아직 값 설정하지 않고 나중에 confirm 할 때 설정
-        Settlement settlement = Settlement.builder()
-                .performanceId(request.performanceId())
-                .totalAmount(totalAmount)
-                .account(request.account())
-                .bank(request.bank())
-                .status(SettlementStatus.PENDING)
-                .build();
+        Settlement settlement = new Settlement(
+                null,
+                request.performanceId(),
+                totalAmount,
+                request.account(),
+                request.bank(),
+                SettlementStatus.PENDING);
 
         return settlementRepository.save(settlement).getId();
     }

@@ -89,14 +89,7 @@ class SettlementServiceTest {
                 .canceled(false)
                 .build();
 
-        settlement = Settlement.builder()
-                .id(SETTLEMENT_ID)
-                .performanceId(PERFORMANCE_ID)
-                .totalAmount(24000000)
-                .account("123-456-789")
-                .bank("신한은행")
-                .status(SettlementStatus.PENDING)
-                .build();
+        settlement = new Settlement(SETTLEMENT_ID, PERFORMANCE_ID, 24000000, "123-456-789", "신한은행", SettlementStatus.PENDING);
     }
 
     @Test
