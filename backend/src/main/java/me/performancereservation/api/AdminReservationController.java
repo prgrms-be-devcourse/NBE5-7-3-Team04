@@ -2,7 +2,7 @@ package me.performancereservation.api;
 
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.api.docs.AdminReservationApiDocs;
-import me.performancereservation.domain.admin.dto.AdminReservationPageResponse;
+import me.performancereservation.domain.admin.dto.response.AdminReservationPageResponse;
 import me.performancereservation.domain.admin.service.AdminReservationService;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.domain.reservation.service.redis.RedisReservationBulkCancelService;

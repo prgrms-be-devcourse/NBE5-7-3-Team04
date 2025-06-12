@@ -1,7 +1,7 @@
 package me.performancereservation.domain.admin.service;
 
 import lombok.RequiredArgsConstructor;
-import me.performancereservation.domain.admin.dto.AdminReservationPageResponse;
+import me.performancereservation.domain.admin.dto.response.AdminReservationPageResponse;
 import me.performancereservation.domain.admin.repository.AdminReservationRepository;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
@@ -9,7 +9,6 @@ import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.domain.sms.SMSService;
-import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.repository.UserRepository;
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
