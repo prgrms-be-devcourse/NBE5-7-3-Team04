@@ -65,6 +65,7 @@ class RefundServiceTest {
 
     @BeforeEach
     void setUp() {
+        // Performance 생성
         performance = Performance.builder()
                 .id(PERFORMANCE_ID)
                 .title("오페라 갈라")

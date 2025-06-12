@@ -232,7 +232,7 @@ class BookmarkServiceTest {
                         .price(10000)
                         .venue("테스트 장소 1")
                         .description("테스트 설명 1")
-                        .category(PerformanceCategory.OPERA)
+                        .category(PerformanceCategory.MUSICAL_OPERA)
                         .status(PerformanceStatus.CONFIRMED)
                         .startDate(LocalDateTime.now().plusDays(1))
                         .endDate(LocalDateTime.now().plusDays(2))
@@ -244,7 +244,7 @@ class BookmarkServiceTest {
                         .price(20000)
                         .venue("테스트 장소 2")
                         .description("테스트 설명 2")
-                        .category(PerformanceCategory.OPERA)
+                        .category(PerformanceCategory.MUSICAL_OPERA)
                         .status(PerformanceStatus.CONFIRMED)
                         .startDate(LocalDateTime.now().plusDays(2))
                         .endDate(LocalDateTime.now().plusDays(3))
@@ -276,7 +276,7 @@ class BookmarkServiceTest {
         assertEquals("테스트 공연 1", response1.title());
         assertEquals(10000, response1.price());
         assertEquals("테스트 장소 1", response1.venue());
-        assertEquals(PerformanceCategory.OPERA, response1.category());
+        assertEquals(PerformanceCategory.MUSICAL_OPERA, response1.category());
         assertEquals(PerformanceStatus.CONFIRMED, response1.status());
         assertTrue(response1.bookmarked());
 
@@ -286,7 +286,7 @@ class BookmarkServiceTest {
         assertEquals("테스트 공연 2", response2.title());
         assertEquals(20000, response2.price());
         assertEquals("테스트 장소 2", response2.venue());
-        assertEquals(PerformanceCategory.OPERA, response2.category());
+        assertEquals(PerformanceCategory.MUSICAL_OPERA, response2.category());
         assertEquals(PerformanceStatus.CONFIRMED, response2.status());
         assertTrue(response2.bookmarked());
 
