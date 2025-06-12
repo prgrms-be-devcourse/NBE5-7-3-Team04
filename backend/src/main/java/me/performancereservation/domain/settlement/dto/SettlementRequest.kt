@@ -1,10 +1,15 @@
-package me.performancereservation.domain.settlement.dto;
+package me.performancereservation.domain.settlement.dto
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
-public record SettlementRequest(
-    @NotNull Long performanceId,
-    @NotNull String account,
-    @NotNull String bank
-) {
-}
+data class SettlementRequest(
+    @field: NotNull(message = "정산할 공연 id가 반드시 필요합니다")
+    val performanceId: Long,
+
+    @field: NotBlank(message = "계좌번호가 반드시 필요합니다")
+    val account: String,
+
+    @field: NotBlank(message = "은행명이 반드시 필요합니다")
+    val bank: String
+)

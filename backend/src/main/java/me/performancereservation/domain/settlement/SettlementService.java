@@ -35,7 +35,7 @@ public class SettlementService {
     @Transactional
     public Long createSettlement(SettlementRequest request) {
         // 공연 정보 조회
-        Performance performance = performanceRepository.findById(request.performanceId())
+        Performance performance = performanceRepository.findById(request.getPerformanceId())
                 .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
 
         // 공연 스케줄 조회
@@ -76,10 +76,10 @@ public class SettlementService {
         // settledAt은 아직 값 설정하지 않고 나중에 confirm 할 때 설정
         Settlement settlement = new Settlement(
                 null,
-                request.performanceId(),
+                request.getPerformanceId(),
                 totalAmount,
-                request.account(),
-                request.bank(),
+                request.getAccount(),
+                request.getBank(),
                 SettlementStatus.PENDING);
 
         return settlementRepository.save(settlement).getId();
@@ -103,7 +103,7 @@ public class SettlementService {
     @Transactional
     public SettlementUpdateResponse updateSettlement(SettlementUpdateRequest request) {
         log.info("[editSettlement Service] 요청: {}", request);
-        Settlement settlement = settlementRepository.findById(request.settlementId())
+        Settlement settlement = settlementRepository.findById(request.getSettlementId())
                 .orElseThrow(() -> ErrorCode.SETTLEMENT_NOT_FOUND.domainException("존재하지 않는 정산입니다."));
 
         // 승인된 정산은 정보를 수정할 수 없음
@@ -111,7 +111,7 @@ public class SettlementService {
             throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("이미 승인된 정산은 정보를 수정할 수 없습니다.");
         }
 
-        Settlement updatedSettlement = settlement.updateBankInfo(request.bank(), request.account());
+        Settlement updatedSettlement = settlement.updateBankInfo(request.getBank(), request.getAccount());
         return SettlementUpdateResponse.fromSettlement(updatedSettlement);
     }
 
