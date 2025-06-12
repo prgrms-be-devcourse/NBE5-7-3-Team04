@@ -19,6 +19,20 @@ data class User(
     @Enumerated(EnumType.STRING)
     var role: Role
 ) : BaseEntity() {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is User) return false
+        if (id == null || other.id == null) return false
+        return id == other.id && updatedAt == other.updatedAt
+    }
+
+    override fun hashCode(): Int {
+        var result = id?.hashCode() ?: 0
+        result = 31 * result + updatedAt.hashCode()
+        return result
+    }
+
     fun updatePhoneNumber(phoneNumber: String) {
         this.phoneNumber = phoneNumber
     }
