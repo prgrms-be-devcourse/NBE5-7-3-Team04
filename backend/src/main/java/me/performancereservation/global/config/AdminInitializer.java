@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.admin.Admin;
 import me.performancereservation.domain.admin.repository.AdminRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import me.performancereservation.domain.user.enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +20,6 @@ public class AdminInitializer {
 
     private final AdminRepository adminRepository;
 
-//    @Qualifier("adminPasswordEncoder")
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.admin.id}")
@@ -38,11 +36,7 @@ public class AdminInitializer {
 
             // 어드민이 없는 경우는 생성
             if (admin.isEmpty()) {
-                adminRepository.save(Admin.builder()
-                        .id(adminId)
-                        .password(passwordEncoder.encode(adminPassword))
-                        .build()
-                );
+                adminRepository.save(new Admin(adminId, passwordEncoder.encode(adminPassword), Role.ADMIN));
 
                 log.info("Admin 생성 완료");
             }else{
