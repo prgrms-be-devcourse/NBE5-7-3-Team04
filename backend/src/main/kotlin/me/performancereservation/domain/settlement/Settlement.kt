@@ -1,9 +1,6 @@
 package me.performancereservation.domain.settlement
 
 import jakarta.persistence.*
-import lombok.Builder
-import lombok.Getter
-import lombok.NoArgsConstructor
 import me.performancereservation.domain.common.BaseEntity
 import me.performancereservation.domain.settlement.enums.SettlementStatus
 import java.time.LocalDateTime
