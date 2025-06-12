@@ -30,8 +30,9 @@ class SettlementService(
     private val performanceScheduleRepository: PerformanceScheduleRepository,
     private val performanceService: PerformanceService
 ) {
-
-    private val log = LoggerFactory.getLogger(SettlementService::class.java)
+    companion object {
+        private val log = LoggerFactory.getLogger(SettlementService::class.java)
+    }
 
     @Transactional
     fun createSettlement(request: SettlementRequest): Long? {
@@ -46,27 +47,23 @@ class SettlementService(
         // 공연 스케줄 조회
         var schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
         log.info("불러온 스케줄 리스트: {}개", schedules?.size)
-        if (schedules != null) {
-            for (schedule in schedules) {
-                log.info(
-                    "schedule: id={}, startTime={}, endTime={}",
-                    schedule?.id,
-                    schedule?.startTime,
-                    schedule?.endTime
-                )
-            }
-        }
-        if (schedules == null) {
-            schedules = listOf() // null이면 빈 리스트로 처리
+
+        // schedules가 null이 아니면 실행
+        schedules?.forEach { schedule ->
+            log.info(
+                "schedule: id={}, startTime={}, endTime={}",
+                schedule?.id, schedule?.startTime, schedule?.endTime
+            )
         }
 
+        // schedules가 null이면 emptyList로 설정
+        schedules = schedules ?: emptyList()
+
         // 가장 늦은 공연 날짜 확인 (스케쥴이 없으면 latestSchedule도 null)
-        val latestSchedule = schedules.stream()
-            .filter { obj: PerformanceSchedule? -> Objects.nonNull(obj) }
-            .map { obj: PerformanceSchedule -> obj.startTime }
-            .filter { obj: LocalDateTime? -> Objects.nonNull(obj) }
-            .max { obj: LocalDateTime?, other: LocalDateTime? -> obj!!.compareTo(other) }
-            .orElse(null)
+        val latestSchedule = schedules
+            .filterNotNull() // 리스트 중 not null인 것만 남김
+            .mapNotNull { it.startTime } // startTime이 null인 것 제외하고 가져옴
+            .maxOrNull() // startTime list 중 가장 큰 값을 반환
 
         // 정산 신청 가능 날짜 체크 (스케쥴이 없으면 바로 예외)
         if (latestSchedule == null) {
@@ -77,17 +74,17 @@ class SettlementService(
         }
 
         // 총 정산 금액 계산
-        val totalAmount = calculateTotalAmount(schedules, performance)
+        val totalAmount = calculateTotalAmount(schedules.filterNotNull(), performance)
 
         // Settlement 객체 생성
         // settledAt은 아직 값 설정하지 않고 나중에 confirm 할 때 설정
         val settlement = Settlement(
-            null,
-            request.performanceId,
-            totalAmount,
-            request.account,
-            request.bank,
-            SettlementStatus.PENDING
+            id = null,
+            performanceId = request.performanceId,
+            totalAmount = totalAmount,
+            account = request.account,
+            bank = request.bank,
+            status = SettlementStatus.PENDING
         )
 
         return settlementRepository.save(settlement).id
@@ -101,10 +98,9 @@ class SettlementService(
         log.info("schedules = {}", schedules)
 
         // 스케쥴 리스트로 총 정산금액 누적 계산
-        return schedules.stream()
-            .filter { schedule: PerformanceSchedule -> !schedule.canceled }  // 취소된 스케쥴은 계산하지 않음
-            .mapToInt { schedule: PerformanceSchedule -> price * (totalSeats - schedule.remainingSeats) }
-            .sum()
+        return schedules
+            .filter { !it.canceled } // canceled 상태는 계산하지 않음
+            .sumOf { price * (totalSeats - it.remainingSeats) } // 정산금액 계산
     }
 
     /** PENDING 상태 정산의 은행, 계좌정보 수정 */
@@ -124,15 +120,17 @@ class SettlementService(
         }
 
         val updatedSettlement = settlement.updateBankInfo(request.bank, request.account)
-        return fromSettlement(updatedSettlement)
+        return SettlementUpdateResponse.fromSettlement(updatedSettlement)
     }
 
     @Transactional
     fun findSettlementIdByPerformanceId(performanceId: Long): Long? {
         val settlements = settlementRepository.findSettlementByPerformanceId(performanceId)
-        val latest = settlements.stream()
-            .max { s1: Settlement?, s2: Settlement? -> s1!!.createdAt.compareTo(s2!!.createdAt) }
-            .orElse(null)
+
+        // 공연id로 찾은 정산 리스트 중 가장 나중에 생성된 것 찾기
+        val latest = settlements
+            .filterNotNull()
+            .maxByOrNull { it.createdAt }
 
         val settlementId = latest?.id
 
@@ -177,12 +175,12 @@ class SettlementService(
 
     @Transactional(readOnly = true)
     fun findAllSettlementsByStatus(status: String?, pageable: Pageable): Page<SettlementResponse?> {
-        if (status == null) {
-            return settlementRepository.findAllSettlements(pageable)
+        return if (status == null) {
+            settlementRepository.findAllSettlements(pageable)
+        } else {
+            val settlementStatus = getSettlementStatus(status)
+            settlementRepository.findAllSettlementsByStatus(settlementStatus, pageable)
         }
-
-        val settlementStatus = getSettlementStatus(status)
-        return settlementRepository.findAllSettlementsByStatus(settlementStatus, pageable)
     }
 
 
