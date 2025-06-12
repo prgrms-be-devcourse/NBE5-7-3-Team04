@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.bookmark.dto.BookmarkedPerformancePageResponse;
 import me.performancereservation.domain.file.File;
 import me.performancereservation.domain.file.FileRepository;
-import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.global.exception.ErrorCode;
@@ -42,10 +41,7 @@ public class BookmarkService {
         }
 
         // 찜 생성
-        Bookmark bookmark = Bookmark.builder()
-                .userId(userId)
-                .performanceId(performanceId)
-                .build();
+        Bookmark bookmark = new Bookmark(null, userId, performanceId);
 
         // 찜 저장
         bookmarkRepository.save(bookmark);

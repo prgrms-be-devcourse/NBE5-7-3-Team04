@@ -23,11 +23,11 @@
 //    public static void logRefundResponse(RefundResponse response, String prefix) {
 //        log.info("{}: refundId={}, reservationId={}, account={}, bank={}, status={}",
 //                prefix,
-//                response.refundId,
-//                response.reservationId,
-//                response.account,
-//                response.bank,
-//                response.status);
+//                response.refundId(),
+//                response.reservationId(),
+//                response.account(),
+//                response.bank(),
+//                response.status());
 //    }
 //
 //    public static void logRefundDetailResponse(RefundDetailResponse response, String message) {
