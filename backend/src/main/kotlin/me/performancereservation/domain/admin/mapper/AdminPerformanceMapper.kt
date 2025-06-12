@@ -23,7 +23,7 @@ object AdminPerformanceMapper {
         schedules: List<PendingPerformanceScheduleResponse>
     ): PendingPerformancePageResponse {
         return PendingPerformancePageResponse(
-            id = performance.id,
+            id = performance.id!!,
             fileUrl = fileUrl,
             performanceManagerName = managerName,
             title = performance.title,
@@ -48,7 +48,7 @@ object AdminPerformanceMapper {
     @JvmStatic  //TODO: 서비스 코틀린으로 변환시 @JvmStatic 제거 필요
     fun toScheduleResponse(schedule: PerformanceSchedule): PendingPerformanceScheduleResponse {
         return PendingPerformanceScheduleResponse(
-            id = schedule.id,
+            id = schedule.id!!,
             startTime = schedule.startTime,
             endTime = schedule.endTime
         )

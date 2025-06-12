@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import me.performancereservation.domain.admin.dto.response.AdminReservationPageResponse;
+import me.performancereservation.domain.admin.dto.AdminReservationPageResponse;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.global.exception.ErrorResponse;
 import org.springdoc.core.annotations.ParameterObject;

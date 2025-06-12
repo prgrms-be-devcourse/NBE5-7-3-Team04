@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.admin.Admin;
 import me.performancereservation.domain.admin.repository.AdminRepository;
 import me.performancereservation.domain.user.enums.Role;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;

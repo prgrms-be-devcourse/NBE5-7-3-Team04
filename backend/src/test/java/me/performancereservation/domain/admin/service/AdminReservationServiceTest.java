@@ -1,6 +1,6 @@
 package me.performancereservation.domain.admin.service;
 
-import me.performancereservation.domain.admin.dto.response.AdminReservationPageResponse;
+import me.performancereservation.domain.admin.dto.AdminReservationPageResponse;
 import me.performancereservation.domain.admin.repository.AdminReservationRepository;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
