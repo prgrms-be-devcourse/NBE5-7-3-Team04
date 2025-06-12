@@ -39,10 +39,10 @@ public class ReservationController implements ReservationApiDocs {
             @AuthenticationPrincipal CustomOAuth2User authentication
     ) {
         ReservationResponse result = seatReservationService.reserve(
-                request.performanceId(),
-                request.scheduleId(),
+                request.getPerformanceId(),
+                request.getScheduleId(),
                 authentication.getUser().getId(),
-                request.quantity()
+                request.getQuantity()
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
