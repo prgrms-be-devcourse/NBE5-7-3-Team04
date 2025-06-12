@@ -33,19 +33,19 @@
 //    public static void logRefundDetailResponse(RefundDetailResponse response, String message) {
 //        log.info("{}: refundId={}, reservationId={}, userId={}, status={}, quantity={}, startTime={}, performanceTitle={}",
 //                message,
-//                response.refundId(),
-//                response.reservationId(),
-//                response.userId(),
-//                response.refundStatus(),
-//                response.quantity(),
-//                response.startTime(),
-//                response.title());
+//                response.refundId,
+//                response.reservationId,
+//                response.userId,
+//                response.refundStatus,
+//                response.quantity,
+//                response.startTime,
+//                response.title);
 //    }
 //
 //    public static void assertRefundDetailResponse(RefundDetailResponse response, Reservation reservation, PerformanceSchedule schedule, Performance performance) {
-//        assert response.quantity().equals(reservation.getQuantity());
-//        assert response.startTime().truncatedTo(ChronoUnit.SECONDS)
+//        assert response.quantity.equals(reservation.getQuantity());
+//        assert response.startTime.truncatedTo(ChronoUnit.SECONDS)
 //                .equals(schedule.getStartTime().truncatedTo(ChronoUnit.SECONDS));
-//        assert response.title().equals(performance.getTitle());
+//        assert response.title.equals(performance.getTitle());
 //    }
 //}
