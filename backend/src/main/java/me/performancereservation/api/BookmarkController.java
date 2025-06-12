@@ -23,7 +23,7 @@ public class BookmarkController implements BookmarkApiDocs {
     @PostMapping("/{performanceId}")
     public ResponseEntity<Void> performanceBookmark(@AuthenticationPrincipal CustomOAuth2User principal,
                                                     @PathVariable Long performanceId) {
-        bookmarkService.performanceBookmark(principal.getUser().getId(), performanceId);
+        bookmarkService.performanceBookmark(principal.user.getId(), performanceId);
         return ResponseEntity.noContent().build();
     }
 
@@ -32,7 +32,7 @@ public class BookmarkController implements BookmarkApiDocs {
     @PatchMapping("/{performanceId}")
     public ResponseEntity<Void> performanceBookmarkCancel(@AuthenticationPrincipal CustomOAuth2User principal,
                                                           @PathVariable Long performanceId) {
-        bookmarkService.performanceBookmarkCancel(principal.getUser().getId(), performanceId);
+        bookmarkService.performanceBookmarkCancel(principal.user.getId(), performanceId);
         return ResponseEntity.noContent().build();
     }
 
@@ -41,7 +41,7 @@ public class BookmarkController implements BookmarkApiDocs {
     @GetMapping
     public ResponseEntity<Page<BookmarkedPerformancePageResponse>> getBookmarkedPerformances(@AuthenticationPrincipal CustomOAuth2User principal,
                                                                                              Pageable pageable) {
-        Page<BookmarkedPerformancePageResponse> bookmarkedPerformances = bookmarkService.getBookmarkedPerformances(principal.getUser().getId(), pageable);
+        Page<BookmarkedPerformancePageResponse> bookmarkedPerformances = bookmarkService.getBookmarkedPerformances(principal.user.getId(), pageable);
         return ResponseEntity.ok(bookmarkedPerformances);
     }
 }

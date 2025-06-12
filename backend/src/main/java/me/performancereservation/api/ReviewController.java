@@ -35,7 +35,7 @@ public class ReviewController implements ReviewApiDocs {
         @AuthenticationPrincipal CustomOAuth2User principal,
         @RequestBody ReviewCreateRequest request
     ) {
-        reviewService.createReview( principal.getUser().getId(), request);
+        reviewService.createReview( principal.user.getId(), request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -62,7 +62,7 @@ public class ReviewController implements ReviewApiDocs {
             @RequestBody ReviewUpdateRequest request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        reviewService.updateReview(reviewId, request, principal.getUser().getId());
+        reviewService.updateReview(reviewId, request, principal.user.getId());
 
         return ResponseEntity.ok().build();
     }
@@ -74,7 +74,7 @@ public class ReviewController implements ReviewApiDocs {
             @PathVariable Long reviewId,
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        reviewService.deleteReview(reviewId, principal.getUser().getId());
+        reviewService.deleteReview(reviewId, principal.user.getId());
 
         return ResponseEntity.noContent().build();
     }

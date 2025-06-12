@@ -46,7 +46,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
                     direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        Long managerId = principal.getUser().getId();
+        Long managerId = principal.user.getId();
         Page<PerformanceManagerPageResponse> PerformanceManagerPageResponse = performanceService.getPerformanceManagerList(pageable, managerId);
         return ResponseEntity.ok(PerformanceManagerPageResponse);
     }
@@ -62,7 +62,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
     public ResponseEntity<PerformanceManagerDetailResponse> getPerformanceDetails(@PathVariable Long performanceId,
                                                                                   @AuthenticationPrincipal CustomOAuth2User principal
                                                                                   ) {
-        Long managerId = principal.getUser().getId();
+        Long managerId = principal.user.getId();
         PerformanceManagerDetailResponse performanceManagerResponse = performanceService.getPerformanceManagerDetail(performanceId, managerId);
         return ResponseEntity.ok(performanceManagerResponse);
     }
@@ -79,7 +79,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
             @RequestBody PerformanceCreateRequest request,
             @AuthenticationPrincipal CustomOAuth2User principal
             ) {
-        Long managerId = principal.getUser().getId();
+        Long managerId = principal.user.getId();
         Long performanceId = performanceService.createPerformance(request, managerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(performanceId);
     }
@@ -95,7 +95,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
     public ResponseEntity<Long> registerPerformanceSchedule(@PathVariable Long performanceId,
                                                             @RequestBody PerformanceScheduleRequest request,
                                                             @AuthenticationPrincipal CustomOAuth2User principal) {
-        Long managerId = principal.getUser().getId();
+        Long managerId = principal.user.getId();
         Long scheduleId = performanceScheduleService.createPerformanceSchedule(performanceId, request, managerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(scheduleId);
     }
@@ -112,7 +112,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
                                                   @RequestBody PerformanceUpdateRequest request,
                                                   @AuthenticationPrincipal CustomOAuth2User principal
                                                   ) {
-        Long managerId = principal.getUser().getId();
+        Long managerId = principal.user.getId();
         performanceService.updatePerformance(performanceId, request, managerId);
         return ResponseEntity.noContent().build();
     }
@@ -128,7 +128,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
     public ResponseEntity<Void> cancelPerformance(@PathVariable Long performanceId,
                                                   @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        Long managerId = principal.getUser().getId();
+        Long managerId = principal.user.getId();
         performanceService.cancelPerformance(performanceId, managerId);
         return ResponseEntity.noContent().build();
     }
@@ -146,7 +146,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
                                                           @PathVariable Long performanceScheduleId,
                                                           @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        Long managerId = principal.getUser().getId();
+        Long managerId = principal.user.getId();
         performanceScheduleService.cancelPerformanceSchedule(performanceId, performanceScheduleId, managerId);
         return ResponseEntity.noContent().build();
     }
@@ -176,7 +176,7 @@ public class ManagerPerformanceController implements ManagerPerformanceApiDocs {
                                                                                    Pageable pageable,
                                                                                    @AuthenticationPrincipal CustomOAuth2User principal
                                                                                    ) {
-        Long managerId = principal.getUser().getId();
+        Long managerId = principal.user.getId();
         Page<PerformanceManagerPageResponse> performanceManagerPageResponse = performanceService.searchManagerPerformances(managerId, title, venue, start, end, status, pageable);
         return ResponseEntity.ok(performanceManagerPageResponse);
     }

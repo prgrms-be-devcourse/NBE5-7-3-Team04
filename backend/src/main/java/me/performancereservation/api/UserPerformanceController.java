@@ -52,7 +52,7 @@ public class UserPerformanceController implements UserPerformanceApiDocs {
                                                                           @AuthenticationPrincipal CustomOAuth2User principal) {
         Long userId = null;
         if(principal != null) {
-            userId = principal.getUser().getId();
+            userId = principal.user.getId();
         }
 
         PerformanceDetailResponse performanceResponse = performanceService.getPerformanceDetail(performanceId, userId);

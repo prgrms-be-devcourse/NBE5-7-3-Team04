@@ -40,7 +40,7 @@ public class RefundController implements RefundApiDocs {
             @AuthenticationPrincipal CustomOAuth2User authentication,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Long userId = authentication.getUser().getId();
+        Long userId = authentication.user.getId();
 
         log.info("사용자 환불 내역 조회 요청: userId={}, page={}, size={}",
                 userId, pageable.getPageNumber(), pageable.getPageSize());
@@ -59,7 +59,7 @@ public class RefundController implements RefundApiDocs {
             @AuthenticationPrincipal CustomOAuth2User authentication,
             @PathVariable Long reservationId) {
 
-        Long userId = authentication.getUser().getId();
+        Long userId = authentication.user.getId();
 
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -78,7 +78,7 @@ public class RefundController implements RefundApiDocs {
             @AuthenticationPrincipal CustomOAuth2User authentication,
             @RequestBody UpdateBankInfoRequest request) {
         log.info("은행 정보 호출");
-        Long userId = authentication.getUser().getId();
+        Long userId = authentication.user.getId();
 
         log.info("refund = {}", request.toString());
         refundService.updateBankInfo(userId, request);
