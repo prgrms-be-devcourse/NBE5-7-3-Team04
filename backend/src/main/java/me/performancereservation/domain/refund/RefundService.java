@@ -48,11 +48,12 @@ public class RefundService {
         }
 
         // PENDING 상태로 환불 생성 후 저장
-        Refund newRefund = Refund.builder()
-                .reservationId(reservationId)
-                .userId(userId)
-                .status(RefundStatus.PENDING) // 계좌정보 입력 기다림
-                .build();
+        Refund newRefund = new Refund(
+                null, // id는 null로 두거나 자동 생성
+                reservationId,
+                userId,
+                RefundStatus.PENDING
+        );
 
         refundRepository.save(newRefund);
 
@@ -77,15 +78,20 @@ public class RefundService {
 
     @Transactional(readOnly = true)
     public RefundResponse findRefundByUserId(Long userId, Long reservationId) {
-        Refund refund = refundRepository.findByUserIdAndReservationId(userId, reservationId)
-                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId));
+        Refund refund = refundRepository.findByUserIdAndReservationId(userId, reservationId);
+        if (refund == null) {
+            throw ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId);
+        }
         return RefundResponse.fromEntity(refund);
     }
 
     @Transactional(readOnly = true)
     public Long getRefundIdByUserId(Long userId, Long reservationId) {
-        return refundRepository.findByUserIdAndReservationId(userId, reservationId)
-                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId)).getId();
+        Refund found = refundRepository.findByUserIdAndReservationId(userId, reservationId);
+        if (found == null) {
+            throw ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId);
+        }
+        return found.getId();
     }
 
     /// 입력받은 id의 환불 디테일 페이지 조회
@@ -104,6 +110,7 @@ public class RefundService {
         if (results.isEmpty()) {
             throw ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + refundId);
         }
+
         return refundDetailMapper.toRefundDetailResponse(results.get(0));
     }
 
@@ -154,8 +161,8 @@ public class RefundService {
     @Transactional
     public Refund updateBankInfo(Long userId, UpdateBankInfoRequest request) {
         // 해당 refund 존재하는지 유효성검사
-        Refund refund = refundRepository.findById(request.refundId())
-                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + request.refundId()));
+        Refund refund = refundRepository.findById(request.getRefundId())
+                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + request.getRefundId()));
 
         // 정보를 변경하려는 환불의 user id가 현재 로그인된 user id와 다를 경우 거부
         if (refund.getUserId() != userId) {
@@ -163,7 +170,7 @@ public class RefundService {
         }
 
         // 계좌정보 설정
-        refund.updateBankInfo(request.account(), request.bank(), request.depositorName());
+        refund.updateBankInfo(request.getAccount(), request.getBank(), request.getDepositorName());
         // PENDING -> READY 설정
         refund.ready();
 
@@ -213,11 +220,12 @@ public class RefundService {
         // 환불 생성할 예약 필터링 (이미 환불이 생성된 예약 제외)
         List<Refund> refundsToSave = reservationList.stream()
                 .filter(reservation -> !existingRefundReservationIds.contains(reservation.getId()))
-                .map(reservation -> Refund.builder()
-                        .reservationId(reservation.getId())
-                        .userId(reservation.getUserId())
-                        .status(RefundStatus.PENDING)
-                        .build())
+                .map(reservation -> new Refund(
+                        null, // id는 null (JPA가 자동 할당)
+                        reservation.getId(),
+                        reservation.getUserId(),
+                        RefundStatus.PENDING
+                ))
                 .collect(Collectors.toList());
 
         if (refundsToSave.isEmpty()) {
@@ -237,7 +245,7 @@ public class RefundService {
             log.info("환불 배치 저장 완료: {}개", batch.size());
         }
 
-        log.info("대량 환불 생성 완료: 총 {}개 중 {}개 생성됨", 
+        log.info("대량 환불 생성 완료: 총 {}개 중 {}개 생성됨",
                 reservationList.size(), refundsToSave.size());
     }
 
