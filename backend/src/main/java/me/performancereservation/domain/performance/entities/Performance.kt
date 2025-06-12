@@ -75,4 +75,19 @@ class Performance (
     fun completePerformance() {
         this.status = PerformanceStatus.COMPLETED
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(this === other) return true
+        if(other !is Performance) return false
+
+        return id == other.id && updatedAt == other.updatedAt
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+
+        result = 31 * result + updatedAt.hashCode()
+
+        return result
+    }
 }

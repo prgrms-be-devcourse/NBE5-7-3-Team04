@@ -46,4 +46,19 @@ class PerformanceSchedule (
     fun hasPermission(performanceId: Long?): Boolean {
         return performanceId != null && performanceId == this.performanceId
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(this === other) return true
+        if(other !is PerformanceSchedule) return false
+
+        return id == other.id && updatedAt == other.updatedAt
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+
+        result = 31 * result + updatedAt.hashCode()
+
+        return result
+    }
 }
