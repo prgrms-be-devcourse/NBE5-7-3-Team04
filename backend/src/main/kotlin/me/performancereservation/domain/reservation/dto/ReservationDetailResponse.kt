@@ -12,7 +12,7 @@ data class ReservationDetailResponse(
     val title: String,  // 공연 제목
     val description: String,  // 공연 설명
     val venue: String,  // 공연 위치
-    val fileUrl: String,  // 이미지 경로
+    val fileUrl: String?,  // 이미지 경로
     val quantity: Int,  // 티켓 수량
     val status: ReservationStatus,  // 예약 상태
     val createdAt: LocalDateTime,  // 예약 신청 일시
