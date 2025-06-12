@@ -1,182 +1,201 @@
-package me.performancereservation.domain.settlement;
+package me.performancereservation.domain.settlement
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import me.performancereservation.domain.performance.entities.Performance;
-import me.performancereservation.domain.performance.entities.PerformanceSchedule;
-import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
-import me.performancereservation.domain.performance.service.PerformanceService;
-import me.performancereservation.domain.settlement.dto.SettlementRequest;
-import me.performancereservation.domain.settlement.dto.SettlementResponse;
-import me.performancereservation.domain.settlement.dto.SettlementUpdateRequest;
-import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse;
-import me.performancereservation.domain.settlement.enums.SettlementStatus;
-import me.performancereservation.domain.sms.SMSService;
-import me.performancereservation.global.exception.ErrorCode;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import me.performancereservation.domain.performance.repository.PerformanceRepository;
+import me.performancereservation.domain.performance.entities.Performance
+import me.performancereservation.domain.performance.entities.PerformanceSchedule
+import me.performancereservation.domain.performance.repository.PerformanceRepository
+import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository
+import me.performancereservation.domain.performance.service.PerformanceService
+import me.performancereservation.domain.settlement.dto.SettlementRequest
+import me.performancereservation.domain.settlement.dto.SettlementResponse
+import me.performancereservation.domain.settlement.dto.SettlementResponse.Companion.fromEntity
+import me.performancereservation.domain.settlement.dto.SettlementUpdateRequest
+import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse
+import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse.Companion.fromSettlement
+import me.performancereservation.domain.settlement.enums.SettlementStatus
+import me.performancereservation.domain.sms.SMSService
+import me.performancereservation.global.exception.ErrorCode
+import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import java.util.*
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-@Slf4j
 @Service
-@RequiredArgsConstructor
-public class SettlementService {
-    private final SMSService smsService;
-    private final SettlementRepository settlementRepository;
-    private final PerformanceRepository performanceRepository;
-    private final PerformanceScheduleRepository performanceScheduleRepository;
-    private final PerformanceService performanceService;
+class SettlementService(
+    private val smsService: SMSService,
+    private val settlementRepository: SettlementRepository,
+    private val performanceRepository: PerformanceRepository,
+    private val performanceScheduleRepository: PerformanceScheduleRepository,
+    private val performanceService: PerformanceService
+) {
+
+    private val log = LoggerFactory.getLogger(SettlementService::class.java)
 
     @Transactional
-    public Long createSettlement(SettlementRequest request) {
+    fun createSettlement(request: SettlementRequest): Long? {
         // 공연 정보 조회
-        Performance performance = performanceRepository.findById(request.getPerformanceId())
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
+        val performance = performanceRepository.findById(request.performanceId)
+            .orElseThrow {
+                ErrorCode.PERFORMANCE_NOT_FOUND.domainException(
+                    "존재하지 않는 공연입니다."
+                )
+            }
 
         // 공연 스케줄 조회
-        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId());
-        log.info("불러온 스케줄 리스트: {}개", schedules != null ? schedules.size() : null);
+        var schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
+        log.info("불러온 스케줄 리스트: {}개", schedules?.size)
         if (schedules != null) {
-            for (PerformanceSchedule schedule : schedules) {
-                log.info("schedule: id={}, startTime={}, endTime={}",
-                        schedule != null ? schedule.getId() : null,
-                        schedule != null ? schedule.getStartTime() : null,
-                        schedule != null ? schedule.getEndTime() : null);
+            for (schedule in schedules) {
+                log.info(
+                    "schedule: id={}, startTime={}, endTime={}",
+                    schedule?.id,
+                    schedule?.startTime,
+                    schedule?.endTime
+                )
             }
         }
         if (schedules == null) {
-            schedules = List.of(); // null이면 빈 리스트로 처리
+            schedules = listOf() // null이면 빈 리스트로 처리
         }
 
         // 가장 늦은 공연 날짜 확인 (스케쥴이 없으면 latestSchedule도 null)
-        LocalDateTime latestSchedule = schedules.stream()
-                .filter(java.util.Objects::nonNull)
-                .map(PerformanceSchedule::getStartTime)
-                .filter(java.util.Objects::nonNull)
-                .max(LocalDateTime::compareTo)
-                .orElse(null);
+        val latestSchedule = schedules.stream()
+            .filter { obj: PerformanceSchedule? -> Objects.nonNull(obj) }
+            .map { obj: PerformanceSchedule -> obj.startTime }
+            .filter { obj: LocalDateTime? -> Objects.nonNull(obj) }
+            .max { obj: LocalDateTime?, other: LocalDateTime? -> obj!!.compareTo(other) }
+            .orElse(null)
 
         // 정산 신청 가능 날짜 체크 (스케쥴이 없으면 바로 예외)
         if (latestSchedule == null) {
-            throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("공연 스케줄이 존재하지 않습니다.");
+            throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("공연 스케줄이 존재하지 않습니다.")
         }
         if (latestSchedule.plusDays(7).isAfter(LocalDateTime.now())) {
-            throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("공연 종료 후 7일이 지나야 정산 신청이 가능합니다.");
+            throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("공연 종료 후 7일이 지나야 정산 신청이 가능합니다.")
         }
 
         // 총 정산 금액 계산
-        int totalAmount = calculateTotalAmount(schedules, performance);
+        val totalAmount = calculateTotalAmount(schedules, performance)
 
         // Settlement 객체 생성
         // settledAt은 아직 값 설정하지 않고 나중에 confirm 할 때 설정
-        Settlement settlement = new Settlement(
-                null,
-                request.getPerformanceId(),
-                totalAmount,
-                request.getAccount(),
-                request.getBank(),
-                SettlementStatus.PENDING);
+        val settlement = Settlement(
+            null,
+            request.performanceId,
+            totalAmount,
+            request.account,
+            request.bank,
+            SettlementStatus.PENDING
+        )
 
-        return settlementRepository.save(settlement).getId();
+        return settlementRepository.save(settlement).id
     }
 
-    private int calculateTotalAmount(List<PerformanceSchedule> schedules, Performance performance) {
-        int price = performance.getPrice();
-        int totalSeats = performance.getTotalSeats();
+    private fun calculateTotalAmount(schedules: List<PerformanceSchedule>, performance: Performance): Int {
+        val price = performance.price
+        val totalSeats = performance.totalSeats
 
-        log.info("정산금액 계산 ======= 가격 {} 좌석수 {}", price, totalSeats);
-        log.info("schedules = {}", schedules);
+        log.info("정산금액 계산 ======= 가격 {} 좌석수 {}", price, totalSeats)
+        log.info("schedules = {}", schedules)
 
         // 스케쥴 리스트로 총 정산금액 누적 계산
         return schedules.stream()
-                .filter(schedule -> !schedule.isCanceled()) // 취소된 스케쥴은 계산하지 않음
-                .mapToInt(schedule -> price * (totalSeats - schedule.getRemainingSeats()))
-                .sum();
+            .filter { schedule: PerformanceSchedule -> !schedule.canceled }  // 취소된 스케쥴은 계산하지 않음
+            .mapToInt { schedule: PerformanceSchedule -> price * (totalSeats - schedule.remainingSeats) }
+            .sum()
     }
 
-    /// PENDING 상태 정산의 은행, 계좌정보 수정
+    /** PENDING 상태 정산의 은행, 계좌정보 수정 */
     @Transactional
-    public SettlementUpdateResponse updateSettlement(SettlementUpdateRequest request) {
-        log.info("[editSettlement Service] 요청: {}", request);
-        Settlement settlement = settlementRepository.findById(request.getSettlementId())
-                .orElseThrow(() -> ErrorCode.SETTLEMENT_NOT_FOUND.domainException("존재하지 않는 정산입니다."));
+    fun updateSettlement(request: SettlementUpdateRequest): SettlementUpdateResponse {
+        log.info("[editSettlement Service] 요청: {}", request)
+        val settlement = settlementRepository.findById(request.settlementId)
+            .orElseThrow {
+                ErrorCode.SETTLEMENT_NOT_FOUND.domainException(
+                    "존재하지 않는 정산입니다."
+                )
+            }
 
         // 승인된 정산은 정보를 수정할 수 없음
-        if (settlement.getStatus() == SettlementStatus.CONFIRMED) {
-            throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("이미 승인된 정산은 정보를 수정할 수 없습니다.");
+        if (settlement.status == SettlementStatus.CONFIRMED) {
+            throw ErrorCode.INVALID_SETTLEMENT_REQUEST.domainException("이미 승인된 정산은 정보를 수정할 수 없습니다.")
         }
 
-        Settlement updatedSettlement = settlement.updateBankInfo(request.getBank(), request.getAccount());
-        return SettlementUpdateResponse.fromSettlement(updatedSettlement);
+        val updatedSettlement = settlement.updateBankInfo(request.bank, request.account)
+        return fromSettlement(updatedSettlement)
     }
 
     @Transactional
-    public Long findSettlementIdByPerformanceId(Long performanceId) {
-        List<Settlement> settlements = settlementRepository.findSettlementByPerformanceId(performanceId);
-        Settlement latest = settlements.stream()
-                .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
-                .orElse(null);
+    fun findSettlementIdByPerformanceId(performanceId: Long): Long? {
+        val settlements = settlementRepository.findSettlementByPerformanceId(performanceId)
+        val latest = settlements.stream()
+            .max { s1: Settlement?, s2: Settlement? -> s1!!.createdAt.compareTo(s2!!.createdAt) }
+            .orElse(null)
 
-        Long settlementId = latest != null ? latest.getId() : null;
+        val settlementId = latest?.id
 
-        // 로그 출력
-        log.info("공연ID: {}, SettlementID: {}", performanceId, settlementId);
+        log.info("공연ID: {}, SettlementID: {}", performanceId, settlementId)
 
-        return settlementId;
+        return settlementId
     }
 
     @Transactional
-    public SettlementResponse confirmSettlement(Long settlementId) {
+    fun confirmSettlement(settlementId: Long): SettlementResponse {
         // 정산 객체 조회
-        Settlement settlement = settlementRepository.findById(settlementId)
-                .orElseThrow(() -> ErrorCode.SETTLEMENT_NOT_FOUND.domainException("존재하지 않는 정산입니다."));
+        val settlement = settlementRepository.findById(settlementId)
+            .orElseThrow {
+                ErrorCode.SETTLEMENT_NOT_FOUND.domainException(
+                    "존재하지 않는 정산입니다."
+                )
+            }
 
         // 공연 정보 조회
-        Performance performance = performanceRepository.findById(settlement.getPerformanceId())
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다."));
+        val performance = performanceRepository.findById(settlement.performanceId)
+            .orElseThrow {
+                ErrorCode.PERFORMANCE_NOT_FOUND.domainException(
+                    "존재하지 않는 공연입니다."
+                )
+            }
 
         // 정산 상태 변경 및 완료 시간 설정
-        settlement.confirm();
+        settlement.confirm()
 
         // TODO 시연시 주석 제거
         // 정산 완료 안내 문자
 //        smsService.settlementsConfirmed(settlement, performance);
 
         // SettlementResponse 생성 및 반환
-        return SettlementResponse.fromEntity(settlement, performance.getTitle());
+        return fromEntity(settlement, performance.title)
     }
 
     @Transactional(readOnly = true)
-    public Page<SettlementResponse> findAllSettlementsWithUserId(Long userId, Pageable pageable) {
-        return settlementRepository.findAllSettlementsWithUserId(userId, pageable);
+    fun findAllSettlementsWithUserId(userId: Long, pageable: Pageable): Page<SettlementResponse?> {
+        return settlementRepository.findAllSettlementsWithUserId(userId, pageable)
     }
 
     @Transactional(readOnly = true)
-    public Page<SettlementResponse> findAllSettlementsByStatus(String status, Pageable pageable) {
-        if(status == null) {
-            return settlementRepository.findAllSettlements(pageable);
+    fun findAllSettlementsByStatus(status: String?, pageable: Pageable): Page<SettlementResponse?> {
+        if (status == null) {
+            return settlementRepository.findAllSettlements(pageable)
         }
-        
-        SettlementStatus settlementStatus = getSettlementStatus(status);
-        return settlementRepository.findAllSettlementsByStatus(settlementStatus, pageable);
+
+        val settlementStatus = getSettlementStatus(status)
+        return settlementRepository.findAllSettlementsByStatus(settlementStatus, pageable)
     }
+
 
     // string -> settlementStatus로 변환. 변환 불가능할 경우 throw exception
-    private static SettlementStatus getSettlementStatus(String settlementStatus) {
-        SettlementStatus status;
+    private fun getSettlementStatus(settlementStatus: String): SettlementStatus {
+        val status: SettlementStatus
 
         try { // 문자열 쿼리 파라미터를 대문자로 변환하여 settlementStatus 생성 시도
-            status = SettlementStatus.valueOf(settlementStatus.toUpperCase());
-
-        } catch (IllegalArgumentException e) {
+            status = SettlementStatus.valueOf(settlementStatus.uppercase(Locale.getDefault()))
+        } catch (e: IllegalArgumentException) {
             // 유효하지 않은 종류의 settlementStatus 문자열이 들어왔을 경우
-            throw ErrorCode.INVALID_SETTLEMENT_STATUS.domainException("유효하지 않은 종류의 settlement status로 생성 요청하였습니다. status: "+ settlementStatus);
+            throw ErrorCode.INVALID_SETTLEMENT_STATUS.domainException("유효하지 않은 종류의 settlement status로 생성 요청하였습니다. status: $settlementStatus")
         }
-        return status;
+        return status
     }
 }
