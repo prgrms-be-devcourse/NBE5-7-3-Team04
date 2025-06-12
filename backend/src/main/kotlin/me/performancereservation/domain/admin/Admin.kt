@@ -19,4 +19,24 @@ class Admin(
     fun changePassword(password: String) {
         this.password = password
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Admin
+
+        if (id != other.id) return false
+        if (role != other.role) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + role.hashCode()
+        return result
+    }
+
+
 }
