@@ -105,6 +105,7 @@ public class RefundService {
         if (results.isEmpty()) {
             throw ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + refundId);
         }
+
         return refundDetailMapper.toRefundDetailResponse(results.get(0));
     }
 
