@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface RefundRepository : JpaRepository<Refund?, Long?> {
+interface RefundRepository : JpaRepository<Refund, Long> {
     fun findRefundByStatus(status: RefundStatus?): List<Refund?>?
 
     fun findRefundByReservationId(reservationId: Long?): Optional<Refund?>?

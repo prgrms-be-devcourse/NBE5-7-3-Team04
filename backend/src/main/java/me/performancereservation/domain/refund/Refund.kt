@@ -9,15 +9,14 @@ import me.performancereservation.global.exception.ErrorCode
 @Entity
 class Refund ( // account, bank, depositorName는 처음 생성할 때 null
     // 환불요청정보 id
-    @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-    @field:Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     var id: Long? = null, // (FK) 환불을 요청하는 예약 id
 
     val reservationId: Long, // (FK) 환불을 요청한 유저의 id
     val userId: Long, // 환불대기, 환불완료 상태 표시
 
-    @field:Enumerated(EnumType.STRING)
-    @field:Setter
+    @Enumerated(EnumType.STRING)
     var status: RefundStatus
 
 ) : BaseEntity() {

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.util.stream.Collectors
 
-@Slf4j
 @Component
 class RefundDetailMapper {
     /**
@@ -18,10 +17,10 @@ class RefundDetailMapper {
      * 배열의 순서: [Refund, reservationQuantity, startTime, Performance]
      */
     fun toRefundDetailResponse(result: Array<Any?>): RefundDetailResponse {
-        val refund = result[0] as Refund?
-        val reservationQuantity = result[1] as Int?
-        val startTime = result[2] as LocalDateTime?
-        val performance = result[3] as Performance?
+        val refund = result[0] as Refund
+        val reservationQuantity = result[1] as Int
+        val startTime = result[2] as LocalDateTime
+        val performance = result[3] as Performance
 
         return RefundDetailResponse.fromEntity(refund, reservationQuantity, startTime, performance)
     }

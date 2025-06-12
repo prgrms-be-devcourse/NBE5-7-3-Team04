@@ -1,60 +1,62 @@
-package me.performancereservation.domain.refund.dto;
+package me.performancereservation.domain.refund.dto
 
-import me.performancereservation.domain.performance.entities.Performance;
-import me.performancereservation.domain.refund.Refund;
-import me.performancereservation.domain.refund.enums.RefundStatus;
+import me.performancereservation.domain.performance.entities.Performance
+import me.performancereservation.domain.refund.Refund
+import me.performancereservation.domain.refund.enums.RefundStatus
+import java.time.LocalDateTime
 
-import java.time.LocalDateTime;
+data class RefundDetailResponse( // Refund에서 데이터 전달
+    val refundId: Long?,
+    val userId: Long,
+    val reservationId: Long,
+    val account: String?,
+    val bank: String?,
+    val depositorName: String?,
+    val refundStatus: RefundStatus,
+    val createdDate: LocalDateTime,
+    val updatedDate: LocalDateTime,  // Reservation에서 가져오는 데이터
 
-public record RefundDetailResponse(
-        // Refund에서 데이터 전달
-        long refundId,
-        long userId,
-        long reservationId,
-        String account,
-        String bank,
-        String depositorName,
-        RefundStatus refundStatus,
-        LocalDateTime createdDate,
-        LocalDateTime updatedDate,
+    val quantity: Int,  // PerformanceSchedule에서 가져오는 데이터
 
-        // Reservation에서 가져오는 데이터
-        Integer quantity,
+    val startTime: LocalDateTime,  // Performance에서 가져오는 데이터 (id, totalSeats 외 모두)
 
-        // PerformanceSchedule에서 가져오는 데이터
-        LocalDateTime startTime,
-
-        // Performance에서 가져오는 데이터 (id, totalSeats 외 모두)
-        Long fileId, // (FK) 파일 ID - 공연 썸네일 용도
-        String title, // 제목
-        String venue, // 공연 장소
-        Integer price, // 가격
-        String category, // 공연 분류
-        LocalDateTime performanceDate, // 공연 일시
-        String description // 설명
+    val fileId: Long,  // (FK) 파일 ID - 공연 썸네일 용도
+    val title: String,  // 제목
+    val venue: String,  // 공연 장소
+    val price: Int,  // 가격
+    val category: String,  // 공연 분류
+    val performanceDate: LocalDateTime,  // 공연 일시
+    val description: String // 설명
 ) {
-    public static RefundDetailResponse fromEntity(Refund refund, Integer reservationQuantity, LocalDateTime startTime, Performance performance) {
-        return new RefundDetailResponse(
-                refund.getId(),
-                refund.getUserId(),
-                refund.getReservationId(),
-                refund.getAccount(),
-                refund.getBank(),
-                refund.getDepositorName(),
-                refund.getStatus(),
-                refund.getCreatedAt(),
-                refund.getUpdatedAt(),
+    companion object {
+        fun fromEntity(
+            refund: Refund,
+            reservationQuantity: Int,
+            startTime: LocalDateTime,
+            performance: Performance
+        ): RefundDetailResponse {
+            return RefundDetailResponse(
+                refund.id,
+                refund.userId,
+                refund.reservationId,
+                refund.account,
+                refund.bank,
+                refund.depositorName,
+                refund.status,
+                refund.createdAt,
+                refund.updatedAt,
 
                 reservationQuantity,
                 startTime,
 
-                performance.getFileId(),
-                performance.getTitle(),
-                performance.getVenue(),
-                performance.getPrice(),
-                performance.getCategory().toString(),
-                performance.getStartDate(),
-                performance.getDescription()
-        );
+                performance.fileId,
+                performance.title,
+                performance.venue,
+                performance.price,
+                performance.category.toString(),
+                performance.startDate,
+                performance.description
+            )
+        }
     }
 }

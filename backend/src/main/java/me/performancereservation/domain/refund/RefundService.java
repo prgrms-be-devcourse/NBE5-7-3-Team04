@@ -155,8 +155,8 @@ public class RefundService {
     @Transactional
     public Refund updateBankInfo(Long userId, UpdateBankInfoRequest request) {
         // 해당 refund 존재하는지 유효성검사
-        Refund refund = refundRepository.findById(request.refundId)
-                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + request.refundId));
+        Refund refund = refundRepository.findById(request.getRefundId())
+                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("존재하지 않는 환불입니다. refundId: " + request.getRefundId()));
 
         // 정보를 변경하려는 환불의 user id가 현재 로그인된 user id와 다를 경우 거부
         if (refund.getUserId() != userId) {
@@ -164,7 +164,7 @@ public class RefundService {
         }
 
         // 계좌정보 설정
-        refund.updateBankInfo(request.account, request.bank, request.depositorName);
+        refund.updateBankInfo(request.getAccount(), request.getBank(), request.getDepositorName());
         // PENDING -> READY 설정
         refund.ready();
 
