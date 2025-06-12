@@ -15,6 +15,7 @@ import me.performancereservation.global.exception.AppException;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.storage.redis.RedisReservationService;
 import me.performancereservation.global.storage.redis.RedisSeatService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -60,15 +62,23 @@ class RedisSeatReservationServiceTest {
     @InjectMocks
     private RedisSeatReservationService reservationService;
     
+    private Long userId;
+    private Long performanceId;
+    private Long scheduleId;
+    private int quantity;
+
+    @BeforeEach
+    void setUp() {
+        userId = 1L;
+        performanceId = 1L;
+        scheduleId = 1L;
+        quantity = 2;
+    }
+
     @Test
     @DisplayName("정상적인 예약 시도")
     void reserve_Success() {
         // given
-        Long performanceId = 1L;
-        Long scheduleId = 1L;
-        Long userId = 1L;
-        int quantity = 2;
-        
         SchedulePerformanceInfo scheduleInfo = new SchedulePerformanceInfo(
             performanceId,
             "Test Performance",
@@ -79,17 +89,17 @@ class RedisSeatReservationServiceTest {
             LocalDateTime.now().plusHours(2)
         );
         
-        Reservation reservation = Reservation.builder()
-            .id(1L)
-            .performanceId(performanceId)
-            .scheduleId(scheduleId)
-            .userId(userId)
-            .quantity(quantity)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
+        Reservation reservation = new Reservation(
+            1L,
+            userId,
+            performanceId,
+            scheduleId,
+            quantity,
+            ReservationStatus.PAYMENTS_PENDING
+        );
         
         ReservationResponse expectedResponse = new ReservationResponse(
-            reservation.getId(),
+            1L,
             "Test Performance",
             "Test Venue",
             quantity,
@@ -112,10 +122,9 @@ class RedisSeatReservationServiceTest {
         ReservationResponse result = reservationService.reserve(performanceId, scheduleId, userId, quantity);
         
         // then
-        assertNotNull(result);
         assertEquals(expectedResponse, result);
         verify(redisSeatService).safeDecrement(scheduleId, quantity);
-        verify(redisReservationService).addToPendingExpirationQueue(reservation.getId());
+        verify(redisReservationService).addToPendingExpirationQueue(1L);
         verify(ticketRepository, times(quantity)).save(any(Ticket.class));
     }
     
@@ -123,11 +132,6 @@ class RedisSeatReservationServiceTest {
     @DisplayName("좌석이 부족한 경우 예약 시도")
     void reserve_NoRemainingSeats() {
         // given
-        Long performanceId = 1L;
-        Long scheduleId = 1L;
-        Long userId = 1L;
-        int quantity = 2;
-        
         // when
         doThrow(ErrorCode.NO_REMAINING_SEATS.domainException("남은 좌석이 없습니다."))
             .when(redisSeatService).safeDecrement(scheduleId, quantity);
@@ -145,11 +149,6 @@ class RedisSeatReservationServiceTest {
     @DisplayName("존재하지 않는 공연 회차에 대한 예약 시도")
     void reserve_ScheduleNotFound() {
         // given
-        Long performanceId = 1L;
-        Long scheduleId = 1L;
-        Long userId = 1L;
-        int quantity = 2;
-        
         // when
         doThrow(ErrorCode.SEAT_STOCK_DECREMENT_FAILED.serviceException("좌석 차감에 실패했습니다."))
             .when(redisSeatService).safeDecrement(scheduleId, quantity);
@@ -167,53 +166,49 @@ class RedisSeatReservationServiceTest {
     @DisplayName("정상적인 예약 취소")
     void cancel_Success() {
         // given
-        Long reservationId = 1L;
-        Long userId = 1L;
-        Long scheduleId = 1L;
-        int quantity = 2;
-        
-        Reservation reservation = Reservation.builder()
-            .id(reservationId)
-            .userId(userId)
-            .scheduleId(scheduleId)
-            .quantity(quantity)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
+        Reservation reservation = new Reservation(
+            1L,
+            userId,
+            performanceId,
+            scheduleId,
+            quantity,
+            ReservationStatus.PAYMENTS_PENDING
+        );
         
         // when
-        when(reservationRepository.findById(reservationId))
+        when(reservationRepository.findById(1L))
             .thenReturn(Optional.of(reservation));
-        when(refundService.getRefundIdByUserId(userId, reservationId))
+        when(refundService.getRefundIdByUserId(userId, 1L))
             .thenReturn(1L);
         
-        Long refundId = reservationService.cancel(reservationId, userId);
+        Long refundId = reservationService.cancel(1L, userId);
         
         // then
         assertEquals(1L, refundId);
         verify(redisReservationCancelExecutor).executeForUserCancel(reservation);
-        verify(refundService, times(2)).getRefundIdByUserId(userId, reservationId);
+        verify(refundService, times(2)).getRefundIdByUserId(userId, 1L);
     }
     
     @Test
     @DisplayName("이미 취소된 예약 취소 시도")
     void cancel_AlreadyCanceled() {
         // given
-        Long reservationId = 1L;
-        Long userId = 1L;
-        
-        Reservation reservation = Reservation.builder()
-            .id(reservationId)
-            .userId(userId)
-            .status(ReservationStatus.CANCEL_CONFIRMED)
-            .build();
+        Reservation reservation = new Reservation(
+            1L,
+            userId,
+            performanceId,
+            scheduleId,
+            quantity,
+            ReservationStatus.CANCEL_CONFIRMED
+        );
         
         // when
-        when(reservationRepository.findById(reservationId))
+        when(reservationRepository.findById(1L))
             .thenReturn(Optional.of(reservation));
         
         // then
         AppException exception = assertThrows(AppException.class, () -> 
-            reservationService.cancel(reservationId, userId)
+            reservationService.cancel(1L, userId)
         );
         
         assertEquals(ErrorCode.ALREADY_CANCELED_RESERVATION, exception.getErrorCode());
@@ -226,23 +221,23 @@ class RedisSeatReservationServiceTest {
     @DisplayName("다른 사용자의 예약 취소 시도")
     void cancel_Unauthorized() {
         // given
-        Long reservationId = 1L;
-        Long userId = 1L;
         Long otherUserId = 2L;
-        
-        Reservation reservation = Reservation.builder()
-            .id(reservationId)
-            .userId(otherUserId)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
+        Reservation reservation = new Reservation(
+            1L,
+            otherUserId,
+            performanceId,
+            scheduleId,
+            quantity,
+            ReservationStatus.PAYMENTS_PENDING
+        );
         
         // when
-        when(reservationRepository.findById(reservationId))
+        when(reservationRepository.findById(1L))
             .thenReturn(Optional.of(reservation));
         
         // then
         AppException exception = assertThrows(AppException.class, () -> 
-            reservationService.cancel(reservationId, userId)
+            reservationService.cancel(1L, userId)
         );
         
         assertEquals(ErrorCode.PERMISSION_DENIED, exception.getErrorCode());
@@ -255,16 +250,13 @@ class RedisSeatReservationServiceTest {
     @DisplayName("존재하지 않는 예약 취소 시도")
     void cancel_ReservationNotFound() {
         // given
-        Long reservationId = 1L;
-        Long userId = 1L;
-        
         // when
-        when(reservationRepository.findById(reservationId))
+        when(reservationRepository.findById(1L))
             .thenReturn(Optional.empty());
         
         // then
         AppException exception = assertThrows(AppException.class, () -> 
-            reservationService.cancel(reservationId, userId)
+            reservationService.cancel(1L, userId)
         );
         
         assertEquals(ErrorCode.RESERVATION_NOT_FOUND, exception.getErrorCode());

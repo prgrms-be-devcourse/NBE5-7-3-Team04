@@ -22,6 +22,17 @@ class Reservation (
     var status: ReservationStatus // 예약 상태 (예약 or 취소)
 ) : BaseEntity() {
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Reservation) return false
+
+        if (id == null || other.id == null) return false
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int = id?.hashCode() ?: 0
+
     // 예약 취소 가능 여부
     val isCancelable: Boolean
         get() = status in listOf(
