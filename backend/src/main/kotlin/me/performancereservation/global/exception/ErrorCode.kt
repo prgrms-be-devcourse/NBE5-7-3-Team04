@@ -1,10 +1,11 @@
-package me.performancereservation.global.exception;
+package me.performancereservation.global.exception
 
-import lombok.Getter;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus
 
-@Getter
-public enum ErrorCode {
+enum class ErrorCode(
+    val httpStatus: HttpStatus,
+    val message: String
+) {
     // 시스템
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
 
@@ -25,14 +26,14 @@ public enum ErrorCode {
     EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다."),
 
     // 유저 관련
-    DUPLICATE_USER_EMAIL(HttpStatus.CONFLICT,"이미 존재하는 이메일입니다."),
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND,"존재하지 않는 유저입니다."),
-    DUPLICATE_AUTH_SOCIAL(HttpStatus.CONFLICT,"이미 연결된 소셜 로그인 플랫폼입니다."),
-    INVALID_PROVIDER(HttpStatus.BAD_REQUEST,"지원하지 않는 소셜 플랫폼 입니다."),
-    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않는 ACCESS 토큰입니다."),
-    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않는 REFRESH 토큰입니다."),
-    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다." ),
-    TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST,"존재하지 않는 토큰입니다."),
+    DUPLICATE_USER_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다."),
+    DUPLICATE_AUTH_SOCIAL(HttpStatus.CONFLICT, "이미 연결된 소셜 로그인 플랫폼입니다."),
+    INVALID_PROVIDER(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 플랫폼 입니다."),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않는 ACCESS 토큰입니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않는 REFRESH 토큰입니다."),
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AccessToken이 만료되었습니다."),
+    TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 토큰입니다."),
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     MANAGER_REQUEST_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 공연자 권한 요청 중이거나 공연 관리자 입니다"),
@@ -55,7 +56,7 @@ public enum ErrorCode {
     MANAGER_REQUEST_STATUS_NOT_PENDING(HttpStatus.BAD_REQUEST, "PENDING 상태의 공연 관리자 요청만 승인, 거부 할 수 있습니다."),
 
     // 예약 관련
-    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND,  "해당하는 예약이 없습니다."),
+    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 예약이 없습니다."),
     ALREADY_CANCELED_RESERVATION(HttpStatus.BAD_REQUEST, "이미 취소된 예약입니다."),
     INVALID_RESERVATION_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 예약 상태입니다."),
 
@@ -79,36 +80,22 @@ public enum ErrorCode {
     UNAUTHORIZED_SETTLEMENT_UPDATE(HttpStatus.UNAUTHORIZED, "본인의 정산 내역만 변경할 수 있습니다."),
 
     // 리뷰 관련
-    DUPLICATE_REVIEW(HttpStatus.CONFLICT,"이미 리뷰를 작성하셨습니다."),
-    UNAUTHORIZED_REVIEW(HttpStatus.UNAUTHORIZED,"예매한 공연에만 리뷰를 작성하실 수 있습니다."),
-    INVALID_SCHEDULE(HttpStatus.BAD_REQUEST,"해당 공연에 속하지 않는 회차입니다."),
+    DUPLICATE_REVIEW(HttpStatus.CONFLICT, "이미 리뷰를 작성하셨습니다."),
+    UNAUTHORIZED_REVIEW(HttpStatus.UNAUTHORIZED, "예매한 공연에만 리뷰를 작성하실 수 있습니다."),
+    INVALID_SCHEDULE(HttpStatus.BAD_REQUEST, "해당 공연에 속하지 않는 회차입니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
 
     //찜 관련
     DUPLICATED_BOOKMARK(HttpStatus.CONFLICT, "이미 같은 공연에 찜이 존재합니다."),
     BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "이미 찜이 안되어 있는 공연입니다.");
 
-    private final HttpStatus httpStatus;
-    private final String message;
+    fun serviceException(): AppException = AppException(this, null ,ErrorType.SERVICE)
 
-    ErrorCode(HttpStatus httpStatus, String message) {
-        this.httpStatus = httpStatus;
-        this.message = message;
-    }
+    fun serviceException(detail: String?): AppException = AppException(this, detail, ErrorType.SERVICE)
 
-    public AppException serviceException() {
-        return new AppException(this, ErrorType.SERVICE);
-    }
+    fun domainException(): AppException = AppException(this, null, ErrorType.DOMAIN)
 
-    public AppException serviceException(String detail) {
-        return new AppException(this, detail, ErrorType.SERVICE);
-    }
+    fun domainException(detail: String?): AppException = AppException(this, detail, ErrorType.DOMAIN)
 
-    public AppException domainException(String detail) {
-        return new AppException(this, detail, ErrorType.DOMAIN);
-    }
-
-    public AppException persistenceException(String detail) {
-        return new AppException(this, detail, ErrorType.PERSISTENCE);
-    }
+    fun persistenceException(detail: String?): AppException = AppException(this, detail, ErrorType.PERSISTENCE)
 }
