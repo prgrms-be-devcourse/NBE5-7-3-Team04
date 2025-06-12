@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static me.performancereservation.domain.performance.enums.PerformanceStatus.CONFIRMED;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -48,6 +50,9 @@ class PerformanceServiceTest {
 
     @InjectMocks
     PerformanceService performanceService;
+
+    @Mock
+    ApplicationEventPublisher eventPublisher;
 
     static final Long PERFORMANCE_ID1 = 1L;
     static final Long PERFORMANCE_ID2 = 2L;
@@ -86,13 +91,13 @@ class PerformanceServiceTest {
                 .venue("세종문화회관 대극장")
                 .price(120000)
                 .totalSeats(2000)
-                .category(PerformanceCategory.OPERA)
+                .category(PerformanceCategory.MUSICAL_OPERA)
                 .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
                 .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
                 .description("한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!")
                 .fileId(FILE_ID1)
                 .managerId(MANAGER_ID)
-                .status(PerformanceStatus.CONFIRMED)
+                .status(CONFIRMED)
                 .build();
 
         performance2 = Performance.builder()
@@ -101,13 +106,13 @@ class PerformanceServiceTest {
                 .venue("부산항국제여객터미널 야외주차장")
                 .price(5000)
                 .totalSeats(1000)
-                .category(PerformanceCategory.SINGING)
+                .category(PerformanceCategory.CONCERT)
                 .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
                 .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
                 .description("--")
                 .fileId(FILE_ID2)
                 .managerId(MANAGER_ID)
-                .status(PerformanceStatus.CONFIRMED)
+                .status(CONFIRMED)
                 .build();
 
         performance3 = Performance.builder()
@@ -116,13 +121,13 @@ class PerformanceServiceTest {
                 .venue("LG아트센터 서울 U+스테이지")
                 .price(77000)
                 .totalSeats(500)
-                .category(PerformanceCategory.SINGING)
+                .category(PerformanceCategory.CONCERT)
                 .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
                 .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
                 .description("여름의 초입, LG아트센터 서울, U+ 스테이지에 피어나는 음악섬")
                 .fileId(FILE_ID3)
                 .managerId(MANAGER_ID)
-                .status(PerformanceStatus.CONFIRMED)
+                .status(CONFIRMED)
                 .build();
 
         schedule1 = PerformanceSchedule.builder()
@@ -207,7 +212,7 @@ class PerformanceServiceTest {
                 "세종문화회관 대극장",
                 120000,
                 2000,
-                "OPERA",
+                "MUSICAL_OPERA",
                 LocalDateTime.of(2025,12,13, 0,0),
                 LocalDateTime.of(2025,12,14,0,0),
                 "한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!",
@@ -262,7 +267,7 @@ class PerformanceServiceTest {
         //when & then
         assertThatThrownBy(() -> performanceService.updatePerformance(PERFORMANCE_ID1, request, MANAGER_ID))
                 .isInstanceOf(AppException.class)
-                .hasMessageContaining("해당 공연을 찾을 수 없습니다.");
+                .hasMessageContaining("존재하지 않는 공연입니다.");
     }
 
     @Test
@@ -287,7 +292,7 @@ class PerformanceServiceTest {
         //given
         when(performanceRepository.findById(PERFORMANCE_ID1)).thenReturn(Optional.of(performance1));
 
-        when(performanceScheduleRepository.findByPerformanceId(PERFORMANCE_ID1))
+        when(performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(PERFORMANCE_ID1))
                 .thenReturn(List.of(schedule1, schedule2, schedule3));
 
         //when
@@ -298,7 +303,7 @@ class PerformanceServiceTest {
         assertThat(schedule1.isCanceled()).isTrue();
         assertThat(schedule2.isCanceled()).isTrue();
         assertThat(schedule3.isCanceled()).isTrue();
-        verify(performanceScheduleRepository).findByPerformanceId(PERFORMANCE_ID1);
+        verify(performanceScheduleRepository).findByPerformanceIdOrderByStartTimeAsc(PERFORMANCE_ID1);
     }
 
     @Test
@@ -331,7 +336,7 @@ class PerformanceServiceTest {
         //given
         when(performanceRepository.findById(PERFORMANCE_ID1)).thenReturn(Optional.of(performance1));
         when(fileRepository.findById(FILE_ID1)).thenReturn(Optional.of((file1)));
-        when(performanceScheduleRepository.findByPerformanceId(PERFORMANCE_ID1)).thenReturn(List.of(schedule1, schedule2, schedule3));
+        when(performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(PERFORMANCE_ID1)).thenReturn(List.of(schedule1, schedule2, schedule3));
 
         //when
         PerformanceDetailResponse response = performanceService.getPerformanceDetail(PERFORMANCE_ID1, null);
@@ -351,7 +356,7 @@ class PerformanceServiceTest {
         //when & then
         assertThatThrownBy(() -> performanceService.getPerformanceDetail(PERFORMANCE_ID1, null))
                 .isInstanceOf(AppException.class)
-                .hasMessageContaining("해당 공연을 찾을 수 없습니다.");
+                .hasMessageContaining("존재하지 않는 공연입니다.");
     }
 
     @Test
@@ -368,7 +373,7 @@ class PerformanceServiceTest {
         //then
         assertThat(response.getContent()).hasSize(3);
         assertThat(response.getContent().get(0).fileUrl()).isEqualTo("파일경로1");
-        assertThat(response.getContent().get(0).status()).isEqualTo("CONFIRMED");
+        assertThat(response.getContent().get(0).status()).isEqualTo(CONFIRMED);
     }
 
     @Test

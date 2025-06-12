@@ -262,4 +262,4 @@ class RedisSeatReservationServiceTest {
         assertEquals(ErrorCode.RESERVATION_NOT_FOUND, exception.getErrorCode());
         assertEquals("해당하는 예약이 없습니다.", exception.getMessage());
     }
-} 
+}
