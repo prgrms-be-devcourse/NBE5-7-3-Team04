@@ -30,7 +30,7 @@ object PerformanceScheduleMapper {
     @JvmStatic
     fun toResponse(schedule: PerformanceSchedule): PerformanceScheduleResponse {
         return PerformanceScheduleResponse(
-            schedule.id,
+            schedule.id!!,
             schedule.startTime,
             schedule.endTime,
             schedule.remainingSeats,

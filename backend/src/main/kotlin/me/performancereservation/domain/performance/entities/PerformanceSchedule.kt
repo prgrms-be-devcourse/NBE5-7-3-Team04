@@ -10,7 +10,7 @@ class PerformanceSchedule (
     // (PK) 회차 ID
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0,
+    var id: Long? = null,
     // (FK) 공연 ID
     var performanceId: Long = 0,
     // 공연 시작 시간

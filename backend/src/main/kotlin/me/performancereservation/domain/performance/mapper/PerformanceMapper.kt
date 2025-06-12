@@ -45,7 +45,7 @@ object PerformanceMapper {
         schedules: List<PerformanceSchedule>
     ): PerformanceDetailResponse {
         return PerformanceDetailResponse(
-            id = performance.id,
+            id = performance.id!!,
             title = performance.title,
             price = performance.price,
             totalSeats = performance.totalSeats,
@@ -71,7 +71,7 @@ object PerformanceMapper {
     @JvmStatic
     fun toListResponse(performance: Performance, fileUrl: String?): PerformancePageResponse {
         return PerformancePageResponse(
-            id = performance.id,
+            id = performance.id!!,
             fileUrl = fileUrl,
             title = performance.title,
             price = performance.price,
@@ -91,7 +91,7 @@ object PerformanceMapper {
     @JvmStatic
     fun toManagerListResponse(performance: Performance, fileUrl: String): PerformanceManagerPageResponse {
         return PerformanceManagerPageResponse(
-            id = performance.id,
+            id = performance.id!!,
             fileUrl = fileUrl,
             title = performance.title,
             startDate = performance.startDate,
@@ -115,7 +115,7 @@ object PerformanceMapper {
         schedules: List<PerformanceScheduleResponse>
     ): PerformanceManagerDetailResponse {
         return PerformanceManagerDetailResponse(
-            id =performance.id,
+            id =performance.id!!,
             fileUrl = fileUrl,
             title = performance.title,
             venue = performance.venue,

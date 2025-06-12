@@ -12,7 +12,7 @@ class Performance (
     // 공연 ID
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0,
+    var id: Long? = null,
     // (FK) 파일 ID - 공연 썸네일 용도
     var fileId: Long? = null,
     // (FK) 공연관리자 ID
