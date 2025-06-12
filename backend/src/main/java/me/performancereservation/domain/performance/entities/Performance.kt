@@ -1,105 +1,78 @@
-package me.performancereservation.domain.performance.entities;
+package me.performancereservation.domain.performance.entities
 
-import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import me.performancereservation.domain.common.BaseEntity;
-import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
-import me.performancereservation.domain.performance.enums.PerformanceCategory;
-import me.performancereservation.domain.performance.enums.PerformanceStatus;
-import me.performancereservation.global.exception.ErrorCode;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.*
+import me.performancereservation.domain.common.BaseEntity
+import me.performancereservation.domain.performance.dto.performance.PerformanceUpdateRequest
+import me.performancereservation.domain.performance.enums.PerformanceCategory
+import me.performancereservation.domain.performance.enums.PerformanceStatus
+import java.time.LocalDateTime
 
 @Entity
-@Getter
-@NoArgsConstructor
-public class Performance extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 공연 ID
+class Performance (
+    // 공연 ID
+    @field:Id
+    @field:GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0,
+    // (FK) 파일 ID - 공연 썸네일 용도
+    var fileId: Long? = null,
+    // (FK) 공연관리자 ID
+    var managerId: Long? = null,
+    // 제목
+    var title: String = "",
+    // 공연 장소
+    var venue: String = "",
+    // 가격
+    var price: Int = 0,
+    // 총 좌석수
+    var totalSeats: Int = 0,
+    // 공연 분류
+    @field:Enumerated(EnumType.STRING)
+    var category: PerformanceCategory = PerformanceCategory.ETC,
+    // 공연 시작 일시
+    var startDate: LocalDateTime = LocalDateTime.now(),
+    // 공연 종료 일시
+    var endDate: LocalDateTime = LocalDateTime.now(),
+    // 설명
+    var description: String = "",
+    // 공연 상태
+    @field:Enumerated(EnumType.STRING)
+    var status: PerformanceStatus = PerformanceStatus.PENDING,
+) : BaseEntity() {
 
-    private Long fileId; // (FK) 파일 ID - 공연 썸네일 용도
+    val isPending: Boolean get() = this.status == PerformanceStatus.PENDING
 
-    private Long managerId; // (FK) 공연관리자 ID
+    val isConfirmed: Boolean get() = this.status == PerformanceStatus.CONFIRMED
 
-    private String title; // 제목
-
-    private String venue; // 공연 장소
-
-    private int price; // 가격
-
-    private int totalSeats; // 총 좌석수
-
-    @Enumerated(EnumType.STRING)
-    private PerformanceCategory category; // 공연 분류
-
-    private LocalDateTime startDate; // 공연 시작 일시
-
-    private LocalDateTime endDate; // 공연 종료 일시
-
-    private String description; // 설명
-
-    @Enumerated(EnumType.STRING)
-    private PerformanceStatus status; // 공연 상태
-
-    @Builder
-    public Performance(Long id, Long fileId, Long managerId, String title, String venue, int price, int totalSeats, PerformanceCategory category, LocalDateTime startDate, LocalDateTime endDate, String description, PerformanceStatus status) {
-        this.id = id;
-        this.fileId = fileId;
-        this.managerId = managerId;
-        this.title = title;
-        this.venue = venue;
-        this.price = price;
-        this.totalSeats = totalSeats;
-        this.category = category;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.description = description;
-        this.status = status;
+    fun confirm() {
+        this.status = PerformanceStatus.CONFIRMED
     }
 
-
-    public boolean isPending() {
-        return this.status == PerformanceStatus.PENDING;
+    fun reject() {
+        this.status = PerformanceStatus.REJECTED
     }
 
-    public void confirm() {
-        this.status = PerformanceStatus.CONFIRMED;
+    fun updateFrom(request: PerformanceUpdateRequest) {
+        this.fileId = request.fileId
+        this.description = request.description
     }
 
-    public void reject() {
-        this.status = PerformanceStatus.REJECTED;
+    fun cancel() {
+        this.status = PerformanceStatus.CANCELLED
     }
 
-    public void updateFrom(PerformanceUpdateRequest request) {
-        this.fileId = request.fileId();
-        this.description = request.description();
+    fun isRegistrationPeriod(startDate: LocalDateTime, endDate: LocalDateTime): Boolean {
+        return (!startDate.isBefore(this.startDate) && !endDate.isAfter(this.endDate)) && (startDate.isBefore(endDate))
     }
 
-    public void cancel() {
-        this.status = PerformanceStatus.CANCELLED;
+    fun hasFile(): Boolean {
+        return this.fileId != null
     }
 
-    public boolean isRegistrationPeriod(LocalDateTime startDate, LocalDateTime endDate) {
-        return (!startDate.isBefore(this.startDate) && !endDate.isAfter(this.endDate)) && (startDate.isBefore(endDate));
+    fun hasPermission(managerId: Long): Boolean {
+        return this.managerId != null && this.managerId == managerId
     }
 
-    public boolean hasFile() {
-        return this.fileId != null;
-    }
-
-    public boolean hasPermission(Long managerId) {
-        return this.managerId != null && this.managerId.equals(managerId);
-    }
-
-    public boolean isConfirmed() {
-        return this.status == PerformanceStatus.CONFIRMED;
-
-    }
-
-    public void completePerformance() {
-        this.status = PerformanceStatus.COMPLETED;
+    fun completePerformance() {
+        this.status = PerformanceStatus.COMPLETED
     }
 }
