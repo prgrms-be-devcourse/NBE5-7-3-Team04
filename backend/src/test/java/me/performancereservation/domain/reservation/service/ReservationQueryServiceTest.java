@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class ReservationQueryServiceTest {
@@ -63,13 +64,14 @@ class ReservationQueryServiceTest {
         int quantity = 2;
         Pageable pageable = PageRequest.of(0, 10);
         
-        Reservation reservation = Reservation.builder()
-            .id(1L)
-            .userId(userId)
-            .scheduleId(scheduleId)
-            .quantity(quantity)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
+        Reservation reservation = new Reservation(
+            1L,
+            1L,
+            1L,
+            1L,
+            2,
+            ReservationStatus.PAYMENTS_PENDING
+        );
         
         SchedulePerformanceInfo scheduleInfo = new SchedulePerformanceInfo(
             1L,
@@ -138,13 +140,14 @@ class ReservationQueryServiceTest {
         Long userId = 1L;
         Long otherUserId = 2L;
         
-        Reservation reservation = Reservation.builder()
-            .id(reservationId)
-            .userId(otherUserId)
-            .scheduleId(1L)
-            .quantity(2)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
+        Reservation reservation = new Reservation(
+            1L,
+            otherUserId,
+            1L,
+            1L,
+            2,
+            ReservationStatus.PAYMENTS_PENDING
+        );
         
         // when
         when(reservationRepository.findById(reservationId))
@@ -169,14 +172,14 @@ class ReservationQueryServiceTest {
         Long performanceId = 1L;
         int quantity = 2;
         
-        Reservation reservation = Reservation.builder()
-            .id(reservationId)
-            .userId(userId)
-            .performanceId(performanceId)
-            .scheduleId(scheduleId)
-            .quantity(quantity)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
+        Reservation reservation = new Reservation(
+            1L,
+            1L,
+            1L,
+            1L,
+            2,
+            ReservationStatus.PAYMENTS_PENDING
+        );
         
         Performance performance = Performance.builder()
             .id(performanceId)
@@ -226,14 +229,15 @@ class ReservationQueryServiceTest {
         ReservationDetailResponse result = queryService.getByReservationId(reservationId, userId);
 
         // then
-        assertNotNull(result);
-        assertEquals(expectedResponse, result);
-        assertEquals(reservationId, result.reservationId());
-        assertEquals("Test Performance", result.title());
-        assertEquals("Test Venue", result.venue());
-        assertEquals(quantity, result.quantity());
-        assertEquals(ReservationStatus.PAYMENTS_PENDING, result.status());
-        assertEquals(10000, result.ticketPrice());
-        assertEquals(20000, result.totalPrice());
+        assertThat(result).isNotNull();
+        assertThat(result.getReservationId()).isEqualTo(reservationId);
+        assertThat(result.getPerformanceId()).isEqualTo(performanceId);
+        assertThat(result.getTitle()).isEqualTo(performance.getTitle());
+        assertThat(result.getDescription()).isEqualTo(performance.getDescription());
+        assertThat(result.getVenue()).isEqualTo(performance.getVenue());
+        assertThat(result.getQuantity()).isEqualTo(quantity);
+        assertThat(result.getStatus()).isEqualTo(ReservationStatus.PAYMENTS_PENDING);
+        assertThat(result.getTicketPrice()).isEqualTo(10000);
+        assertThat(result.getTotalPrice()).isEqualTo(20000);
     }
 } 

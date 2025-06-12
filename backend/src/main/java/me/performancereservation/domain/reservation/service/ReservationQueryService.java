@@ -79,7 +79,7 @@ public class ReservationQueryService {
                 .orElseThrow(() -> ErrorCode.RESERVATION_NOT_FOUND.domainException("예약 ID: " + reservationId));
 
         // 본인의 예약이 아니면 예외
-        if (!reservation.getUserId().equals(userId)) {
+        if (reservation.getUserId()!= userId) {
             throw ErrorCode.PERMISSION_DENIED.serviceException("해당 예약에 접근할 수 없습니다.");
         }
 
