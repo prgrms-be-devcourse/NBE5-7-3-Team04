@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 
-interface AdminReservationRepository : JpaRepository<Reservation?, Long?> {
+interface AdminReservationRepository : JpaRepository<Reservation, Long> {
     /** 관리자가 예약 목록 조회를 위한 조회 쿼리
      *
      * 4 개의 테이블을 조인해 필요한 필드를 dto 로 반환
