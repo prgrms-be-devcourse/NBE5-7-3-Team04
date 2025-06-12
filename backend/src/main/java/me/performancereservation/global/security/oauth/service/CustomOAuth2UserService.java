@@ -30,19 +30,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserService userService;
     private final AuthService authService;
 
-    @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         //소셜에서 준 유저 정보 가져오기
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        return process(userRequest, oAuth2User);
-    }
+         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-    // 테스트를 위한 메서드
-    public OAuth2User loadUserForTest(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
-        return process(userRequest, oAuth2User);
-    }
 
-    private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
         //provider(google, kakao, naver 등) 추출
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
@@ -71,5 +63,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         //Spring Security는 리턴된 객체를 세션(Authentication)에 저장해서 인증 정보를 유지
         return new CustomOAuth2User(user, attributes);
+
     }
 }
