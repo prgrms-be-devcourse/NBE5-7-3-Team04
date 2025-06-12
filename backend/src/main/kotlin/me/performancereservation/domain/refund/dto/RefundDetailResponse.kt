@@ -6,12 +6,15 @@ import me.performancereservation.domain.refund.enums.RefundStatus
 import java.time.LocalDateTime
 
 data class RefundDetailResponse( // Refund에서 데이터 전달
-    val refundId: Long?,
+    val refundId: Long,
     val userId: Long,
     val reservationId: Long,
+
+    // 계좌, 은행, 입금자명은 nullable
     val account: String?,
     val bank: String?,
     val depositorName: String?,
+
     val refundStatus: RefundStatus,
     val createdDate: LocalDateTime,
     val updatedDate: LocalDateTime,  // Reservation에서 가져오는 데이터
@@ -36,7 +39,7 @@ data class RefundDetailResponse( // Refund에서 데이터 전달
             performance: Performance
         ): RefundDetailResponse {
             return RefundDetailResponse(
-                refund.id,
+                refund.id!!,
                 refund.userId,
                 refund.reservationId,
                 refund.account,
