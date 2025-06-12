@@ -50,19 +50,21 @@ class RedisReservationBulkCancelServiceTest {
         Long performanceId = 1L;
         List<Long> scheduleIds = Arrays.asList(1L, 2L);
         
-        Performance performance = Performance.builder()
-            .id(performanceId)
-            .title("콘서트")
-            .venue("세종문화회관 대극장")
-            .price(120000)
-            .totalSeats(2000)
-            .category(PerformanceCategory.CONCERT)
-            .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
-                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
-            .description("굳")
-            .status(PerformanceStatus.CONFIRMED)
-            .build();
-            
+        /*Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "콘서트",
+                "세종문화회관 대극장",
+                120000,
+                2000,
+                PerformanceCategory.CONCERT,
+                LocalDateTime.of(2025, 12, 13, 0, 0),
+                LocalDateTime.of(2025, 12, 14, 0, 0),
+                "굳",
+                PerformanceStatus.CONFIRMED
+        );
+
         PerformanceSchedule schedule1 = PerformanceSchedule.builder()
             .id(1L)
             .performanceId(performanceId)
@@ -79,7 +81,7 @@ class RedisReservationBulkCancelServiceTest {
             .endTime(LocalDateTime.of(2025, 12, 13, 12, 0))
             .remainingSeats(100)
             .canceled(false)
-            .build();
+            .build();*/
             
         Reservation reservation1 = Reservation.builder()
             .id(1L)
@@ -122,7 +124,7 @@ class RedisReservationBulkCancelServiceTest {
         List<Long> scheduleIds = Arrays.asList(1L, 2L);
         
         // 일정은 있지만 예약이 없는 경우
-        PerformanceSchedule schedule1 = PerformanceSchedule.builder()
+        /*PerformanceSchedule schedule1 = PerformanceSchedule.builder()
             .id(1L)
             .performanceId(performanceId)
             .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
@@ -138,7 +140,7 @@ class RedisReservationBulkCancelServiceTest {
             .endTime(LocalDateTime.of(2025, 12, 13, 12, 0))
             .remainingSeats(100)
             .canceled(false)
-            .build();
+            .build();*/
 
         // when
         when(performanceScheduleRepository.findIdsByPerformanceId(performanceId))
@@ -163,14 +165,14 @@ class RedisReservationBulkCancelServiceTest {
         List<Long> scheduleIds = Arrays.asList(1L);
         
         // 일정 정보
-        PerformanceSchedule schedule = PerformanceSchedule.builder()
+        /*PerformanceSchedule schedule = PerformanceSchedule.builder()
             .id(1L)
             .performanceId(performanceId)
             .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
             .endTime(LocalDateTime.of(2025, 12, 13, 10, 0))
             .remainingSeats(100)
             .canceled(false)
-            .build();
+            .build();*/
         
         // 이미 취소된 예약들
         Reservation canceledReservation1 = Reservation.builder()
@@ -213,7 +215,7 @@ class RedisReservationBulkCancelServiceTest {
         Long performanceId = 1L;
         List<Long> scheduleIds = Arrays.asList(1L, 2L);
         
-        PerformanceSchedule schedule1 = PerformanceSchedule.builder()
+        /*PerformanceSchedule schedule1 = PerformanceSchedule.builder()
             .id(1L)
             .performanceId(performanceId)
             .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
@@ -229,7 +231,7 @@ class RedisReservationBulkCancelServiceTest {
             .endTime(LocalDateTime.of(2025, 12, 13, 12, 0))
             .remainingSeats(100)
             .canceled(false)
-            .build();
+            .build();*/
             
         // 다양한 상태의 예약들
         Reservation pendingReservation = Reservation.builder()

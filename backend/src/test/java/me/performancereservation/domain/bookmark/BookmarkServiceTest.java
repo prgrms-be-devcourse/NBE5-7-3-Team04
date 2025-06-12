@@ -52,12 +52,20 @@ class BookmarkServiceTest {
         Long userId = 1L;
         Long performanceId = 1L;
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("테스트 공연")
-                .price(10000)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "테스트 공연",
+                null,
+                10000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                PerformanceStatus.CONFIRMED
+        );
 
         Bookmark bookmark = Bookmark.builder()
                 .id(1L)
@@ -106,12 +114,20 @@ class BookmarkServiceTest {
         Long userId = 1L;
         Long performanceId = 1L;
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("테스트 공연")
-                .price(10000)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "테스트 공연",
+                null,
+                10000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                PerformanceStatus.CONFIRMED
+        );
 
         // when
         when(performanceRepository.findById(performanceId)).thenReturn(Optional.of(performance));
@@ -135,12 +151,20 @@ class BookmarkServiceTest {
         Long userId = 1L;
         Long performanceId = 1L;
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("테스트 공연")
-                .price(10000)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "테스트 공연",
+                null,
+                10000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                PerformanceStatus.CONFIRMED
+        );
 
         Bookmark bookmark = Bookmark.builder()
                 .id(1L)
@@ -188,12 +212,20 @@ class BookmarkServiceTest {
         Long userId = 1L;
         Long performanceId = 1L;
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("테스트 공연")
-                .price(10000)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "테스트 공연",
+                null,
+                10000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                PerformanceStatus.CONFIRMED
+        );
 
         // when
         when(performanceRepository.findById(performanceId)).thenReturn(Optional.of(performance));
@@ -225,30 +257,34 @@ class BookmarkServiceTest {
 
         // 공연 목록
         List<Performance> performances = List.of(
-                Performance.builder()
-                        .id(1L)
-                        .fileId(1L)
-                        .title("테스트 공연 1")
-                        .price(10000)
-                        .venue("테스트 장소 1")
-                        .description("테스트 설명 1")
-                        .category(PerformanceCategory.MUSICAL_OPERA)
-                        .status(PerformanceStatus.CONFIRMED)
-                        .startDate(LocalDateTime.now().plusDays(1))
-                        .endDate(LocalDateTime.now().plusDays(2))
-                        .build(),
-                Performance.builder()
-                        .id(2L)
-                        .fileId(2L)
-                        .title("테스트 공연 2")
-                        .price(20000)
-                        .venue("테스트 장소 2")
-                        .description("테스트 설명 2")
-                        .category(PerformanceCategory.MUSICAL_OPERA)
-                        .status(PerformanceStatus.CONFIRMED)
-                        .startDate(LocalDateTime.now().plusDays(2))
-                        .endDate(LocalDateTime.now().plusDays(3))
-                        .build()
+                new Performance(
+                        1L,
+                        1L,
+                        null,
+                        "테스트 공연 1",
+                        "테스트 장소 1",
+                        10000,
+                        0,
+                        PerformanceCategory.MUSICAL_OPERA,
+                        LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(2),
+                        "테스트 설명 1",
+                        PerformanceStatus.CONFIRMED
+                ),
+                new Performance(
+                        2L,
+                        2L,
+                        null,
+                        "테스트 공연 2",
+                        "테스트 장소 2",
+                        20000,
+                        0,
+                        PerformanceCategory.MUSICAL_OPERA,
+                        LocalDateTime.now().plusDays(2),
+                        LocalDateTime.now().plusDays(3),
+                        "테스트 설명 2",
+                        PerformanceStatus.CONFIRMED
+                )
         );
 
         // 파일 목록
