@@ -60,7 +60,7 @@ class RefundServiceTest {
     @BeforeEach
     void setUp() {
         log.info("테스트 설정 시작");
-        
+
         // Performance 생성
         performance = Performance.builder()
                 .title("테스트 공연")
@@ -329,14 +329,14 @@ class RefundServiceTest {
         // then
         List<Refund> savedRefunds = refundRepository.findAll();
         assertThat(savedRefunds).hasSize(5);
-        
+
         // 각 환불의 상태와 정보 검증
         for (Refund refund : savedRefunds) {
             assertThat(refund.getStatus()).isEqualTo(RefundStatus.PENDING);
             assertThat(refund.getAccount()).isNull();
             assertThat(refund.getBank()).isNull();
             assertThat(refund.getDepositorName()).isNull();
-            
+
             // 예약 정보와 일치하는지 검증
             Reservation originalReservation = reservations.stream()
                     .filter(r -> r.getId().equals(refund.getReservationId()))
@@ -344,7 +344,7 @@ class RefundServiceTest {
                     .orElseThrow();
             assertThat(refund.getUserId()).isEqualTo(originalReservation.getUserId());
         }
-        
+
         log.info("대량 환불 생성 테스트 완료");
     }
 
@@ -378,7 +378,7 @@ class RefundServiceTest {
         // then
         List<Refund> savedRefunds = refundRepository.findAll();
         assertThat(savedRefunds).hasSize(5); // 첫 번째 환불 + 새로 생성된 4개
-        
+
         // 각 환불의 상태와 정보 검증
         for (Refund refund : savedRefunds) {
             assertThat(refund.getStatus()).isEqualTo(RefundStatus.PENDING);
@@ -386,7 +386,7 @@ class RefundServiceTest {
             assertThat(refund.getBank()).isNull();
             assertThat(refund.getDepositorName()).isNull();
         }
-        
+
         log.info("이미 환불이 있는 경우 대량 환불 생성 테스트 완료");
     }
 
@@ -404,7 +404,7 @@ class RefundServiceTest {
         // then
         List<Refund> savedRefunds = refundRepository.findAll();
         assertThat(savedRefunds).isEmpty();
-        
+
         log.info("빈 예약 목록 테스트 완료");
     }
 }
