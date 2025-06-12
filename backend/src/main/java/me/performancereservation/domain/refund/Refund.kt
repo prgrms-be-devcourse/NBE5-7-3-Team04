@@ -1,10 +1,8 @@
 package me.performancereservation.domain.refund
 
 import jakarta.persistence.*
-import lombok.*
 import me.performancereservation.domain.common.BaseEntity
 import me.performancereservation.domain.refund.enums.RefundStatus
-import me.performancereservation.global.exception.ErrorCode
 
 @Entity
 class Refund ( // account, bank, depositorName는 처음 생성할 때 null
