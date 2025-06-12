@@ -177,7 +177,7 @@ class SettlementServiceTest {
         assertThat(response.getContent()).hasSize(2);
         assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
         assertThat(response.getContent().get(0).status()).isIn(SettlementStatus.PENDING, SettlementStatus.CONFIRMED);
-        
+
         // 로깅 추가
         response.getContent().forEach(SettlementServiceTestUtils::logSettlementResponse);
     }
@@ -198,7 +198,7 @@ class SettlementServiceTest {
         assertThat(response.getContent()).hasSize(2);
         assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
         assertThat(response.getContent().get(0).status()).isIn(SettlementStatus.PENDING, SettlementStatus.CONFIRMED);
-        
+
         // 로깅 추가
         response.getContent().forEach(SettlementServiceTestUtils::logSettlementResponse);
     }
@@ -218,7 +218,7 @@ class SettlementServiceTest {
         assertThat(response.getContent()).hasSize(1);
         assertThat(response.getContent().get(0).status()).isEqualTo(SettlementStatus.PENDING);
         assertThat(response.getContent().get(0).title()).isEqualTo("테스트 공연");
-        
+
         // 로깅 추가
         response.getContent().forEach(SettlementServiceTestUtils::logSettlementResponse);
     }
