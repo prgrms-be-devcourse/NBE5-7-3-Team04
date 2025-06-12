@@ -1,18 +1,16 @@
-package me.performancereservation.domain.performance.scheduler;
+package me.performancereservation.domain.performance.scheduler
 
-import lombok.RequiredArgsConstructor;
-import me.performancereservation.domain.performance.service.PerformanceService;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import me.performancereservation.domain.performance.service.PerformanceService
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 
 @Component
-@RequiredArgsConstructor
-public class PerformanceScheduler {
-
-    private final PerformanceService performanceService;
+class PerformanceScheduler (
+    private val performanceService: PerformanceService
+) {
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void completeEndedPerformances() {
-        performanceService.completeEndedPerformances();
+    fun completeEndedPerformances() {
+        performanceService.completeEndedPerformances()
     }
 }
