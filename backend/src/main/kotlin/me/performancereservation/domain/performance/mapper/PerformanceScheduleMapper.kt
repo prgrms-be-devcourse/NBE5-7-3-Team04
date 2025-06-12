@@ -11,7 +11,6 @@ object PerformanceScheduleMapper {
      * @param performanceId
      * @return PerformanceSchedule
      */
-    @JvmStatic
     fun toEntity(request: PerformanceScheduleRequest, performanceId: Long, totalSeats: Int): PerformanceSchedule {
         return PerformanceSchedule(
             performanceId = performanceId,
@@ -27,7 +26,6 @@ object PerformanceScheduleMapper {
      * @param schedule
      * @return PerformanceScheduleResponse
      */
-    @JvmStatic
     fun toResponse(schedule: PerformanceSchedule): PerformanceScheduleResponse {
         return PerformanceScheduleResponse(
             schedule.id!!,
