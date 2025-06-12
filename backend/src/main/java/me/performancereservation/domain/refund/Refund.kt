@@ -26,6 +26,23 @@ class Refund ( // account, bank, depositorName는 처음 생성할 때 null
 
     var depositorName: String? = null // 입금자명
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Refund) return false
+
+        if (id == null || other.id == null) return false
+
+        return id == other.id && updatedAt == other.updatedAt
+    }
+
+    override fun hashCode(): Int {
+        var result = id?.hashCode() ?: 0
+
+        result = 31 * result + updatedAt.hashCode()
+
+        return result
+    }
+
     fun updateBankInfo(account: String?, bank: String?, depositorName: String?) {
         this.account = account
         this.bank = bank
@@ -37,9 +54,6 @@ class Refund ( // account, bank, depositorName는 처음 생성할 때 null
     }
 
     fun confirm() {
-        if (this.status == RefundStatus.CONFIRMED) {
-            throw ErrorCode.INVALID_REFUND_STATUS.domainException("이미 환불이 완료된 상태입니다.")
-        }
         this.status = RefundStatus.CONFIRMED
     }
 }
