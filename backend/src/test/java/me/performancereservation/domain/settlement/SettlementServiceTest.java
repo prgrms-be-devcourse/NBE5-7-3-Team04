@@ -5,11 +5,13 @@ import me.performancereservation.domain.performance.entities.PerformanceSchedule
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
+import me.performancereservation.domain.performance.service.PerformanceService;
 import me.performancereservation.domain.settlement.dto.SettlementRequest;
 import me.performancereservation.domain.settlement.dto.SettlementResponse;
 import me.performancereservation.domain.settlement.dto.SettlementUpdateRequest;
 import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse;
 import me.performancereservation.domain.settlement.enums.SettlementStatus;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.global.exception.AppException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,9 @@ import static org.mockito.Mockito.*;
 class SettlementServiceTest {
 
     @Mock
+    private SMSService smsService;
+
+    @Mock
     private SettlementRepository settlementRepository;
 
     @Mock
@@ -42,6 +47,9 @@ class SettlementServiceTest {
 
     @Mock
     private PerformanceScheduleRepository performanceScheduleRepository;
+
+    @Mock
+    private PerformanceService performanceService;
 
     @InjectMocks
     private SettlementService settlementService;
@@ -81,14 +89,7 @@ class SettlementServiceTest {
                 .canceled(false)
                 .build();
 
-        settlement = Settlement.builder()
-                .id(SETTLEMENT_ID)
-                .performanceId(PERFORMANCE_ID)
-                .totalAmount(24000000)
-                .account("123-456-789")
-                .bank("신한은행")
-                .status(SettlementStatus.PENDING)
-                .build();
+        settlement = new Settlement(SETTLEMENT_ID, PERFORMANCE_ID, 24000000, "123-456-789", "신한은행", SettlementStatus.PENDING);
     }
 
     @Test
@@ -173,9 +174,9 @@ class SettlementServiceTest {
         SettlementUpdateResponse response = settlementService.updateSettlement(request);
 
         // then
-        assertThat(response.settlementId()).isEqualTo(SETTLEMENT_ID);
-        assertThat(response.bank()).isEqualTo("국민은행");
-        assertThat(response.account()).isEqualTo("987-654-321");
+        assertThat(response.getSettlementId()).isEqualTo(SETTLEMENT_ID);
+        assertThat(response.getBank()).isEqualTo("국민은행");
+        assertThat(response.getAccount()).isEqualTo("987-654-321");
         verify(settlementRepository).findById(SETTLEMENT_ID);
     }
 
@@ -207,9 +208,9 @@ class SettlementServiceTest {
         SettlementResponse response = settlementService.confirmSettlement(SETTLEMENT_ID);
 
         // then
-        assertThat(response.settlementId()).isEqualTo(SETTLEMENT_ID);
-        assertThat(response.status()).isEqualTo(SettlementStatus.CONFIRMED);
-        assertThat(response.settledAt()).isNotNull();
+        assertThat(response.getSettlementId()).isEqualTo(SETTLEMENT_ID);
+        assertThat(response.getStatus()).isEqualTo(SettlementStatus.CONFIRMED);
+        assertThat(response.getSettledAt()).isNotNull();
         verify(settlementRepository).findById(SETTLEMENT_ID);
         verify(performanceRepository).findById(PERFORMANCE_ID);
     }
@@ -248,7 +249,7 @@ class SettlementServiceTest {
 
         // then
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).settlementId()).isEqualTo(SETTLEMENT_ID);
+        assertThat(result.getContent().get(0).getSettlementId()).isEqualTo(SETTLEMENT_ID);
         verify(settlementRepository).findAllSettlementsWithUserId(MANAGER_ID, pageable);
     }
 
@@ -274,7 +275,7 @@ class SettlementServiceTest {
 
         // then
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).settlementId()).isEqualTo(SETTLEMENT_ID);
+        assertThat(result.getContent().get(0).getSettlementId()).isEqualTo(SETTLEMENT_ID);
         verify(settlementRepository).findAllSettlementsByStatus(SettlementStatus.PENDING, pageable);
     }
 }
