@@ -1,56 +1,45 @@
-package me.performancereservation.domain.performance.service;
+package me.performancereservation.domain.performance.service
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import me.performancereservation.domain.bookmark.BookmarkRepository;
-import me.performancereservation.domain.file.File;
-import me.performancereservation.domain.file.FileRepository;
-import me.performancereservation.domain.performance.dto.performance.request.PerformanceCreateRequest;
-import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerPageResponse;
-import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse;
-import me.performancereservation.domain.performance.entities.Performance;
-import me.performancereservation.domain.performance.entities.PerformanceSchedule;
-import me.performancereservation.domain.performance.enums.PerformanceCategory;
-import me.performancereservation.domain.performance.enums.PerformanceStatus;
-import me.performancereservation.domain.performance.event.PerformanceCanceledEvent;
-import me.performancereservation.domain.performance.mapper.PerformanceMapper;
-import me.performancereservation.domain.performance.mapper.PerformanceScheduleMapper;
-import me.performancereservation.domain.performance.repository.PerformanceRepository;
-import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
-import me.performancereservation.domain.ticket.Ticket;
-import me.performancereservation.domain.ticket.TicketRepository;
-import me.performancereservation.global.exception.ErrorCode;
-import me.performancereservation.global.storage.redis.RedisSeatService;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import me.performancereservation.domain.bookmark.BookmarkRepository
+import me.performancereservation.domain.file.File
+import me.performancereservation.domain.file.FileRepository
+import me.performancereservation.domain.performance.dto.performance.*
+import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleResponse
+import me.performancereservation.domain.performance.entities.Performance
+import me.performancereservation.domain.performance.entities.PerformanceSchedule
+import me.performancereservation.domain.performance.enums.PerformanceCategory
+import me.performancereservation.domain.performance.enums.PerformanceStatus
+import me.performancereservation.domain.performance.event.PerformanceCanceledEvent
+import me.performancereservation.domain.performance.mapper.PerformanceMapper
+import me.performancereservation.domain.performance.mapper.PerformanceScheduleMapper
+import me.performancereservation.domain.performance.repository.PerformanceRepository
+import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository
+import me.performancereservation.domain.ticket.Ticket
+import me.performancereservation.domain.ticket.TicketRepository
+import me.performancereservation.global.exception.ErrorCode
+import me.performancereservation.global.storage.redis.RedisSeatService
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import java.util.*
+import java.util.function.Consumer
+import java.util.stream.Collectors
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-@Slf4j
 @Service
-@RequiredArgsConstructor
-public class PerformanceService {
+class PerformanceService (
+    private val performanceRepository: PerformanceRepository,
+    private val performanceScheduleRepository: PerformanceScheduleRepository,
+    private val bookmarkRepository: BookmarkRepository,
+    private val fileRepository: FileRepository,
+    private val ticketRepository: TicketRepository,
+    private val eventPublisher: ApplicationEventPublisher,
+    private val redisSeatService: RedisSeatService
+){
 
-    private final PerformanceRepository performanceRepository;
-    private final PerformanceScheduleRepository performanceScheduleRepository;
-    private final BookmarkRepository bookmarkRepository;
-    private final FileRepository fileRepository;
-    private final TicketRepository ticketRepository;
-
-    private final ApplicationEventPublisher eventPublisher;
-
-    private final RedisSeatService redisSeatService;
 
     /** 공연 등록 요청
      *
@@ -59,16 +48,16 @@ public class PerformanceService {
      * @return performanceId
      */
     @Transactional
-    public Long createPerformance(PerformanceCreateRequest request, Long managerId) {
-        if (!isRegistrationPeriod(request.startDate(), request.endDate())) {
-            throw ErrorCode.INVALID_PERFORMANCE_PERIOD.domainException("시작 시간 : " + request.startDate() + ", 종료 시간 : " + request.endDate());
+    fun createPerformance(request: PerformanceCreateRequest, managerId: Long): Long? {
+        if (!isRegistrationPeriod(request.startDate, request.endDate)) {
+            throw ErrorCode.INVALID_PERFORMANCE_PERIOD.domainException("시작 시간 : " + request.startDate + ", 종료 시간 : " + request.endDate)
         }
 
-        return performanceRepository.save(PerformanceMapper.toEntity(request, managerId)).getId();
+        return performanceRepository.save(PerformanceMapper.toEntity(request, managerId)).id
     }
 
-    private boolean isRegistrationPeriod(LocalDateTime startDate, LocalDateTime endDate) {
-        return startDate.isBefore(endDate);
+    private fun isRegistrationPeriod(startDate: LocalDateTime, endDate: LocalDateTime): Boolean {
+        return startDate.isBefore(endDate)
     }
 
 
@@ -79,17 +68,18 @@ public class PerformanceService {
      * @return performanceId
      */
     @Transactional
-    public Long updatePerformance(Long performanceId, PerformanceUpdateRequest request, Long managerId) {
-        Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+    fun updatePerformance(performanceId: Long, request: PerformanceUpdateRequest, managerId: Long): Long? {
+        val performance: Performance = performanceRepository.findByIdOrNull(performanceId) ?:
+            throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=$performanceId")
+
 
         // 권한 검사
-        if(!performance.hasPermission(managerId)) {
-            throw ErrorCode.PERMISSION_DENIED.domainException("수정 권한이 없습니다. id=" + performanceId);
+        if (!performance.hasPermission(managerId)) {
+            throw ErrorCode.PERMISSION_DENIED.domainException("수정 권한이 없습니다. id=$performanceId")
         }
 
-        performance.updateFrom(request);
-        return performance.getId();
+        performance.updateFrom(request)
+        return performance.id
     }
 
     /** 공연 전체 취소
@@ -98,26 +88,27 @@ public class PerformanceService {
      * @param performanceId
      */
     @Transactional
-    public Long cancelPerformance(Long performanceId, Long managerId) {
-        Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+    fun cancelPerformance(performanceId: Long, managerId: Long): Long? {
+        val performance: Performance = performanceRepository.findByIdOrNull(performanceId) ?:
+            throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=$performanceId")
 
         // 권한 검사
-        if(!performance.hasPermission(managerId)) {
+        if (!performance.hasPermission(managerId)) {
             throw ErrorCode.PERMISSION_DENIED.domainException(
-                    "공연을 취소할 권한이 없습니다. performance id=" + performanceId + ", managerId=" + managerId);
+                "공연을 취소할 권한이 없습니다. performance id=$performanceId, managerId=$managerId"
+            )
         }
 
         // 공연 취소
-        performance.cancel();
+        performance.cancel()
         // 해당 공연 회차 전체 취소
-        performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId())
-                .forEach(PerformanceSchedule::cancel);
+        performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
+            .forEach {obj -> obj.cancel() }
 
         // 예약 취소 이벤트 호출
-        eventPublisher.publishEvent(new PerformanceCanceledEvent(performance.getId()));
+        eventPublisher.publishEvent(PerformanceCanceledEvent(performance.id))
 
-        return performance.getId();
+        return performance.id
     }
 
     /** 고객 공연 목록 조회
@@ -127,21 +118,25 @@ public class PerformanceService {
      *
      * @param pageable
      * @return Page<PerformanceListResponse>
-     */
+    </PerformanceListResponse> */
     @Transactional(readOnly = true)
-    public Page<PerformancePageResponse> getPerformanceList(Pageable pageable) {
+    fun getPerformanceList(pageable: Pageable): Page<PerformancePageResponse> {
         // 페이징된 공연 조회
-        Page<Performance> performances = performanceRepository.findAvailablePerformances(pageable);
+        val performances: Page<Performance> = performanceRepository.findAvailablePerformances(pageable)
 
         // 페이징된 공연의 파일 id 추출
-        List<Long> fileIds = getFileIdList(performances);
+        val fileIds = getFileIdList(performances)
 
         // fileId로 조회한 경로 매핑
-        Map<Long, String> fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds));
+        val fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds))
 
         // 응답 페이징 반환
-        return performances.map(performance -> (
-                PerformanceMapper.toListResponse(performance, fileUrlMap.get(performance.getFileId()))));
+        return performances.map { performance: Performance ->
+            PerformanceMapper.toListResponse(
+                performance,
+                fileUrlMap[performance.fileId]
+            )
+        }
     }
 
 
@@ -151,28 +146,28 @@ public class PerformanceService {
      * @return PerformanceDetailResponse
      */
     @Transactional(readOnly = true)
-    public PerformanceDetailResponse getPerformanceDetail(Long performanceId, Long userId) {
+    fun getPerformanceDetail(performanceId: Long, userId: Long?): PerformanceDetailResponse {
         // 공연 조회
-        Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+        val performance: Performance = performanceRepository.findByIdOrNull(performanceId) ?:
+            throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=$performanceId")
 
         // 회차 조회
-        List<PerformanceSchedule> schedules = performanceScheduleRepository
-                .findByPerformanceIdOrderByStartTimeAsc(performance.getId());
+        val schedules: List<PerformanceSchedule> = performanceScheduleRepository
+            .findByPerformanceIdOrderByStartTimeAsc(performance.id)
 
-        boolean bookmarked = false;
-        if(userId != null) {
-            bookmarked = bookmarkRepository.existsByUserIdAndPerformanceId(userId, performanceId);
+        var bookmarked = false
+        if (userId != null) {
+            bookmarked = bookmarkRepository.existsByUserIdAndPerformanceId(userId, performanceId)
         }
         // 파일이 존재하는지
         if (!performance.hasFile()) {
-            return PerformanceMapper.toDetailResponse(performance, null, bookmarked, schedules);
+            return PerformanceMapper.toDetailResponse(performance, null, bookmarked, schedules)
         } else {
             // 파일이 존재한다면 조회
-            File file = fileRepository.findById(performance.getFileId())
-                    .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
+            val file: File = fileRepository.findByIdOrNull(performance.fileId) ?:
+                throw ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.fileId)
 
-            return PerformanceMapper.toDetailResponse(performance, file.getKey(), bookmarked, schedules);
+            return PerformanceMapper.toDetailResponse(performance, file.key, bookmarked, schedules)
         }
     }
 
@@ -181,20 +176,24 @@ public class PerformanceService {
      * @param pageable
      * @param managerId
      * @return Page<PerformanceManagerListResponse>
-     */
+    </PerformanceManagerListResponse> */
     @Transactional(readOnly = true)
-    public Page<PerformanceManagerPageResponse> getPerformanceManagerList(Pageable pageable, Long managerId) {
+    fun getPerformanceManagerList(pageable: Pageable, managerId: Long): Page<PerformanceManagerPageResponse> {
         // 공연자의 모든 공연을 페이징 하여 가져옴
-        Page<Performance> performances = performanceRepository.findByManagerId(managerId, pageable);
+        val performances: Page<Performance> = performanceRepository.findByManagerId(managerId, pageable)
 
         // 페이징된 공연의 파일 id 추출
-        List<Long> fileIds = getFileIdList(performances);
+        val fileIds = getFileIdList(performances)
 
         // fileId로 조회한 경로 매핑
-        Map<Long, String> fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds));
+        val fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds))
 
-        return performances.map(performance ->
-                PerformanceMapper.toManagerListResponse(performance, fileUrlMap.get(performance.getFileId())));
+        return performances.map{ performance: Performance ->
+            PerformanceMapper.toManagerListResponse(
+                performance,
+                fileUrlMap[performance.fileId]
+            )
+        }
     }
 
     /** 공연 관리자 공연 상세 페이지 조회
@@ -203,31 +202,33 @@ public class PerformanceService {
      * @return PerformanceManagerDetailResponse
      */
     @Transactional(readOnly = true)
-    public PerformanceManagerDetailResponse getPerformanceManagerDetail(Long performanceId, Long managerId) {
+    fun getPerformanceManagerDetail(performanceId: Long, managerId: Long): PerformanceManagerDetailResponse {
         // 해당 공연 조회
-        Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+        val performance: Performance = performanceRepository.findByIdOrNull(performanceId) ?:
+            throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=$performanceId")
 
         // 공연자의 공연이 맞는지 권한 검사
-        if(!performance.hasPermission(managerId)) {
-            throw ErrorCode.PERMISSION_DENIED.domainException("performanceId=" + performanceId + "는 managerId=" + managerId + "의 공연이 아닙니다.");
+        if (!performance.hasPermission(managerId)) {
+            throw ErrorCode.PERMISSION_DENIED.domainException("performanceId=" + performanceId + "는 managerId=" + managerId + "의 공연이 아닙니다.")
         }
 
         // 연결된 회차 조회
-        List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId());
+        val schedules: List<PerformanceSchedule> =
+            performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
 
         // 회차 Response 객체 변환
-        List<PerformanceScheduleResponse> scheduleResponses = schedules.stream().map(PerformanceScheduleMapper::toResponse).toList();
+        val scheduleResponses: List<PerformanceScheduleResponse> = schedules.map{ PerformanceScheduleMapper.toResponse(it) }
+
 
         // 파일이 존재하는지
-        if(!performance.hasFile()) {
-            return PerformanceMapper.toManagerDetailResponse(performance, null, scheduleResponses);
+        if (!performance.hasFile()) {
+            return PerformanceMapper.toManagerDetailResponse(performance, null, scheduleResponses)
         } else {
             // 연결된 파일 조회
-            File file = fileRepository.findById(performance.getFileId())
-                    .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
+            val file: File = fileRepository.findByIdOrNull(performance.fileId) ?:
+                throw ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.fileId)
 
-            return PerformanceMapper.toManagerDetailResponse(performance, file.getKey(), scheduleResponses);
+            return PerformanceMapper.toManagerDetailResponse(performance, file.key, scheduleResponses)
         }
     }
 
@@ -243,20 +244,27 @@ public class PerformanceService {
      * @return PerformanceListResponse
      */
     @Transactional(readOnly = true)
-    public Page<PerformancePageResponse> searchPerformances(String title,
-                                                            String venue,
-                                                            LocalDateTime start,
-                                                            LocalDateTime end,
-                                                            PerformanceCategory category,
-                                                            Pageable pageable) {
-        Page<Performance> performances = performanceRepository.searchAvailablePerformances(title, venue, start, end, category, pageable);
+    fun searchPerformances(
+        title: String?,
+        venue: String?,
+        start: LocalDateTime?,
+        end: LocalDateTime?,
+        category: PerformanceCategory?,
+        pageable: Pageable
+    ): Page<PerformancePageResponse> {
+        val performances: Page<Performance> =
+            performanceRepository.searchAvailablePerformances(title, venue, start, end, category, pageable)
 
-        List<Long> fileIds = getFileIdList(performances);
+        val fileIds = getFileIdList(performances)
 
-        Map<Long, String> fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds));
+        val fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds))
 
-        return performances.map(performance -> (
-                PerformanceMapper.toListResponse(performance, fileUrlMap.get(performance.getFileId()))));
+        return performances.map { performance: Performance ->
+            PerformanceMapper.toListResponse(
+                performance,
+                fileUrlMap[performance.fileId]
+            )
+        }
     }
 
     /** 공연자 공연 목록 검색
@@ -271,61 +279,72 @@ public class PerformanceService {
      * @return PerformanceManagerListResponse
      */
     @Transactional(readOnly = true)
-    public Page<PerformanceManagerPageResponse> searchManagerPerformances(Long managerId,
-                                                                   String title,
-                                                                   String venue,
-                                                                   LocalDateTime start,
-                                                                   LocalDateTime end,
-                                                                   PerformanceStatus status,
-                                                                   Pageable pageable) {
-        Page<Performance> performances = performanceRepository.searchManagerPerformances(managerId, status, title, venue, start, end, pageable);
+    fun searchManagerPerformances(
+        managerId: Long,
+        title: String?,
+        venue: String?,
+        start: LocalDateTime?,
+        end: LocalDateTime?,
+        status: PerformanceStatus?,
+        pageable: Pageable
+    ): Page<PerformanceManagerPageResponse> {
+        val performances: Page<Performance> =
+            performanceRepository.searchManagerPerformances(managerId, status, title, venue, start, end, pageable)
 
-        List<Long> fileIds = getFileIdList(performances);
+        val fileIds = getFileIdList(performances)
 
-        Map<Long, String> fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds));
+        val fileUrlMap = getFileUrlMap(fileRepository.findAllById(fileIds))
 
-        return performances.map(performance ->
-                PerformanceMapper.toManagerListResponse(performance, fileUrlMap.get(performance.getFileId())));
+        return performances.map { performance: Performance ->
+            PerformanceMapper.toManagerListResponse(
+                performance,
+                fileUrlMap[performance.fileId]
+            )
+        }
     }
 
     /** 매일 00시 정각에 스케줄러에 의해 실행되는 공연 종료 처리 메서드
      *
      */
     @Transactional
-    public void completeEndedPerformances() {
+    fun completeEndedPerformances() {
         // 공연 완료 상태로 변경
-        LocalDateTime now = LocalDateTime.now();
-        List<Performance> endedPerformances = performanceRepository.findByEndDateBeforeAndStatus(now, PerformanceStatus.CONFIRMED);
+        val now = LocalDateTime.now()
+        val endedPerformances: List<Performance> =
+            performanceRepository.findByEndDateBeforeAndStatus(now, PerformanceStatus.CONFIRMED)
 
         // 레디스 회차별 좌석 정보 제거
-        endedPerformances.forEach(performance ->{
-            performance.completePerformance();
-
+        endedPerformances.forEach(Consumer<Performance> { performance: Performance ->
+            performance.completePerformance()
             // 티켓 만료 처리
-            List<Ticket> tickets = ticketRepository.findAllByPerformanceId(performance.getId());
+            val tickets: List<Ticket> = ticketRepository.findAllByPerformanceId(performance.id)
 
-            tickets.forEach(Ticket::expire);
+            tickets.forEach(Consumer { obj: Ticket -> obj.expire() })
 
             // 레디스 좌석 정보 제거
-            List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.getId());
-
-            schedules.forEach(schedule -> {
-                redisSeatService.deleteSeatStock(schedule.getId());
-            });
-        });
+            val schedules: List<PerformanceSchedule> =
+                performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
+            schedules.forEach(Consumer<PerformanceSchedule> { schedule: PerformanceSchedule ->
+                redisSeatService.deleteSeatStock(schedule.id)
+            })
+        })
     }
 
     // 파일 Url 맵 변환 메서드
-    private Map<Long, String> getFileUrlMap(List<File> files) {
+    private fun getFileUrlMap(files: List<File>): Map<Long, String?> {
         return files.stream()
-                .collect(Collectors.toMap(File::getId, File::getKey));
+            .collect(
+                Collectors.toMap(
+                    { obj: File -> obj.id },
+                    { obj: File -> obj.key })
+            )
     }
 
     // 파일 id 리스트 변환 메서드
-    private List<Long> getFileIdList(Page<Performance> performances) {
-        return performances.getContent().stream()
-                .map(Performance::getFileId)
-                .filter(Objects::nonNull)
-                .toList();
+    private fun getFileIdList(performances: Page<Performance>): List<Long> {
+        return performances.content.stream()
+            .map<Long>(Performance::fileId)
+            .filter { obj: Long? -> Objects.nonNull(obj) }
+            .toList()
     }
 }
