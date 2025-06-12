@@ -83,7 +83,7 @@ interface RefundRepository : JpaRepository<Refund, Long> {
     )
     fun findRefundsDetailByStatus(
         @Param("status") status: RefundStatus,
-        pageable: Pageable?
+        pageable: Pageable
     ): Page<Array<Any?>>
 
     /**
@@ -97,5 +97,5 @@ interface RefundRepository : JpaRepository<Refund, Long> {
     ): List<Long?>
 
     // 유저 환불 정보
-    fun findByUserIdAndReservationId(userId: Long, reservationId: Long): Optional<Refund?>
+    fun findByUserIdAndReservationId(userId: Long, reservationId: Long): Refund?
 }

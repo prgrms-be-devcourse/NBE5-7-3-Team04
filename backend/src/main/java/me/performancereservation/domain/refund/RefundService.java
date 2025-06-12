@@ -78,15 +78,20 @@ public class RefundService {
 
     @Transactional(readOnly = true)
     public RefundResponse findRefundByUserId(Long userId, Long reservationId) {
-        Refund refund = refundRepository.findByUserIdAndReservationId(userId, reservationId)
-                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId));
+        Refund refund = refundRepository.findByUserIdAndReservationId(userId, reservationId);
+        if (refund == null) {
+            throw ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId);
+        }
         return RefundResponse.fromEntity(refund);
     }
 
     @Transactional(readOnly = true)
     public Long getRefundIdByUserId(Long userId, Long reservationId) {
-        return refundRepository.findByUserIdAndReservationId(userId, reservationId)
-                .orElseThrow(() -> ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId)).getId();
+        Refund found = refundRepository.findByUserIdAndReservationId(userId, reservationId);
+        if (found == null) {
+            throw ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: " + userId);
+        }
+        return found.getId();
     }
 
     /// 입력받은 id의 환불 디테일 페이지 조회
