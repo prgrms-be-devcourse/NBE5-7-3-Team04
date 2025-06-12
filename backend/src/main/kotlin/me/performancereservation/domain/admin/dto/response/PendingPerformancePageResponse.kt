@@ -1,10 +1,8 @@
-package me.performancereservation.domain.admin.dto.response;
+package me.performancereservation.domain.admin.dto.response
 
-import me.performancereservation.domain.performance.enums.PerformanceCategory;
-import me.performancereservation.domain.performance.enums.PerformanceStatus;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import me.performancereservation.domain.performance.enums.PerformanceCategory
+import me.performancereservation.domain.performance.enums.PerformanceStatus
+import java.time.LocalDateTime
 
 /** 어드민 공연 승인 확인용 공연 정보 응답
  *
@@ -22,20 +20,18 @@ import java.util.List;
  * @param description               // 공연 설명
  * @param schedules                 // 공연 회차 정보 리스트
  */
-public record PendingPerformancePageResponse(
-        long id,
-        String fileUrl,
-        String performanceManagerName,
-        String title,
-        String venue,
-        int price,
-        int totalSeats,
-        PerformanceCategory category,
-        PerformanceStatus status,
-        LocalDateTime startDate,
-        LocalDateTime endDate,
-        String description,
-        List<PendingPerformanceScheduleResponse> schedules
-) {
-
-}
+data class PendingPerformancePageResponse(
+    val id: Long,
+    val fileUrl: String?,
+    val performanceManagerName: String,
+    val title: String,
+    val venue: String,
+    val price: Int,
+    val totalSeats: Int,
+    val category: PerformanceCategory,
+    val status: PerformanceStatus,
+    val startDate: LocalDateTime,
+    val endDate: LocalDateTime,
+    val description: String,
+    val schedules: List<PendingPerformanceScheduleResponse>
+)

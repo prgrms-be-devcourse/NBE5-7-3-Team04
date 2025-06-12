@@ -1,4 +1,4 @@
-package me.performancereservation.domain.admin.dto.response;
+package me.performancereservation.domain.admin.dto.response
 
 /**
  *
@@ -11,14 +11,13 @@ package me.performancereservation.domain.admin.dto.response;
  * @param experience            // 공연 경험
  * @param reason                // 공연 관리자 신청 사유
  */
-public record PendingManagerRequestPageResponse(
-        long id,
-        long userId,
-        String userName,
-        String phoneNumber,
-        String organizationName,
-        String organizationContact,
-        String experience,
-        String reason
-) {
-}
+data class PendingManagerRequestPageResponse(
+    val id: Long,
+    val userId: Long,
+    val userName: String,
+    val phoneNumber: String,
+    val organizationName: String,
+    val organizationContact: String,
+    val experience: String,
+    val reason: String
+)
