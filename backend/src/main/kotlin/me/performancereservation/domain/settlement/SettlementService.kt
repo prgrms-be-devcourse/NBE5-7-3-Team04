@@ -10,7 +10,6 @@ import me.performancereservation.domain.settlement.dto.SettlementResponse
 import me.performancereservation.domain.settlement.dto.SettlementResponse.Companion.fromEntity
 import me.performancereservation.domain.settlement.dto.SettlementUpdateRequest
 import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse
-import me.performancereservation.domain.settlement.dto.SettlementUpdateResponse.Companion.fromSettlement
 import me.performancereservation.domain.settlement.enums.SettlementStatus
 import me.performancereservation.domain.sms.SMSService
 import me.performancereservation.global.exception.ErrorCode
