@@ -50,52 +50,56 @@ class RedisReservationBulkCancelServiceTest {
         Long performanceId = 1L;
         List<Long> scheduleIds = Arrays.asList(1L, 2L);
         
-        Performance performance = Performance.builder()
-            .id(performanceId)
-            .title("콘서트")
-            .venue("세종문화회관 대극장")
-            .price(120000)
-            .totalSeats(2000)
-            .category(PerformanceCategory.CONCERT)
-            .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
-                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
-            .description("굳")
-            .status(PerformanceStatus.CONFIRMED)
-            .build();
-            
-        PerformanceSchedule schedule1 = PerformanceSchedule.builder()
-            .id(1L)
-            .performanceId(performanceId)
-            .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
-            .endTime(LocalDateTime.of(2025, 12, 13, 10, 0))
-            .remainingSeats(100)
-            .canceled(false)
-            .build();
-            
-        PerformanceSchedule schedule2 = PerformanceSchedule.builder()
-            .id(2L)
-            .performanceId(performanceId)
-            .startTime(LocalDateTime.of(2025, 12, 13, 11, 0))
-            .endTime(LocalDateTime.of(2025, 12, 13, 12, 0))
-            .remainingSeats(100)
-            .canceled(false)
-            .build();
-            
-        Reservation reservation1 = Reservation.builder()
-            .id(1L)
-            .scheduleId(1L)
-            .userId(1L)
-            .quantity(2)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
-            
-        Reservation reservation2 = Reservation.builder()
-            .id(2L)
-            .scheduleId(2L)
-            .userId(2L)
-            .quantity(1)
-            .status(ReservationStatus.PAYMENTS_CONFIRMED)
-            .build();
+        Performance performance = new Performance(
+            1L,  // id
+            null,  // fileId
+            1L,  // managerId
+            "콘서트",  // title
+            "세종문화회관 대극장",  // venue
+            120000,  // price
+            2000,  // totalSeats
+            PerformanceCategory.CONCERT,  // category
+            LocalDateTime.of(2025, 12, 13, 0, 0),  // startDate
+            LocalDateTime.of(2025, 12, 14, 0, 0),  // endDate
+            "굳",  // description
+            PerformanceStatus.CONFIRMED  // status
+        );
+
+        PerformanceSchedule schedule1 = new PerformanceSchedule(
+            1L,  // id
+            performanceId,  // performanceId
+            LocalDateTime.of(2025, 12, 13, 9, 0),  // startTime
+            LocalDateTime.of(2025, 12, 13, 10, 0),  // endTime
+            100,  // remainingSeats
+            false  // canceled
+        );
+
+        PerformanceSchedule schedule2 = new PerformanceSchedule(
+            2L,  // id
+            performanceId,  // performanceId
+            LocalDateTime.of(2025, 12, 13, 11, 0),  // startTime
+            LocalDateTime.of(2025, 12, 13, 12, 0),  // endTime
+            100,  // remainingSeats
+            false  // canceled
+        );
+
+        Reservation reservation1 = new Reservation(
+            1L,  // id
+            1L,  // userId
+            1L,  // performanceId
+            1L,  // scheduleId
+            2,   // quantity
+            ReservationStatus.PAYMENTS_PENDING
+        );
+
+        Reservation reservation2 = new Reservation(
+            2L,  // id
+            2L,  // userId
+            1L,  // performanceId
+            2L,  // scheduleId
+            1,   // quantity
+            ReservationStatus.PAYMENTS_CONFIRMED
+        );
 
         List<Reservation> reservations = Arrays.asList(reservation1, reservation2);
 
@@ -120,25 +124,25 @@ class RedisReservationBulkCancelServiceTest {
         // given
         Long performanceId = 1L;
         List<Long> scheduleIds = Arrays.asList(1L, 2L);
-        
+
         // 일정은 있지만 예약이 없는 경우
-        PerformanceSchedule schedule1 = PerformanceSchedule.builder()
-            .id(1L)
-            .performanceId(performanceId)
-            .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
-            .endTime(LocalDateTime.of(2025, 12, 13, 10, 0))
-            .remainingSeats(100)
-            .canceled(false)
-            .build();
-            
-        PerformanceSchedule schedule2 = PerformanceSchedule.builder()
-            .id(2L)
-            .performanceId(performanceId)
-            .startTime(LocalDateTime.of(2025, 12, 13, 11, 0))
-            .endTime(LocalDateTime.of(2025, 12, 13, 12, 0))
-            .remainingSeats(100)
-            .canceled(false)
-            .build();
+        PerformanceSchedule schedule1 = new PerformanceSchedule(
+            1L,  // id
+            performanceId,  // performanceId
+            LocalDateTime.of(2025, 12, 13, 9, 0),  // startTime
+            LocalDateTime.of(2025, 12, 13, 10, 0),  // endTime
+            100,  // remainingSeats
+            false  // canceled
+        );
+
+        PerformanceSchedule schedule2 = new PerformanceSchedule(
+            2L,  // id
+            performanceId,  // performanceId
+            LocalDateTime.of(2025, 12, 13, 11, 0),  // startTime
+            LocalDateTime.of(2025, 12, 13, 12, 0),  // endTime
+            100,  // remainingSeats
+            false  // canceled
+        );
 
         // when
         when(performanceScheduleRepository.findIdsByPerformanceId(performanceId))
@@ -161,33 +165,35 @@ class RedisReservationBulkCancelServiceTest {
         // given
         Long performanceId = 1L;
         List<Long> scheduleIds = Arrays.asList(1L);
-        
+
         // 일정 정보
-        PerformanceSchedule schedule = PerformanceSchedule.builder()
-            .id(1L)
-            .performanceId(performanceId)
-            .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
-            .endTime(LocalDateTime.of(2025, 12, 13, 10, 0))
-            .remainingSeats(100)
-            .canceled(false)
-            .build();
+        PerformanceSchedule schedule = new PerformanceSchedule(
+            1L,  // id
+            performanceId,  // performanceId
+            LocalDateTime.of(2025, 12, 13, 9, 0),  // startTime
+            LocalDateTime.of(2025, 12, 13, 10, 0),  // endTime
+            100,  // remainingSeats
+            false  // canceled
+        );
         
         // 이미 취소된 예약들
-        Reservation canceledReservation1 = Reservation.builder()
-            .id(1L)
-            .scheduleId(1L)
-            .userId(1L)
-            .quantity(2)
-            .status(ReservationStatus.CANCEL_CONFIRMED)
-            .build();
+        Reservation canceledReservation1 = new Reservation(
+            1L,  // id
+            1L,  // userId
+            1L,  // performanceId
+            1L,  // scheduleId
+            2,   // quantity
+            ReservationStatus.CANCEL_CONFIRMED
+        );
 
-        Reservation canceledReservation2 = Reservation.builder()
-            .id(2L)
-            .scheduleId(1L)
-            .userId(2L)
-            .quantity(1)
-            .status(ReservationStatus.CANCEL_PENDING)
-            .build();
+        Reservation canceledReservation2 = new Reservation(
+            2L,  // id
+            2L,  // userId
+            1L,  // performanceId
+            1L,  // scheduleId
+            1,   // quantity
+            ReservationStatus.CANCEL_PENDING
+        );
 
         List<Reservation> reservations = Arrays.asList(canceledReservation1, canceledReservation2);
 
@@ -205,7 +211,7 @@ class RedisReservationBulkCancelServiceTest {
         verify(redisSeatService, never()).deleteSeatStock(anyLong());
         verify(redisReservationCancelExecutor, never()).executeForPerformanceCancel(any(Reservation.class));
     }
-    
+
     @Test
     @DisplayName("다양한 상태의 예약이 있는 경우")
     void cancelAllByPerformanceId_MixedStatus() {
@@ -213,48 +219,51 @@ class RedisReservationBulkCancelServiceTest {
         Long performanceId = 1L;
         List<Long> scheduleIds = Arrays.asList(1L, 2L);
         
-        PerformanceSchedule schedule1 = PerformanceSchedule.builder()
-            .id(1L)
-            .performanceId(performanceId)
-            .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
-            .endTime(LocalDateTime.of(2025, 12, 13, 10, 0))
-            .remainingSeats(100)
-            .canceled(false)
-            .build();
-            
-        PerformanceSchedule schedule2 = PerformanceSchedule.builder()
-            .id(2L)
-            .performanceId(performanceId)
-            .startTime(LocalDateTime.of(2025, 12, 13, 11, 0))
-            .endTime(LocalDateTime.of(2025, 12, 13, 12, 0))
-            .remainingSeats(100)
-            .canceled(false)
-            .build();
+        PerformanceSchedule schedule1 = new PerformanceSchedule(
+            1L,  // id
+            performanceId,  // performanceId
+            LocalDateTime.of(2025, 12, 13, 9, 0),  // startTime
+            LocalDateTime.of(2025, 12, 13, 10, 0),  // endTime
+            100,  // remainingSeats
+            false  // canceled
+        );
+
+        PerformanceSchedule schedule2 = new PerformanceSchedule(
+            2L,  // id
+            performanceId,  // performanceId
+            LocalDateTime.of(2025, 12, 13, 11, 0),  // startTime
+            LocalDateTime.of(2025, 12, 13, 12, 0),  // endTime
+            100,  // remainingSeats
+            false  // canceled
+        );
             
         // 다양한 상태의 예약들
-        Reservation pendingReservation = Reservation.builder()
-            .id(1L)
-            .scheduleId(1L)
-            .userId(1L)
-            .quantity(2)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
-            
-        Reservation confirmedReservation = Reservation.builder()
-            .id(2L)
-            .scheduleId(1L)
-            .userId(2L)
-            .quantity(1)
-            .status(ReservationStatus.PAYMENTS_CONFIRMED)
-            .build();
-            
-        Reservation canceledReservation = Reservation.builder()
-            .id(3L)
-            .scheduleId(2L)
-            .userId(3L)
-            .quantity(3)
-            .status(ReservationStatus.CANCEL_CONFIRMED)
-            .build();
+        Reservation pendingReservation = new Reservation(
+            1L,  // id
+            1L,  // userId
+            1L,  // performanceId
+            1L,  // scheduleId
+            2,   // quantity
+            ReservationStatus.PAYMENTS_PENDING
+        );
+
+        Reservation confirmedReservation = new Reservation(
+            2L,  // id
+            2L,  // userId
+            1L,  // performanceId
+            1L,  // scheduleId
+            1,   // quantity
+            ReservationStatus.PAYMENTS_CONFIRMED
+        );
+
+        Reservation canceledReservation = new Reservation(
+            3L,
+            2L,
+            1L,
+            3,
+            1,
+            ReservationStatus.CANCEL_CONFIRMED
+        );
 
         List<Reservation> reservations = Arrays.asList(pendingReservation, confirmedReservation, canceledReservation);
 
@@ -285,23 +294,25 @@ class RedisReservationBulkCancelServiceTest {
     void cancelAllByScheduleId_Success() {
         // given
         Long scheduleId = 1L;
-        
+
         // 취소할 예약들
-        Reservation pendingReservation = Reservation.builder()
-            .id(1L)
-            .scheduleId(scheduleId)
-            .userId(1L)
-            .quantity(2)
-            .status(ReservationStatus.PAYMENTS_PENDING)
-            .build();
-            
-        Reservation confirmedReservation = Reservation.builder()
-            .id(2L)
-            .scheduleId(scheduleId)
-            .userId(2L)
-            .quantity(1)
-            .status(ReservationStatus.PAYMENTS_CONFIRMED)
-            .build();
+        Reservation pendingReservation = new Reservation(
+            1L,  // id
+            1L,  // userId
+            1L,  // performanceId
+            1L,  // scheduleId
+            2,   // quantity
+            ReservationStatus.PAYMENTS_PENDING
+        );
+
+        Reservation confirmedReservation = new Reservation(
+            2L,  // id
+            2L,  // userId
+            1L,  // performanceId
+            2L,  // scheduleId
+            1,   // quantity
+            ReservationStatus.PAYMENTS_CONFIRMED
+        );
 
         List<Reservation> reservations = Arrays.asList(pendingReservation, confirmedReservation);
 
@@ -342,23 +353,25 @@ class RedisReservationBulkCancelServiceTest {
     void cancelAllByScheduleId_AlreadyCanceled() {
         // given
         Long scheduleId = 1L;
-        
-        // 이미 취소된 예약들
-        Reservation canceledReservation1 = Reservation.builder()
-            .id(1L)
-            .scheduleId(scheduleId)
-            .userId(1L)
-            .quantity(2)
-            .status(ReservationStatus.CANCEL_CONFIRMED)
-            .build();
 
-        Reservation canceledReservation2 = Reservation.builder()
-            .id(2L)
-            .scheduleId(scheduleId)
-            .userId(2L)
-            .quantity(1)
-            .status(ReservationStatus.CANCEL_PENDING)
-            .build();
+        // 이미 취소된 예약들
+        Reservation canceledReservation1 = new Reservation(
+            1L,  // id
+            1L,  // userId
+            1L,  // performanceId
+            1L,  // scheduleId
+            2,   // quantity
+            ReservationStatus.CANCEL_CONFIRMED
+        );
+
+        Reservation canceledReservation2 = new Reservation(
+            2L,  // id
+            2L,  // userId
+            1L,  // performanceId
+            1L,  // scheduleId
+            1,   // quantity
+            ReservationStatus.CANCEL_PENDING
+        );
 
         List<Reservation> reservations = Arrays.asList(canceledReservation1, canceledReservation2);
 
@@ -373,4 +386,4 @@ class RedisReservationBulkCancelServiceTest {
         verify(redisSeatService).deleteSeatStock(scheduleId);
         verify(redisReservationCancelExecutor, never()).executeForPerformanceCancel(any(Reservation.class));
     }
-} 
+}
