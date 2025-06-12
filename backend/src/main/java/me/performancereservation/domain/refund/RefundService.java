@@ -147,7 +147,7 @@ public class RefundService {
 
         // TODO 시연시 주석 제거
         // 환불 승인 안내 문자
-        smsService.refundConfirmed(refund);
+//        smsService.refundConfirmed(refund);
     }
 
     ///  계좌, 은행, 입금자명 설정, READY state 설정
