@@ -1,31 +1,35 @@
-package me.performancereservation.domain.refund.dto;
+package me.performancereservation.domain.refund.dto
 
-import me.performancereservation.domain.refund.Refund;
-import me.performancereservation.domain.refund.enums.RefundStatus;
+import me.performancereservation.domain.refund.Refund
+import me.performancereservation.domain.refund.enums.RefundStatus
 
-public record RefundResponse(
-    long refundId, // 환불 id
-    long reservationId, // 예약 id
-    long userId, // 사용자 id
-    String account, // 계좌번호
-    String bank, // 환불 상태
-    String depositorName,
-    RefundStatus status
+@JvmRecord
+data class RefundResponse(
+    @JvmField val refundId: Long?,  // 환불 id
+    @JvmField val reservationId: Long,  // 예약 id
+    val userId: Long,  // 사용자 id
+    @JvmField val account: String?,  // 계좌번호
+    @JvmField val bank: String?,  // 환불 상태
+    val depositorName: String?,
+    @JvmField val status: RefundStatus
 ) {
-    /**
-     * Refund 엔티티로부터 RefundResponse를 생성하는 정적 팩토리 메서드
-     * @param refund Refund 엔티티
-     * @return RefundResponse 객체
-     */
-    public static RefundResponse fromEntity(Refund refund) {
-        return new RefundResponse(
-            refund.getId(),
-            refund.getReservationId(),
-            refund.getUserId(),
-            refund.getAccount(),
-            refund.getBank(),
-            refund.getDepositorName(),
-            refund.getStatus()
-        );
+    companion object {
+        /**
+         * Refund 엔티티로부터 RefundResponse를 생성하는 정적 팩토리 메서드
+         * @param refund Refund 엔티티
+         * @return RefundResponse 객체
+         */
+        @JvmStatic
+        fun fromEntity(refund: Refund): RefundResponse {
+            return RefundResponse(
+                refund.id,
+                refund.reservationId,
+                refund.userId,
+                refund.account,
+                refund.bank,
+                refund.depositorName,
+                refund.status
+            )
+        }
     }
 }
