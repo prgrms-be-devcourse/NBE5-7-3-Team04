@@ -1,6 +1,5 @@
 package me.performancereservation.global.exception
 
-import lombok.Getter
 import org.springframework.http.HttpStatus
 
 enum class ErrorCode(
@@ -90,11 +89,11 @@ enum class ErrorCode(
     DUPLICATED_BOOKMARK(HttpStatus.CONFLICT, "이미 같은 공연에 찜이 존재합니다."),
     BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "이미 찜이 안되어 있는 공연입니다.");
 
-    fun serviceException(): AppException = AppException(this, ErrorType.SERVICE)
+    fun serviceException(): AppException = AppException(this, null ,ErrorType.SERVICE)
 
     fun serviceException(detail: String?): AppException = AppException(this, detail, ErrorType.SERVICE)
 
-    fun domainException(): AppException = AppException(this, ErrorType.DOMAIN)
+    fun domainException(): AppException = AppException(this, null, ErrorType.DOMAIN)
 
     fun domainException(detail: String?): AppException = AppException(this, detail, ErrorType.DOMAIN)
 
