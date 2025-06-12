@@ -74,7 +74,7 @@ public class AdminReservationService {
         schedule.decreaseRemainingSeats(reservation.getQuantity());
 
         // 예약 승인 안내 문자
-        smsService.reservationConfirmed(reservation);
+//        smsService.reservationConfirmed(reservation);
     }
 
 }
