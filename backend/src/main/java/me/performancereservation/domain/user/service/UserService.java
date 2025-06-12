@@ -43,10 +43,10 @@ public class UserService {
     public void onboard(Long userId, UserOnboardingRequest request) {
         User user = getUserById(userId);
         if (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank()) {
-            user.updatePhoneNumber(request.phoneNumber());
+            user.updatePhoneNumber(request.phoneNumber);
         }
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            user.updateEmail(request.email());
+            user.updateEmail(request.email);
         }
         userRepository.save(user);
     }
@@ -81,10 +81,10 @@ public class UserService {
 
         ManagerRequest managerRequest = ManagerRequest.builder()
                 .userId(userId)
-                .reason(request.reason())
-                .experience(request.experience())
-                .organizationName(request.organizationName())
-                .organizationContact(request.organizationContact())
+                .reason(request.reason)
+                .experience(request.experience)
+                .organizationName(request.organizationName)
+                .organizationContact(request.organizationContact)
                 .status(ManagerRequestStatus.PENDING)
                 .build();
 
