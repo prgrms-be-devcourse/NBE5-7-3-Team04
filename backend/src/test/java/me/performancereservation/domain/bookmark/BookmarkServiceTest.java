@@ -21,7 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,18 +51,22 @@ class BookmarkServiceTest {
         Long userId = 1L;
         Long performanceId = 1L;
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("테스트 공연")
-                .price(10000)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "테스트 공연",
+                null,
+                10000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                PerformanceStatus.CONFIRMED
+        );
 
-        Bookmark bookmark = Bookmark.builder()
-                .id(1L)
-                .userId(userId)
-                .performanceId(performanceId)
-                .build();
+        Bookmark bookmark = new Bookmark(1L, userId, performanceId);
 
         // when
         when(performanceRepository.findById(performanceId)).thenReturn(Optional.of(performance));
@@ -106,12 +109,20 @@ class BookmarkServiceTest {
         Long userId = 1L;
         Long performanceId = 1L;
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("테스트 공연")
-                .price(10000)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "테스트 공연",
+                null,
+                10000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                PerformanceStatus.CONFIRMED
+        );
 
         // when
         when(performanceRepository.findById(performanceId)).thenReturn(Optional.of(performance));
@@ -135,18 +146,22 @@ class BookmarkServiceTest {
         Long userId = 1L;
         Long performanceId = 1L;
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("테스트 공연")
-                .price(10000)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "테스트 공연",
+                null,
+                10000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                PerformanceStatus.CONFIRMED
+        );
 
-        Bookmark bookmark = Bookmark.builder()
-                .id(1L)
-                .userId(userId)
-                .performanceId(performanceId)
-                .build();
+        Bookmark bookmark = new Bookmark(1L, userId, performanceId);
 
         // when
         when(performanceRepository.findById(performanceId)).thenReturn(Optional.of(performance));
@@ -188,12 +203,20 @@ class BookmarkServiceTest {
         Long userId = 1L;
         Long performanceId = 1L;
 
-        Performance performance = Performance.builder()
-                .id(performanceId)
-                .title("테스트 공연")
-                .price(10000)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        Performance performance = new Performance(
+                performanceId,
+                null,
+                null,
+                "테스트 공연",
+                null,
+                10000,
+                0,
+                null,
+                null,
+                null,
+                null,
+                PerformanceStatus.CONFIRMED
+        );
 
         // when
         when(performanceRepository.findById(performanceId)).thenReturn(Optional.of(performance));
@@ -219,36 +242,40 @@ class BookmarkServiceTest {
 
         // 북마크 목록
         List<Bookmark> bookmarks = List.of(
-                Bookmark.builder().id(1L).userId(userId).performanceId(1L).build(),
-                Bookmark.builder().id(2L).userId(userId).performanceId(2L).build()
+                new Bookmark(1L, userId, 1L),
+                new Bookmark(2L, userId, 2L)
         );
 
         // 공연 목록
         List<Performance> performances = List.of(
-                Performance.builder()
-                        .id(1L)
-                        .fileId(1L)
-                        .title("테스트 공연 1")
-                        .price(10000)
-                        .venue("테스트 장소 1")
-                        .description("테스트 설명 1")
-                        .category(PerformanceCategory.MUSICAL_OPERA)
-                        .status(PerformanceStatus.CONFIRMED)
-                        .startDate(LocalDateTime.now().plusDays(1))
-                        .endDate(LocalDateTime.now().plusDays(2))
-                        .build(),
-                Performance.builder()
-                        .id(2L)
-                        .fileId(2L)
-                        .title("테스트 공연 2")
-                        .price(20000)
-                        .venue("테스트 장소 2")
-                        .description("테스트 설명 2")
-                        .category(PerformanceCategory.MUSICAL_OPERA)
-                        .status(PerformanceStatus.CONFIRMED)
-                        .startDate(LocalDateTime.now().plusDays(2))
-                        .endDate(LocalDateTime.now().plusDays(3))
-                        .build()
+                new Performance(
+                        1L,
+                        1L,
+                        null,
+                        "테스트 공연 1",
+                        "테스트 장소 1",
+                        10000,
+                        0,
+                        PerformanceCategory.MUSICAL_OPERA,
+                        LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(2),
+                        "테스트 설명 1",
+                        PerformanceStatus.CONFIRMED
+                ),
+                new Performance(
+                        2L,
+                        2L,
+                        null,
+                        "테스트 공연 2",
+                        "테스트 장소 2",
+                        20000,
+                        0,
+                        PerformanceCategory.MUSICAL_OPERA,
+                        LocalDateTime.now().plusDays(2),
+                        LocalDateTime.now().plusDays(3),
+                        "테스트 설명 2",
+                        PerformanceStatus.CONFIRMED
+                )
         );
 
         // 파일 목록
@@ -271,24 +298,24 @@ class BookmarkServiceTest {
         assertEquals(2, result.getContent().size());
 
         BookmarkedPerformancePageResponse response1 = result.getContent().get(0);
-        assertEquals(1L, response1.id());
-        assertEquals("test-file-url-1", response1.fileUrl());
-        assertEquals("테스트 공연 1", response1.title());
-        assertEquals(10000, response1.price());
-        assertEquals("테스트 장소 1", response1.venue());
-        assertEquals(PerformanceCategory.MUSICAL_OPERA, response1.category());
-        assertEquals(PerformanceStatus.CONFIRMED, response1.status());
-        assertTrue(response1.bookmarked());
+        assertEquals(1L, response1.getId());
+        assertEquals("test-file-url-1", response1.getFileUrl());
+        assertEquals("테스트 공연 1", response1.getTitle());
+        assertEquals(10000, response1.getPrice());
+        assertEquals("테스트 장소 1", response1.getVenue());
+        assertEquals(PerformanceCategory.MUSICAL_OPERA, response1.getCategory());
+        assertEquals(PerformanceStatus.CONFIRMED, response1.getStatus());
+        assertTrue(response1.getBookmarked());
 
         BookmarkedPerformancePageResponse response2 = result.getContent().get(1);
-        assertEquals(2L, response2.id());
-        assertEquals("test-file-url-2", response2.fileUrl());
-        assertEquals("테스트 공연 2", response2.title());
-        assertEquals(20000, response2.price());
-        assertEquals("테스트 장소 2", response2.venue());
-        assertEquals(PerformanceCategory.MUSICAL_OPERA, response2.category());
-        assertEquals(PerformanceStatus.CONFIRMED, response2.status());
-        assertTrue(response2.bookmarked());
+        assertEquals(2L, response2.getId());
+        assertEquals("test-file-url-2", response2.getFileUrl());
+        assertEquals("테스트 공연 2", response2.getTitle());
+        assertEquals(20000, response2.getPrice());
+        assertEquals("테스트 장소 2", response2.getVenue());
+        assertEquals(PerformanceCategory.MUSICAL_OPERA, response2.getCategory());
+        assertEquals(PerformanceStatus.CONFIRMED, response2.getStatus());
+        assertTrue(response2.getBookmarked());
 
         verify(bookmarkRepository).findAllByUserId(userId, pageable);
         verify(performanceRepository).findAllById(anyList());

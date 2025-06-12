@@ -67,13 +67,14 @@ public class RedisSeatReservationService implements SeatReservationService {
 
         // 예약 엔티티 저장 (status -> PAYMENTS_PENDING (결제 대기))
         Reservation reservation = reservationRepository.save(
-                Reservation.builder()
-                        .performanceId(performanceId)
-                        .scheduleId(scheduleId)
-                        .userId(userId)
-                        .quantity(quantity)
-                        .status(ReservationStatus.PAYMENTS_PENDING)
-                        .build()
+                new Reservation(
+                    null,  // id
+                    userId,
+                    performanceId,
+                    scheduleId,
+                    quantity,
+                    ReservationStatus.PAYMENTS_PENDING
+                )
         );
 
         // 결제 대기 중인 예약에 대한 결제 만료 시간을 Redis ZSet에 등록
@@ -119,7 +120,7 @@ public class RedisSeatReservationService implements SeatReservationService {
         }
 
         // 본인 예약만 취소 가능
-        if (!reservation.getUserId().equals(userId)) {
+        if (reservation.getUserId() != userId) {
             throw ErrorCode.PERMISSION_DENIED.domainException("본인의 예약만 취소할 수 있습니다.");
         }
 
