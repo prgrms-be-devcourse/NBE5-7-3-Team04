@@ -28,10 +28,16 @@ class Reservation (
 
         if (id == null || other.id == null) return false
 
-        return id == other.id
+        return id == other.id && updatedAt == other.updatedAt
     }
 
-    override fun hashCode(): Int = id?.hashCode() ?: 0
+    override fun hashCode(): Int {
+        var result = id?.hashCode() ?: 0
+
+        result = 31 * result + updatedAt.hashCode()
+
+        return result
+    }
 
     // 예약 취소 가능 여부
     val isCancelable: Boolean
