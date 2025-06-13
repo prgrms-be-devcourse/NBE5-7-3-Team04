@@ -1,11 +1,8 @@
 package me.performancereservation.domain.refund
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import lombok.RequiredArgsConstructor
-import lombok.extern.slf4j.Slf4j
 import me.performancereservation.domain.refund.dto.RefundDetailResponse
 import me.performancereservation.domain.refund.dto.RefundResponse
-import me.performancereservation.domain.refund.dto.RefundResponse.Companion.fromEntity
 import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest
 import me.performancereservation.domain.refund.enums.RefundStatus
 import me.performancereservation.domain.refund.mapper.RefundDetailMapper
@@ -66,9 +63,9 @@ class RefundService(
         // PENDING 상태로 환불 생성 후 저장
         val newRefund = Refund(
             id = null,  // id는 null로 두거나 자동 생성
-            reservationId =  reservationId,
+            reservationId = reservationId,
             userId = userId,
-            status =  RefundStatus.PENDING
+            status = RefundStatus.PENDING
         )
 
         refundRepository.save(newRefund)
@@ -94,7 +91,7 @@ class RefundService(
     fun findRefundByUserId(userId: Long, reservationId: Long): RefundResponse {
         val refund = refundRepository.findByUserIdAndReservationId(userId, reservationId)
             ?: throw ErrorCode.REFUND_NOT_FOUND.domainException("유저 ID: $userId")
-        return fromEntity(refund)
+        return RefundResponse.fromEntity(refund)
     }
 
     @Transactional(readOnly = true)
