@@ -162,11 +162,11 @@ class ManagerPerformanceController (
      */
     @GetMapping("/performances/search")
     override fun searchPerformances(
-        @RequestParam(required = false) title: String,
-        @RequestParam(required = false) venue: String,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) start: LocalDateTime,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) end: LocalDateTime,
-        @RequestParam(required = false) status: PerformanceStatus,
+        @RequestParam(required = false) title: String?,
+        @RequestParam(required = false) venue: String?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) start: LocalDateTime?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) end: LocalDateTime?,
+        @RequestParam(required = false) status: PerformanceStatus?,
         pageable: Pageable,
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Page<PerformanceManagerPageResponse>> {
@@ -229,11 +229,11 @@ class UserPerformanceController (
      */
     @GetMapping("/search")
     override fun searchPerformanceList(
-        @RequestParam(required = false) title: String,
-        @RequestParam(required = false) venue: String,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) start: LocalDateTime,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) end: LocalDateTime,
-        @RequestParam(required = false) category: PerformanceCategory,
+        @RequestParam(required = false) title: String?,
+        @RequestParam(required = false) venue: String?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) start: LocalDateTime?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) end: LocalDateTime?,
+        @RequestParam(required = false) category: PerformanceCategory?,
         pageable: Pageable
     ): ResponseEntity<Page<PerformancePageResponse>> {
         val performancePageResponse =

@@ -44,11 +44,11 @@ class AdminReservationController (
     @GetMapping("/search")
     override fun searchReservations(
         pageable: Pageable,
-        @RequestParam(required = false) userName: String,
-        @RequestParam(required = false) performanceTitle: String,
-        @RequestParam(required = false) reservationStatus: ReservationStatus,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) startDate: LocalDateTime,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: LocalDateTime
+        @RequestParam(required = false) userName: String?,
+        @RequestParam(required = false) performanceTitle: String?,
+        @RequestParam(required = false) reservationStatus: ReservationStatus?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) startDate: LocalDateTime?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: LocalDateTime?
     ): ResponseEntity<Page<AdminReservationPageResponse>> {
         return ResponseEntity.ok(
             adminReservationService.searchReservationList(
