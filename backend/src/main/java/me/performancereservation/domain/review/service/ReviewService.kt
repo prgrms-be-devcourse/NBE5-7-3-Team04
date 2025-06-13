@@ -12,6 +12,7 @@ import me.performancereservation.domain.user.repository.UserRepository
 import me.performancereservation.global.exception.ErrorCode
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -61,13 +62,9 @@ class ReviewService(
 
     // 리뷰 수정
     @Transactional
-    fun updateReview(reviewId: Long, request: ReviewUpdateRequest, userId: Long?) {
-        val review = reviewRepository.findById(reviewId)
-            .orElseThrow {
-                ErrorCode.REVIEW_NOT_FOUND.domainException(
-                    "리뷰를 찾을 수 없습니다."
-                )
-            }
+    fun updateReview(reviewId: Long, request: ReviewUpdateRequest, userId: Long) {
+        val review = reviewRepository.findByIdOrNull(reviewId)
+            ?: throw ErrorCode.REVIEW_NOT_FOUND.domainException("리뷰를 찾을 수 없습니다.")
 
         if (review.userId != userId) {
             throw ErrorCode.UNAUTHORIZED.domainException("리뷰를 수정할 권한이 없습니다.")
@@ -76,15 +73,10 @@ class ReviewService(
         review.updateComments(request.comment)
     }
 
-    // 리뷰 삭제
     @Transactional
     fun deleteReview(reviewId: Long, userId: Long) {
-        val review = reviewRepository.findById(reviewId)
-            .orElseThrow {
-                ErrorCode.REVIEW_NOT_FOUND.domainException(
-                    "리뷰를 찾을 수 없습니다."
-                )
-            }
+        val review = reviewRepository.findByIdOrNull(reviewId)
+            ?: throw ErrorCode.REVIEW_NOT_FOUND.domainException("리뷰를 찾을 수 없습니다.")
 
         if (review.userId != userId) {
             throw ErrorCode.UNAUTHORIZED.domainException("리뷰를 삭제할 권한이 없습니다.")
@@ -93,14 +85,9 @@ class ReviewService(
         reviewRepository.delete(review)
     }
 
-    //찾아온 후 비어있는지 확인하는 방법보단 단순 존재 여부를 확인하기 위해 exist를 사용하였습니다.
     private fun checkExistPerformance(performanceId: Long) {
-        performanceRepository.findById(performanceId)
-            .orElseThrow {
-                ErrorCode.PERFORMANCE_NOT_FOUND.domainException(
-                    "존재하지 않는 공연입니다."
-                )
-            }
+        performanceRepository.findByIdOrNull(performanceId)
+            ?: throw ErrorCode.PERFORMANCE_NOT_FOUND.domainException("존재하지 않는 공연입니다.")
     }
 
     private fun checkValidateUser(userId: Long, performanceId: Long) {
