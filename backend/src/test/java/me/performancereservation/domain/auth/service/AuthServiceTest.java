@@ -109,4 +109,4 @@ class AuthServiceTest {
         // verify
         verify(authRepository).findByProviderAndOauthId(PROVIDER, OAUTH_ID);
     }
-} 
+}

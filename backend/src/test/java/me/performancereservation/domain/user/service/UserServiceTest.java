@@ -391,4 +391,4 @@ class UserServiceTest {
         verify(managerRequestRepository).hasApprovedRequest(1L);
         verify(managerRequestRepository).hasPendingRequest(1L);
     }
-} 
+}

@@ -2,11 +2,11 @@ package me.performancereservation.domain.performance.service;
 
 import me.performancereservation.domain.file.File;
 import me.performancereservation.domain.file.FileRepository;
-import me.performancereservation.domain.performance.dto.performance.request.PerformanceCreateRequest;
-import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceDetailResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformancePageResponse;
-import me.performancereservation.domain.performance.dto.performance.response.PerformanceManagerPageResponse;
+import me.performancereservation.domain.performance.dto.performance.PerformanceCreateRequest;
+import me.performancereservation.domain.performance.dto.performance.PerformanceUpdateRequest;
+import me.performancereservation.domain.performance.dto.performance.PerformanceDetailResponse;
+import me.performancereservation.domain.performance.dto.performance.PerformancePageResponse;
+import me.performancereservation.domain.performance.dto.performance.PerformanceManagerPageResponse;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
@@ -85,107 +85,113 @@ class PerformanceServiceTest {
 
     @BeforeEach
     void init() {
-        performance1 = Performance.builder()
-                .id(PERFORMANCE_ID1)
-                .title("오페라 갈라")
-                .venue("세종문화회관 대극장")
-                .price(120000)
-                .totalSeats(2000)
-                .category(PerformanceCategory.MUSICAL_OPERA)
-                .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
-                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
-                .description("한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!")
-                .fileId(FILE_ID1)
-                .managerId(MANAGER_ID)
-                .status(CONFIRMED)
-                .build();
+        performance1 = new Performance(
+                PERFORMANCE_ID1,
+                FILE_ID1,
+                MANAGER_ID,
+                "오페라 갈라",
+                "세종문화회관 대극장",
+                120000,
+                2000,
+                PerformanceCategory.MUSICAL_OPERA,
+                LocalDateTime.of(2025, 12, 13, 0, 0),
+                LocalDateTime.of(2025, 12, 14, 0, 0),
+                "한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!",
+                CONFIRMED
+                );
 
-        performance2 = Performance.builder()
-                .id(PERFORMANCE_ID2)
-                .title("부산항축제")
-                .venue("부산항국제여객터미널 야외주차장")
-                .price(5000)
-                .totalSeats(1000)
-                .category(PerformanceCategory.CONCERT)
-                .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
-                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
-                .description("--")
-                .fileId(FILE_ID2)
-                .managerId(MANAGER_ID)
-                .status(CONFIRMED)
-                .build();
+        performance2 = new Performance(
+                PERFORMANCE_ID2,
+                FILE_ID2,
+                MANAGER_ID,
+                "부산항축제",
+                "부산항국제여객터미널 야외주차장",
+                5000,
+                1000,
+                PerformanceCategory.CONCERT,
+                LocalDateTime.of(2025, 12, 13, 0, 0),
+                LocalDateTime.of(2025, 12, 14, 0, 0),
+                "--",
+                CONFIRMED
+                );
 
-        performance3 = Performance.builder()
-                .id(PERFORMANCE_ID3)
-                .title("우리가 만든 음악섬")
-                .venue("LG아트센터 서울 U+스테이지")
-                .price(77000)
-                .totalSeats(500)
-                .category(PerformanceCategory.CONCERT)
-                .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
-                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
-                .description("여름의 초입, LG아트센터 서울, U+ 스테이지에 피어나는 음악섬")
-                .fileId(FILE_ID3)
-                .managerId(MANAGER_ID)
-                .status(CONFIRMED)
-                .build();
+        performance3 = new Performance(
+                PERFORMANCE_ID3,
+                FILE_ID3,
+                MANAGER_ID,
+                "우리가 만든 음악섬",
+                "LG아트센터 서울 U+스테이지",
+                77000,
+                500,
+                PerformanceCategory.CONCERT,
+                LocalDateTime.of(2025, 12, 13, 0, 0),
+                LocalDateTime.of(2025, 12, 14, 0, 0),
+                "여름의 초입, LG아트센터 서울, U+ 스테이지에 피어나는 음악섬",
+                CONFIRMED
+                );
 
-        schedule1 = PerformanceSchedule.builder()
-                .id(PERFORMANCE_SCHEDULE_ID1)
-                .performanceId(PERFORMANCE_ID1)
-                .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
-                .endTime(LocalDateTime.of(2025, 12, 13, 10, 0))
-                .canceled(false)
-                .build();
+        schedule1 = new PerformanceSchedule(
+                PERFORMANCE_SCHEDULE_ID1,
+                PERFORMANCE_ID1,
+                LocalDateTime.of(2025, 12, 13, 9, 0),
+                LocalDateTime.of(2025, 12, 13, 10, 0),
+                2000,
+                false
+        );
 
-        schedule2 = PerformanceSchedule.builder()
-                .id(PERFORMANCE_SCHEDULE_ID2)
-                .performanceId(PERFORMANCE_ID1)
-                .startTime(LocalDateTime.of(2025, 12, 13, 11, 0))
-                .endTime(LocalDateTime.of(2025, 12, 13, 12, 0))
-                .canceled(false)
-                .build();
+        schedule2 = new PerformanceSchedule(
+                PERFORMANCE_SCHEDULE_ID2,
+                PERFORMANCE_ID1,
+                LocalDateTime.of(2025, 12, 13, 11, 0),
+                LocalDateTime.of(2025, 12, 13, 12, 0),
+                2000,
+                false
+        );
 
-        schedule3 = PerformanceSchedule.builder()
-                .id(PERFORMANCE_SCHEDULE_ID3)
-                .performanceId(PERFORMANCE_ID1)
-                .startTime(LocalDateTime.of(2025, 12, 13, 13, 0))
-                .endTime(LocalDateTime.of(2025, 12, 13, 14, 0))
-                .canceled(false)
-                .build();
+        schedule3 = new PerformanceSchedule(
+                PERFORMANCE_SCHEDULE_ID3,
+                PERFORMANCE_ID1,
+                LocalDateTime.of(2025, 12, 13, 13, 0),
+                LocalDateTime.of(2025, 12, 13, 14, 0),
+                2000,
+                false
+        );
 
-        schedule4 = PerformanceSchedule.builder()
-                .id(PERFORMANCE_SCHEDULE_ID4)
-                .performanceId(PERFORMANCE_ID2)
-                .startTime(LocalDateTime.of(2025, 5, 30, 12, 0))
-                .endTime(LocalDateTime.of(2025, 5, 30, 14, 0))
-                .canceled(false)
-                .build();
+        schedule4 = new PerformanceSchedule(
+                PERFORMANCE_SCHEDULE_ID4,
+                PERFORMANCE_ID2,
+                LocalDateTime.of(2025, 5, 30, 12, 0),
+                LocalDateTime.of(2025, 5, 30, 14, 0),
+                1000,
+                false
+        );
 
-        schedule5 = PerformanceSchedule.builder()
-                .id(PERFORMANCE_SCHEDULE_ID5)
-                .performanceId(PERFORMANCE_ID2)
-                .startTime(LocalDateTime.of(2025, 5, 30, 15, 0))
-                .endTime(LocalDateTime.of(2025, 5, 30, 17, 0))
-                .canceled(false)
-                .build();
+        schedule5 = new PerformanceSchedule(
+                PERFORMANCE_SCHEDULE_ID5,
+                PERFORMANCE_ID2,
+                LocalDateTime.of(2025, 5, 30, 15, 0),
+                LocalDateTime.of(2025, 5, 30, 17, 0),
+                1000,
+                false
+        );
 
-        schedule6 = PerformanceSchedule.builder()
-                .id(PERFORMANCE_SCHEDULE_ID6)
-                .performanceId(PERFORMANCE_ID2)
-                .startTime(LocalDateTime.of(2025, 5, 30, 18, 0))
-                .endTime(LocalDateTime.of(2025, 5, 30, 20, 0))
-                .canceled(false)
-                .build();
+        schedule6 = new PerformanceSchedule(
+                PERFORMANCE_SCHEDULE_ID6,
+                PERFORMANCE_ID2,
+                LocalDateTime.of(2025, 5, 30, 18, 0),
+                LocalDateTime.of(2025, 5, 30, 20, 0),
+                1000,
+                false
+        );
 
-        schedule7 = PerformanceSchedule.builder()
-                .id(PERFORMANCE_SCHEDULE_ID7)
-                .performanceId(PERFORMANCE_ID3)
-                .startTime(LocalDateTime.of(2025, 6, 1, 18, 0))
-                .endTime(LocalDateTime.of(2025, 6, 1, 21, 0))
-                .remainingSeats(0)
-                .canceled(false)
-                .build();
+        schedule7 = new PerformanceSchedule(
+                PERFORMANCE_SCHEDULE_ID7,
+                PERFORMANCE_ID3,
+                LocalDateTime.of(2025, 6, 1, 18, 0),
+                LocalDateTime.of(2025, 6, 1, 21, 0),
+                500,
+                false
+        );
 
         file1 = File.builder()
                 .id(FILE_ID1)
@@ -250,8 +256,8 @@ class PerformanceServiceTest {
 
         //then
         assertThat(updatedId).isEqualTo(PERFORMANCE_ID1);
-        assertThat(performance1.getFileId()).isEqualTo(request.fileId());
-        assertThat(performance1.getDescription()).isEqualTo(request.description());
+        assertThat(performance1.getFileId()).isEqualTo(request.getFileId());
+        assertThat(performance1.getDescription()).isEqualTo(request.getDescription());
     }
 
     @Test
@@ -300,9 +306,9 @@ class PerformanceServiceTest {
 
         //then
         assertThat(performance1.getStatus()).isEqualTo(PerformanceStatus.CANCELLED);
-        assertThat(schedule1.isCanceled()).isTrue();
-        assertThat(schedule2.isCanceled()).isTrue();
-        assertThat(schedule3.isCanceled()).isTrue();
+        assertThat(schedule1.getCanceled()).isTrue();
+        assertThat(schedule2.getCanceled()).isTrue();
+        assertThat(schedule3.getCanceled()).isTrue();
         verify(performanceScheduleRepository).findByPerformanceIdOrderByStartTimeAsc(PERFORMANCE_ID1);
     }
 
@@ -342,9 +348,9 @@ class PerformanceServiceTest {
         PerformanceDetailResponse response = performanceService.getPerformanceDetail(PERFORMANCE_ID1, null);
 
         //then
-        assertThat(response.id()).isEqualTo(PERFORMANCE_ID1);
-        assertThat(response.schedules()).hasSize(3);
-        assertThat(response.title()).isEqualTo(performance1.getTitle());
+        assertThat(response.getId()).isEqualTo(PERFORMANCE_ID1);
+        assertThat(response.getSchedules()).hasSize(3);
+        assertThat(response.getTitle()).isEqualTo(performance1.getTitle());
     }
 
     @Test
@@ -372,8 +378,8 @@ class PerformanceServiceTest {
 
         //then
         assertThat(response.getContent()).hasSize(3);
-        assertThat(response.getContent().get(0).fileUrl()).isEqualTo("파일경로1");
-        assertThat(response.getContent().get(0).status()).isEqualTo(CONFIRMED);
+        assertThat(response.getContent().get(0).getFileUrl()).isEqualTo("파일경로1");
+        assertThat(response.getContent().get(0).getStatus()).isEqualTo(CONFIRMED);
     }
 
     @Test
@@ -389,7 +395,7 @@ class PerformanceServiceTest {
         //then
         assertThat(response.getContent()).hasSize(2);
         assertThat(response.getContent())
-                .extracting(PerformancePageResponse::id)
+                .extracting(PerformancePageResponse::getId)
                 .doesNotContain(PERFORMANCE_ID3);
     }
 

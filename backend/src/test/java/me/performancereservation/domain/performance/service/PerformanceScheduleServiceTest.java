@@ -20,6 +20,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static me.performancereservation.domain.performance.enums.PerformanceStatus.CONFIRMED;
+import static me.performancereservation.domain.performance.enums.PerformanceStatus.PENDING;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -55,43 +57,45 @@ class PerformanceScheduleServiceTest {
 
     @BeforeEach
     void init() {
-        performance = Performance.builder()
-                .id(PERFORMANCE_ID)
-                .title("오페라 갈라")
-                .venue("세종문화회관 대극장")
-                .price(120000)
-                .totalSeats(2000)
-                .category(PerformanceCategory.MUSICAL_OPERA)
-                .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
-                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
-                .description("한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!")
-                .fileId(FILE_ID)
-                .managerId(MANAGER_ID)
-                .status(PerformanceStatus.CONFIRMED)
-                .build();
+        performance = new Performance(
+                PERFORMANCE_ID,
+                FILE_ID,
+                MANAGER_ID,
+                "오페라 갈라",
+                "세종문화회관 대극장",
+                120000,
+                2000,
+                PerformanceCategory.MUSICAL_OPERA,
+                LocalDateTime.of(2025, 12, 13, 0, 0),
+                LocalDateTime.of(2025, 12, 14, 0, 0),
+                "한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!",
+                CONFIRMED
+        );
 
-        performanceNotConfirm = Performance.builder()
-                .id(PERFORMANCE_ID_NOT_CONFIRM)
-                .title("오페라 갈라")
-                .venue("세종문화회관 대극장")
-                .price(120000)
-                .totalSeats(2000)
-                .category(PerformanceCategory.MUSICAL_OPERA)
-                .startDate(LocalDateTime.of(2025, 12, 13, 0, 0))
-                .endDate(LocalDateTime.of(2025, 12, 14, 0, 0))
-                .description("한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!")
-                .fileId(FILE_ID)
-                .managerId(MANAGER_ID)
-                .status(PerformanceStatus.PENDING)
-                .build();
+        performanceNotConfirm = new Performance(
+                PERFORMANCE_ID,
+                FILE_ID,
+                MANAGER_ID,
+                "오페라 갈라",
+                "세종문화회관 대극장",
+                120000,
+                2000,
+                PerformanceCategory.MUSICAL_OPERA,
+                LocalDateTime.of(2025, 12, 13, 0, 0),
+                LocalDateTime.of(2025, 12, 14, 0, 0),
+                "한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!",
+                PENDING
+        );
 
-        schedule = PerformanceSchedule.builder()
-                .id(PERFORMANCE_SCHEDULE_ID)
-                .performanceId(PERFORMANCE_ID)
-                .startTime(LocalDateTime.of(2025, 12, 13, 9, 0))
-                .endTime(LocalDateTime.of(2025, 12, 13, 10, 0))
-                .canceled(false)
-                .build();
+
+        schedule = new PerformanceSchedule(
+                PERFORMANCE_SCHEDULE_ID,
+                PERFORMANCE_ID,
+                LocalDateTime.of(2025, 12, 13, 9, 0),
+                LocalDateTime.of(2025, 12, 13, 10, 0),
+                2000,
+                false
+        );
     }
 
 
@@ -142,7 +146,7 @@ class PerformanceScheduleServiceTest {
         Long canceledId = scheduleService.cancelPerformanceSchedule(PERFORMANCE_ID, PERFORMANCE_SCHEDULE_ID, MANAGER_ID);
 
         //then
-        assertThat(schedule.isCanceled()).isTrue();
+        assertThat(schedule.getCanceled()).isTrue();
         assertThat(canceledId).isEqualTo(PERFORMANCE_SCHEDULE_ID);
     }
 

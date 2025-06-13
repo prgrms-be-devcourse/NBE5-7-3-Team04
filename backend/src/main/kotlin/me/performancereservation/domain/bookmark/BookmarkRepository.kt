@@ -7,6 +7,6 @@ import java.util.*
 
 interface BookmarkRepository : JpaRepository<Bookmark, Long> {
     fun existsByUserIdAndPerformanceId(userId: Long, performanceId: Long): Boolean
-    fun findByUserIdAndPerformanceId(userId: Long, performanceId: Long): Optional<Bookmark> //Optional 서비스 변환시 수정
+    fun findByUserIdAndPerformanceId(userId: Long, performanceId: Long): Bookmark?
     fun findAllByUserId(userId: Long, pageable: Pageable): Page<Bookmark>
 }

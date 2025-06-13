@@ -7,7 +7,6 @@ import me.performancereservation.api.docs.ReservationApiDocs;
 import me.performancereservation.domain.reservation.dto.ReservationDetailResponse;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
 import me.performancereservation.domain.reservation.service.ReservationQueryService;
-import me.performancereservation.domain.reservation.service.redis.RedisReservationBulkCancelService;
 import me.performancereservation.domain.reservation.service.redis.RedisSeatReservationService;
 import me.performancereservation.domain.reservation.dto.ReservationRequest;
 import me.performancereservation.domain.reservation.dto.ReservationResponse;
@@ -41,7 +40,7 @@ public class ReservationController implements ReservationApiDocs {
         ReservationResponse result = seatReservationService.reserve(
                 request.getPerformanceId(),
                 request.getScheduleId(),
-                authentication.getUser().getId(),
+                authentication.user.getId(),
                 request.getQuantity()
         );
 
@@ -57,7 +56,7 @@ public class ReservationController implements ReservationApiDocs {
         log.info("예약 취소 호출");
         Long refundId = seatReservationService.cancel(
                 reservationId,
-                authentication.getUser().getId()
+                authentication.user.getId()
         );
         log.info("예약 취소 성공");
 
@@ -74,7 +73,7 @@ public class ReservationController implements ReservationApiDocs {
             @AuthenticationPrincipal CustomOAuth2User authentication,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<ReservationPageResponse> result = reservationQueryService.getAllByUserId(
-                authentication.getUser().getId(),
+                authentication.user.getId(),
                 pageable
         );
 
@@ -89,7 +88,7 @@ public class ReservationController implements ReservationApiDocs {
     ) {
         return ResponseEntity.ok(reservationQueryService.getByReservationId(
                 reservationId,
-                authentication.getUser().getId()
+                authentication.user.getId()
         ));
     }
 }

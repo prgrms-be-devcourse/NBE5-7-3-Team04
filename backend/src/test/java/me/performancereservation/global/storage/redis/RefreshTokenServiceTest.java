@@ -96,4 +96,4 @@ class RefreshTokenServiceTest {
         // then
         verify(redisTemplate).delete(expectedKey);
     }
-} 
+}
