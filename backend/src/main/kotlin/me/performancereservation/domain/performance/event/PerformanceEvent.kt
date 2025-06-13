@@ -5,4 +5,4 @@ package me.performancereservation.domain.performance.event
  *
  * @param performanceId 취소된 공연의 id
  */
-data class PerformanceCanceledEvent(val performanceId: Long)
+data class PerformanceCanceledEvent(val performanceId: Long?)
