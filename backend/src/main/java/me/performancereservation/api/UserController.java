@@ -6,14 +6,10 @@ import me.performancereservation.domain.user.dto.request.UserManagerRequestReque
 import me.performancereservation.domain.user.dto.request.UserOnboardingRequest;
 import me.performancereservation.domain.user.dto.UserResponse;
 import me.performancereservation.domain.user.entitiy.User;
-import me.performancereservation.domain.user.enums.Role;
-import me.performancereservation.domain.user.repository.UserRepository;
 import me.performancereservation.domain.user.service.UserService;
-import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

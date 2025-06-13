@@ -13,7 +13,6 @@ object PerformanceMapper {
      * @param request
      * @return Performance
      */
-    @JvmStatic
     fun toEntity(request: PerformanceCreateRequest, managerId: Long): Performance {
         return Performance(
             fileId = request.fileId,
@@ -37,10 +36,9 @@ object PerformanceMapper {
      * @param schedules
      * @return PerformanceDetailResponse
      */
-    @JvmStatic
     fun toDetailResponse(
         performance: Performance,
-        fileUrl: String,
+        fileUrl: String?,
         bookmarked: Boolean,
         schedules: List<PerformanceSchedule>
     ): PerformanceDetailResponse {
@@ -68,7 +66,6 @@ object PerformanceMapper {
      * @param fileUrl
      * @return PerformanceListResponse
      */
-    @JvmStatic
     fun toListResponse(performance: Performance, fileUrl: String?): PerformancePageResponse {
         return PerformancePageResponse(
             id = performance.id!!,
@@ -88,8 +85,7 @@ object PerformanceMapper {
      * @param fileUrl
      * @return PerformanceManagerListResponse
      */
-    @JvmStatic
-    fun toManagerListResponse(performance: Performance, fileUrl: String): PerformanceManagerPageResponse {
+    fun toManagerListResponse(performance: Performance, fileUrl: String?): PerformanceManagerPageResponse {
         return PerformanceManagerPageResponse(
             id = performance.id!!,
             fileUrl = fileUrl,
@@ -108,10 +104,9 @@ object PerformanceMapper {
      * @param fileUrl
      * @return PerformanceManagerDetailResponse
      */
-    @JvmStatic
     fun toManagerDetailResponse(
         performance: Performance,
-        fileUrl: String,
+        fileUrl: String?,
         schedules: List<PerformanceScheduleResponse>
     ): PerformanceManagerDetailResponse {
         return PerformanceManagerDetailResponse(
