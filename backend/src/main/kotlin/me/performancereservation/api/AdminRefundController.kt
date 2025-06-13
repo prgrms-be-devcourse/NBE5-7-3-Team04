@@ -11,14 +11,13 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-private val log = LoggerFactory.getLogger(AdminRefundController::class.java)
-
 @RestController
 @RequestMapping("/api/v1/admin/refunds")
 class AdminRefundController(
     private val refundService: RefundService
 ) : AdminRefundApiDocs {
 
+    private val log = LoggerFactory.getLogger(AdminRefundController::class.java)
     /*--- ADMIN 요청에 대응 ---*/
     /**
      * 모든 환불 내역 중 특정 status 리스트 반환.

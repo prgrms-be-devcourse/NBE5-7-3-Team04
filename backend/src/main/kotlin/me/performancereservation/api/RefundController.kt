@@ -17,13 +17,13 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
-private val log = LoggerFactory.getLogger(RefundController::class.java)
-
 @RestController
 @RequestMapping("/api/v1/refunds")
 class RefundController(
     private val refundService: RefundService
 ) : RefundApiDocs {
+
+    private val log = LoggerFactory.getLogger(RefundController::class.java)
 
     /*--- USER 요청에 대응 ---*/
     /**
@@ -75,7 +75,7 @@ class RefundController(
     @PatchMapping
     override fun updateBankInfo(
         @AuthenticationPrincipal authentication: CustomOAuth2User,
-        @RequestBody @Valid request: UpdateBankInfoRequest
+        @Valid @RequestBody request: UpdateBankInfoRequest
     ): ResponseEntity<Void> {
         log.info("은행 정보 호출")
         val userId = authentication.user.id
