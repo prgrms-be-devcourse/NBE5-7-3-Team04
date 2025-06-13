@@ -81,6 +81,8 @@ class CustomOAuth2UserServiceTest {
         given(userRequest.getClientRegistration()).willReturn(clientRegistration);
         given(clientRegistration.getRegistrationId()).willReturn(PROVIDER);
         given(oAuth2User.getAttributes()).willReturn(attributes);
+
+
     }
 
     @Test
