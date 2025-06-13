@@ -23,14 +23,14 @@ public class UserController implements UserApiDocs {
     @Override
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal CustomOAuth2User principal) {
-        User user = principal.getUser();
+        User user = principal.user;
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getPhoneNumber() ,user.getRole()));
     }
 
     @Override
     @GetMapping("/manager-status")
     public ResponseEntity<Boolean> canRequestManagerRole(@AuthenticationPrincipal CustomOAuth2User principal) {
-        boolean canRequest = userService.canRequestManagerRole(principal.getUser().getId());
+        boolean canRequest = userService.canRequestManagerRole(principal.user.getId());
         return ResponseEntity.ok(canRequest);
     }
 
@@ -38,7 +38,7 @@ public class UserController implements UserApiDocs {
     @PostMapping("/manager-request")
     public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal,
                                                      @RequestBody UserManagerRequestRequest request) {
-        userService.submitManagerRequest(principal.getUser().getId(), request);
+        userService.submitManagerRequest(principal.user.getId(), request);
         return ResponseEntity.noContent().build();
     }
 
@@ -46,7 +46,7 @@ public class UserController implements UserApiDocs {
     @PostMapping("/onboarding")
     public ResponseEntity<UserResponse> onboard(@AuthenticationPrincipal CustomOAuth2User principal,
                                                 @RequestBody UserOnboardingRequest request) {
-        userService.onboard(principal.getUser().getId(), request);
+        userService.onboard(principal.user.getId(), request);
         return ResponseEntity.noContent().build();
     }
 
