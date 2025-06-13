@@ -74,31 +74,31 @@ class AdminPerformanceServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // 공연 엔티티 생성
-        Performance performance = Performance.builder()
-                .id(1L)
-                .fileId(1L)
-                .managerId(1L)
-                .title("테스트 공연")
-                .venue("테스트 장소")
-                .price(10000)
-                .totalSeats(100)
-                .category(PerformanceCategory.MUSICAL_OPERA)
-                .startDate(LocalDateTime.now().plusDays(7))
-                .endDate(LocalDateTime.now().plusDays(8))
-                .description("테스트 설명")
-                .status(PerformanceStatus.PENDING)
-                .build();
+        Performance performance = new Performance(
+                1L,
+                1L,
+                1L,
+                "테스트 공연",
+                "테스트 장소",
+                10000,
+                100,
+                PerformanceCategory.MUSICAL_OPERA,
+                LocalDateTime.now().plusDays(7),
+                LocalDateTime.now().plusDays(8),
+                "테스트 설명",
+                PerformanceStatus.PENDING
+        );
 
         // 공연 스케줄 생성
-        PerformanceSchedule schedule = PerformanceSchedule.builder()
-                .id(1L)
-                .performanceId(1L)
-                .startTime(LocalDateTime.now().plusDays(7))
-                .endTime(LocalDateTime.now().plusDays(7).plusHours(2))
-                .remainingSeats(100)
-                .canceled(false)
-                .build();
-
+        PerformanceSchedule schedule = new PerformanceSchedule(
+                1L,
+                1L,
+                LocalDateTime.now().plusDays(7),
+                LocalDateTime.now().plusDays(7).plusHours(2),
+                100,
+                false
+        );
+        
         // 파일 생성
         File file = File.builder()
                 .id(1L)

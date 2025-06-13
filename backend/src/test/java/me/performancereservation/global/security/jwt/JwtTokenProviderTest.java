@@ -9,9 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import jakarta.servlet.http.HttpServletRequest;
@@ -150,4 +148,4 @@ class JwtTokenProviderTest {
     }
 
     // 이후에 각 메서드별 테스트가 추가될 예정
-} 
+}

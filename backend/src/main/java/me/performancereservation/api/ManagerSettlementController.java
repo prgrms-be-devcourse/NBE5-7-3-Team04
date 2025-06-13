@@ -66,7 +66,7 @@ public class ManagerSettlementController implements SettlementApiDocs {
             @AuthenticationPrincipal CustomOAuth2User authentication,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
 
-        Long userId = authentication.getUser().getId();
+        Long userId = authentication.user.getId();
         log.info("사용자 정산 내역 조회 요청: userId={}, page={}, size={}",
                 userId, pageable.getPageNumber(), pageable.getPageSize());
 

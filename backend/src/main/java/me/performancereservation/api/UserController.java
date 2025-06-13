@@ -6,14 +6,10 @@ import me.performancereservation.domain.user.dto.request.UserManagerRequestReque
 import me.performancereservation.domain.user.dto.request.UserOnboardingRequest;
 import me.performancereservation.domain.user.dto.UserResponse;
 import me.performancereservation.domain.user.entitiy.User;
-import me.performancereservation.domain.user.enums.Role;
-import me.performancereservation.domain.user.repository.UserRepository;
 import me.performancereservation.domain.user.service.UserService;
-import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,14 +23,14 @@ public class UserController implements UserApiDocs {
     @Override
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal CustomOAuth2User principal) {
-        User user = principal.getUser();
+        User user = principal.user;
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getPhoneNumber() ,user.getRole()));
     }
 
     @Override
     @GetMapping("/manager-status")
     public ResponseEntity<Boolean> canRequestManagerRole(@AuthenticationPrincipal CustomOAuth2User principal) {
-        boolean canRequest = userService.canRequestManagerRole(principal.getUser().getId());
+        boolean canRequest = userService.canRequestManagerRole(principal.user.getId());
         return ResponseEntity.ok(canRequest);
     }
 
@@ -42,7 +38,7 @@ public class UserController implements UserApiDocs {
     @PostMapping("/manager-request")
     public ResponseEntity<Void> submitManagerRequest(@AuthenticationPrincipal CustomOAuth2User principal,
                                                      @RequestBody UserManagerRequestRequest request) {
-        userService.submitManagerRequest(principal.getUser().getId(), request);
+        userService.submitManagerRequest(principal.user.getId(), request);
         return ResponseEntity.noContent().build();
     }
 
@@ -50,7 +46,7 @@ public class UserController implements UserApiDocs {
     @PostMapping("/onboarding")
     public ResponseEntity<UserResponse> onboard(@AuthenticationPrincipal CustomOAuth2User principal,
                                                 @RequestBody UserOnboardingRequest request) {
-        userService.onboard(principal.getUser().getId(), request);
+        userService.onboard(principal.user.getId(), request);
         return ResponseEntity.noContent().build();
     }
 
