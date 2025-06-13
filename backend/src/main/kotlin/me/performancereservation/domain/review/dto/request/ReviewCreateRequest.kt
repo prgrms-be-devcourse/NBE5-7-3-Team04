@@ -7,7 +7,6 @@ data class ReviewCreateRequest(
     @field:NotNull
     val performanceId: Long,
 
-    @field:NotNull
     @field:NotBlank
     val comment: String
 )
