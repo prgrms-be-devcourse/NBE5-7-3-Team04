@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 class JwtTokenProviderTest {
     @Mock
     private UserService userService;
-
     private JwtTokenProvider jwtTokenProvider;
 
     private User testUser;
