@@ -1,6 +1,5 @@
 package me.performancereservation.api
 
-import lombok.RequiredArgsConstructor
 import me.performancereservation.api.docs.ManagerPerformanceApiDocs
 import me.performancereservation.api.docs.UserPerformanceApiDocs
 import me.performancereservation.domain.performance.dto.performance.*
@@ -23,7 +22,6 @@ import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/v1/managers")
-@RequiredArgsConstructor
 class ManagerPerformanceController (
     private val performanceService: PerformanceService,
     private val performanceScheduleService: PerformanceScheduleService
@@ -42,7 +40,7 @@ class ManagerPerformanceController (
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Page<PerformanceManagerPageResponse>> {
         val managerId = principal.user.id
-        val performanceManagerPageResponse = performanceService.getPerformanceManagerList(pageable, managerId)
+        val performanceManagerPageResponse = performanceService.getPerformanceManagerList(pageable, managerId!!)
         return ResponseEntity.ok(performanceManagerPageResponse)
     }
 
@@ -58,7 +56,7 @@ class ManagerPerformanceController (
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<PerformanceManagerDetailResponse> {
         val managerId = principal.user.id
-        val performanceManagerResponse = performanceService.getPerformanceManagerDetail(performanceId, managerId)
+        val performanceManagerResponse = performanceService.getPerformanceManagerDetail(performanceId, managerId!!)
         return ResponseEntity.ok(performanceManagerResponse)
     }
 
@@ -74,7 +72,7 @@ class ManagerPerformanceController (
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Long> {
         val managerId = principal.user.id
-        val performanceId = performanceService.createPerformance(request, managerId)
+        val performanceId = performanceService.createPerformance(request, managerId!!)
         return ResponseEntity.status(HttpStatus.CREATED).body(performanceId)
     }
 
@@ -91,7 +89,7 @@ class ManagerPerformanceController (
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Long> {
         val managerId = principal.user.id
-        val scheduleId = performanceScheduleService.createPerformanceSchedule(performanceId, request, managerId)
+        val scheduleId = performanceScheduleService.createPerformanceSchedule(performanceId, request, managerId!!)
         return ResponseEntity.status(HttpStatus.CREATED).body(scheduleId)
     }
 
@@ -108,7 +106,7 @@ class ManagerPerformanceController (
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Void> {
         val managerId = principal.user.id
-        performanceService.updatePerformance(performanceId, request, managerId)
+        performanceService.updatePerformance(performanceId, request, managerId!!)
         return ResponseEntity.noContent().build()
     }
 
@@ -124,7 +122,7 @@ class ManagerPerformanceController (
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Void> {
         val managerId = principal.user.id
-        performanceService.cancelPerformance(performanceId, managerId)
+        performanceService.cancelPerformance(performanceId, managerId!!)
         return ResponseEntity.noContent().build()
     }
 
@@ -142,7 +140,7 @@ class ManagerPerformanceController (
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Void> {
         val managerId = principal.user.id
-        performanceScheduleService.cancelPerformanceSchedule(performanceId, performanceScheduleId, managerId)
+        performanceScheduleService.cancelPerformanceSchedule(performanceId, performanceScheduleId, managerId!!)
         return ResponseEntity.noContent().build()
     }
 
@@ -173,7 +171,7 @@ class ManagerPerformanceController (
     ): ResponseEntity<Page<PerformanceManagerPageResponse>> {
         val managerId = principal.user.id
         val performanceManagerPageResponse =
-            performanceService.searchManagerPerformances(managerId, title, venue, start, end, status, pageable)
+            performanceService.searchManagerPerformances(managerId!!, title, venue, start, end, status, pageable)
         return ResponseEntity.ok(performanceManagerPageResponse)
     }
 }
@@ -182,7 +180,6 @@ class ManagerPerformanceController (
 
 @RestController
 @RequestMapping("/api/v1/users")
-@RequiredArgsConstructor
 class UserPerformanceController (
     private val performanceService: PerformanceService,
     private val performanceScheduleService: PerformanceScheduleService

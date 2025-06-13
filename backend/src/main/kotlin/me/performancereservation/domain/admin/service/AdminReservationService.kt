@@ -1,6 +1,5 @@
 package me.performancereservation.domain.admin.service
 
-import lombok.RequiredArgsConstructor
 import me.performancereservation.domain.admin.dto.AdminReservationPageResponse
 import me.performancereservation.domain.admin.repository.AdminReservationRepository
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
-@RequiredArgsConstructor
 class AdminReservationService (
     private val smsService: SMSService,
     private val userRepository: UserRepository,

@@ -1,6 +1,5 @@
 package me.performancereservation.api
 
-import lombok.RequiredArgsConstructor
 import me.performancereservation.api.docs.AdminReservationApiDocs
 import me.performancereservation.domain.admin.dto.AdminReservationPageResponse
 import me.performancereservation.domain.admin.service.AdminReservationService
@@ -15,7 +14,6 @@ import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/v1/admin/reservations")
-@RequiredArgsConstructor
 class AdminReservationController (
     private val adminReservationService: AdminReservationService,
     private val bulkCancelService: RedisReservationBulkCancelService

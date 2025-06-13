@@ -1,6 +1,5 @@
 package me.performancereservation.domain.performance.service
 
-import lombok.RequiredArgsConstructor
 import me.performancereservation.domain.performance.dto.performanceschedule.PerformanceScheduleRequest
 import me.performancereservation.domain.performance.event.PerformanceScheduleCreatedEvent
 import me.performancereservation.domain.performance.event.ScheduleCanceledEvent
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@RequiredArgsConstructor
 class PerformanceScheduleService (
     private val performanceRepository: PerformanceRepository,
     private val performanceScheduleRepository: PerformanceScheduleRepository,
