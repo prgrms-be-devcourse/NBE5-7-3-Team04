@@ -12,9 +12,9 @@ import java.util.*
 
 @Repository
 interface RefundRepository : JpaRepository<Refund, Long> {
-    fun findRefundByStatus(status: RefundStatus): List<Refund?>?
+    fun findRefundByStatus(status: RefundStatus): List<Refund?>
 
-    fun findRefundByReservationId(reservationId: Long): Optional<Refund?>?
+    fun findRefundByReservationId(reservationId: Long): Refund?
 
     // 주어진 id로 Refund를 찾아 status를 업데이트 하는 메서드
     @Modifying

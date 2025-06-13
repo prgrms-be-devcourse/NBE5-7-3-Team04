@@ -88,7 +88,7 @@ class RefundServiceTest {
     @DisplayName("환불 생성 성공 테스트")
     void save_Success() {
         // given
-        when(refundRepository.findRefundByReservationId(RESERVATION_ID)).thenReturn(Optional.empty());
+        when(refundRepository.findRefundByReservationId(RESERVATION_ID)).thenReturn(null);
         when(refundRepository.save(any(Refund.class))).thenReturn(refund);
 
         // when
@@ -103,7 +103,7 @@ class RefundServiceTest {
     @DisplayName("환불 생성 실패 테스트 - 이미 환불 신청된 예약")
     void save_Fail_DuplicateRefund() {
         // given
-        when(refundRepository.findRefundByReservationId(RESERVATION_ID)).thenReturn(Optional.of(refund));
+        when(refundRepository.findRefundByReservationId(RESERVATION_ID)).thenReturn(new Refund());
 
         // when & then
         assertThatThrownBy(() -> refundService.save(reservation))
