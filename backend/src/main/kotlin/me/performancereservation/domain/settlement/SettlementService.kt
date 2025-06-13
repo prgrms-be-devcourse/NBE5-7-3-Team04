@@ -168,12 +168,12 @@ class SettlementService(
     }
 
     @Transactional(readOnly = true)
-    fun findAllSettlementsWithUserId(userId: Long, pageable: Pageable): Page<SettlementResponse?> {
+    fun findAllSettlementsWithUserId(userId: Long, pageable: Pageable): Page<SettlementResponse> {
         return settlementRepository.findAllSettlementsWithUserId(userId, pageable)
     }
 
     @Transactional(readOnly = true)
-    fun findAllSettlementsByStatus(status: String?, pageable: Pageable): Page<SettlementResponse?> {
+    fun findAllSettlementsByStatus(status: String?, pageable: Pageable): Page<SettlementResponse> {
         return if (status == null) {
             settlementRepository.findAllSettlements(pageable)
         } else {
