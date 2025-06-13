@@ -26,9 +26,9 @@ public class ReviewMapper {
 
     public Review toEntity(Long userId, ReviewCreateRequest request) {
         return Review.builder()
-                .performanceId(request.performanceId())
+                .performanceId(request.performanceId)
                 .userId(userId)
-                .comments(request.comment())
+                .comments(request.comment)
                 .build();
     }
 }

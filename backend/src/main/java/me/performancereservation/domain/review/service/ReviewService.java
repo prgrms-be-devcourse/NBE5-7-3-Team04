@@ -42,8 +42,8 @@ public class ReviewService {
     @Transactional
     public void createReview(Long userId, ReviewCreateRequest request) {
 
-        checkExistPerformance(request.performanceId());
-        checkValidateUser(userId, request.performanceId());
+        checkExistPerformance(request.performanceId);
+        checkValidateUser(userId, request.performanceId);
 
         Review review = reviewMapper.toEntity(userId, request);
         reviewRepository.save(review);
@@ -76,7 +76,7 @@ public class ReviewService {
             throw ErrorCode.UNAUTHORIZED.domainException("리뷰를 수정할 권한이 없습니다.");
         }
 
-        review.updateComments(request.comment());
+        review.updateComments(request.comment);
     }
 
     // 리뷰 삭제
