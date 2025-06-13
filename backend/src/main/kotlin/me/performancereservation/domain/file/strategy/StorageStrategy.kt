@@ -5,5 +5,5 @@ import java.io.IOException
 
 interface StorageStrategy {
     @Throws(IOException::class)
-    fun upload(file: MultipartFile?, newFileName: String?)
+    fun upload(file: MultipartFile, newFileName: String)
 }
