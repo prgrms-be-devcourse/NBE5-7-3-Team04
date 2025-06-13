@@ -102,7 +102,7 @@ class PerformanceService (
         // 공연 취소
         performance.cancel()
         // 해당 공연 회차 전체 취소
-        performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
+        performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id!!)
             .forEach {obj -> obj.cancel() }
 
         // 예약 취소 이벤트 호출
@@ -153,7 +153,7 @@ class PerformanceService (
 
         // 회차 조회
         val schedules: List<PerformanceSchedule> = performanceScheduleRepository
-            .findByPerformanceIdOrderByStartTimeAsc(performance.id)
+            .findByPerformanceIdOrderByStartTimeAsc(performance.id!!)
 
         var bookmarked = false
         if (userId != null) {
@@ -214,7 +214,7 @@ class PerformanceService (
 
         // 연결된 회차 조회
         val schedules: List<PerformanceSchedule> =
-            performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
+            performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id!!)
 
         // 회차 Response 객체 변환
         val scheduleResponses: List<PerformanceScheduleResponse> = schedules.map{ PerformanceScheduleMapper.toResponse(it) }
@@ -314,7 +314,7 @@ class PerformanceService (
             performanceRepository.findByEndDateBeforeAndStatus(now, PerformanceStatus.CONFIRMED)
 
         // 레디스 회차별 좌석 정보 제거
-        endedPerformances.forEach(Consumer<Performance> { performance: Performance ->
+        endedPerformances.forEach(Consumer { performance: Performance ->
             performance.completePerformance()
             // 티켓 만료 처리
             val tickets: List<Ticket> = ticketRepository.findAllByPerformanceId(performance.id)
@@ -323,8 +323,8 @@ class PerformanceService (
 
             // 레디스 좌석 정보 제거
             val schedules: List<PerformanceSchedule> =
-                performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
-            schedules.forEach(Consumer<PerformanceSchedule> { schedule: PerformanceSchedule ->
+                performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id!!)
+            schedules.forEach(Consumer { schedule: PerformanceSchedule ->
                 redisSeatService.deleteSeatStock(schedule.id)
             })
         })
