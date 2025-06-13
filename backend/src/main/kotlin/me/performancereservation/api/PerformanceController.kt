@@ -1,5 +1,6 @@
 package me.performancereservation.api
 
+import jakarta.validation.Valid
 import me.performancereservation.api.docs.ManagerPerformanceApiDocs
 import me.performancereservation.api.docs.UserPerformanceApiDocs
 import me.performancereservation.domain.performance.dto.performance.*
@@ -68,7 +69,7 @@ class ManagerPerformanceController (
      */
     @PostMapping("/register")
     override fun registerPerformance(
-        @RequestBody request: PerformanceCreateRequest,
+        @Valid @RequestBody request:  PerformanceCreateRequest,
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Long> {
         val managerId = principal.user.id
@@ -85,7 +86,7 @@ class ManagerPerformanceController (
     @PostMapping("/performances/{performanceId}/register")
     override fun registerPerformanceSchedule(
         @PathVariable performanceId: Long,
-        @RequestBody request: PerformanceScheduleRequest,
+        @Valid @RequestBody request: PerformanceScheduleRequest,
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Long> {
         val managerId = principal.user.id
@@ -102,7 +103,7 @@ class ManagerPerformanceController (
     @PatchMapping("/performances/{performanceId}")
     override fun updatePerformance(
         @PathVariable performanceId: Long,
-        @RequestBody request: PerformanceUpdateRequest,
+        @Valid @RequestBody request: PerformanceUpdateRequest,
         @AuthenticationPrincipal principal: CustomOAuth2User
     ): ResponseEntity<Void> {
         val managerId = principal.user.id
