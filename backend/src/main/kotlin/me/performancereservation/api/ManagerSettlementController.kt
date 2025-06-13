@@ -1,8 +1,6 @@
 package me.performancereservation.api
 
 import jakarta.validation.Valid
-import lombok.RequiredArgsConstructor
-import lombok.extern.slf4j.Slf4j
 import me.performancereservation.api.docs.SettlementApiDocs
 import me.performancereservation.domain.settlement.SettlementService
 import me.performancereservation.domain.settlement.dto.SettlementRequest
