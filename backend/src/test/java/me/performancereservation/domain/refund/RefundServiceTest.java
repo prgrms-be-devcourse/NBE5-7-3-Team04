@@ -3,7 +3,6 @@ package me.performancereservation.domain.refund;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
-import me.performancereservation.domain.refund.dto.RefundResponse;
 import me.performancereservation.domain.refund.dto.UpdateBankInfoRequest;
 import me.performancereservation.domain.refund.enums.RefundStatus;
 import me.performancereservation.domain.refund.mapper.RefundDetailMapper;
@@ -65,7 +64,6 @@ class RefundServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Performance 생성
         performance = Performance.builder()
                 .id(PERFORMANCE_ID)
                 .title("오페라 갈라")
@@ -80,20 +78,10 @@ class RefundServiceTest {
                 .managerId(MANAGER_ID)
                 .build();
 
-        reservation = Reservation.builder()
-                .id(RESERVATION_ID)
-                .scheduleId(SCHEDULE_ID)
-                .userId(USER_ID)
-                .quantity(2)
-                .status(ReservationStatus.PAYMENTS_CONFIRMED)
-                .build();
+        reservation = new Reservation(RESERVATION_ID, USER_ID, PERFORMANCE_ID, SCHEDULE_ID, 2, ReservationStatus.PAYMENTS_CONFIRMED);
 
-        refund = Refund.builder()
-                .id(REFUND_ID)
-                .reservationId(RESERVATION_ID)
-                .userId(USER_ID)
-                .status(RefundStatus.PENDING)
-                .build();
+        refund = new Refund(REFUND_ID, RESERVATION_ID, USER_ID, RefundStatus.PENDING);
+
     }
 
     @Test
