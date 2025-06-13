@@ -1,7 +1,6 @@
 package me.performancereservation.api
 
-import lombok.RequiredArgsConstructor
-import lombok.extern.slf4j.Slf4j
+import jakarta.validation.Valid
 import me.performancereservation.api.docs.RefundApiDocs
 import me.performancereservation.domain.refund.RefundService
 import me.performancereservation.domain.refund.dto.RefundDetailResponse
@@ -76,7 +75,7 @@ class RefundController(
     @PatchMapping
     override fun updateBankInfo(
         @AuthenticationPrincipal authentication: CustomOAuth2User,
-        @RequestBody request: UpdateBankInfoRequest
+        @RequestBody @Valid request: UpdateBankInfoRequest
     ): ResponseEntity<Void> {
         log.info("은행 정보 호출")
         val userId = authentication.user.id
