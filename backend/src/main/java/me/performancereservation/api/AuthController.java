@@ -64,7 +64,7 @@ public class AuthController implements AuthApiDocs {
     @Override
     @GetMapping("/token-test")
     public ResponseEntity<String> getTestToken(@AuthenticationPrincipal CustomOAuth2User principal) {
-        User user = principal.getUser();
+        User user = principal.user;
         String jwt = jwtTokenProvider.createAccessToken(user);
         return ResponseEntity.ok(jwt);
     }

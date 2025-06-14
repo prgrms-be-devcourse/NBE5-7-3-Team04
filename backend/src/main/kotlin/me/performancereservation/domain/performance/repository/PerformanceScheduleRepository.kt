@@ -16,7 +16,7 @@ interface PerformanceScheduleRepository : JpaRepository<PerformanceSchedule, Lon
     JOIN Performance p ON ps.performanceId = p.id
     WHERE ps.id = :scheduleId
     """)
-    fun findSchedulePerformanceInfoByScheduleId(@Param("scheduleId") scheduleId: Long): Optional<SchedulePerformanceInfo>
+    fun findSchedulePerformanceInfoByScheduleId(@Param("scheduleId") scheduleId: Long): SchedulePerformanceInfo?
 
     // scheduleId로 DTO 프로젝션을 이용해서 in절로 SchedulePerformanceInfo 데이터 모델 리스트를 조회
     @Query("""

@@ -20,7 +20,7 @@ interface SettlementRepository : JpaRepository<Settlement, Long> {
             
         """
     )
-    fun findAllSettlementsWithUserId(@Param("userId") userId: Long, pageable: Pageable): Page<SettlementResponse?>
+    fun findAllSettlementsWithUserId(@Param("userId") userId: Long, pageable: Pageable): Page<SettlementResponse>
 
     // 전체 정산 목록 조회 (Performance와 조인하여 title 포함)
     @Query(
@@ -32,7 +32,7 @@ interface SettlementRepository : JpaRepository<Settlement, Long> {
             
         """
     )
-    fun findAllSettlements(pageable: Pageable): Page<SettlementResponse?>
+    fun findAllSettlements(pageable: Pageable): Page<SettlementResponse>
 
     // 상태별 정산 목록 조회 (Performance와 조인하여 title 포함)
     @Query(
@@ -48,7 +48,7 @@ interface SettlementRepository : JpaRepository<Settlement, Long> {
     fun findAllSettlementsByStatus(
         @Param("status") status: SettlementStatus,
         pageable: Pageable
-    ): Page<SettlementResponse?>
+    ): Page<SettlementResponse>
 
-    fun findSettlementByPerformanceId(performanceId: Long): List<Settlement?>
+    fun findSettlementByPerformanceId(performanceId: Long): List<Settlement>
 }

@@ -26,7 +26,7 @@ data class PerformanceDetailResponse(
     val venue: String,
     val description: String,
     val status: PerformanceStatus,
-    val fileUrl: String,
+    val fileUrl: String?,
     val startDate: LocalDateTime,
     val endDate: LocalDateTime,
     val bookmarked: Boolean,
@@ -45,7 +45,7 @@ data class PerformanceDetailResponse(
  */
 data class PerformanceManagerDetailResponse(
     val id: Long,
-    val fileUrl: String,
+    val fileUrl: String?,
     val title: String,
     val venue: String,
     val status: PerformanceStatus,
@@ -70,7 +70,7 @@ data class PerformanceManagerDetailResponse(
 
 data class PerformanceManagerPageResponse(
     val id: Long,
-    val fileUrl: String,
+    val fileUrl: String?,
     val title: String,
     val startDate: LocalDateTime,
     val endDate: LocalDateTime,

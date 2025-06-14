@@ -10,8 +10,6 @@ import me.performancereservation.domain.performance.service.PerformanceService;
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,7 +50,7 @@ public class UserPerformanceController implements UserPerformanceApiDocs {
                                                                           @AuthenticationPrincipal CustomOAuth2User principal) {
         Long userId = null;
         if(principal != null) {
-            userId = principal.getUser().getId();
+            userId = principal.user.getId();
         }
 
         PerformanceDetailResponse performanceResponse = performanceService.getPerformanceDetail(performanceId, userId);
