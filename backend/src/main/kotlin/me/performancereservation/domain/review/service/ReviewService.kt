@@ -5,7 +5,7 @@ import me.performancereservation.domain.reservation.ReservationRepository
 import me.performancereservation.domain.review.Review
 import me.performancereservation.domain.review.dto.request.ReviewCreateRequest
 import me.performancereservation.domain.review.dto.request.ReviewUpdateRequest
-import me.performancereservation.domain.review.dto.respornse.ReviewResponse
+import me.performancereservation.domain.review.dto.response.ReviewResponse
 import me.performancereservation.domain.review.mapper.ReviewMapper
 import me.performancereservation.domain.review.repository.ReviewRepository
 import me.performancereservation.domain.user.repository.UserRepository

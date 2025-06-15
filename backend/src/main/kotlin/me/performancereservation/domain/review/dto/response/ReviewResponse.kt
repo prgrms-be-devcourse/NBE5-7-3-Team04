@@ -1,4 +1,4 @@
-package me.performancereservation.domain.review.dto.respornse
+package me.performancereservation.domain.review.dto.response
 
 import java.time.LocalDateTime
 

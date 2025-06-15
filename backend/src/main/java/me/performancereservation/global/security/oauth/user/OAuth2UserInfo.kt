@@ -4,7 +4,7 @@ package me.performancereservation.global.security.oauth.user
 abstract class OAuth2UserInfo(
     protected val attributes: Map<String, Any>
 ) {
-    abstract val name: String?
-    abstract val email: String?
-    abstract val oauthId: String?
+    abstract val name: String
+    abstract val email: String
+    abstract val oauthId: String
 }
