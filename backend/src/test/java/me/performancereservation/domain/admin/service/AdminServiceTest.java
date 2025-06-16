@@ -131,13 +131,14 @@ class AdminServiceTest {
         Long userId = 1L;
         String expectedName = "테스트 사용자";
 
-        User user = User.builder()
-                .id(userId)
-                .email("test@test.com")
-                .name(expectedName)
-                .phoneNumber("010-1234-5678")
-                .role(Role.USER)
-                .build();
+        // 사용자 생성
+        User user = new User(
+                userId,
+                "test@test.com",
+                expectedName,
+                "010-1234-5678",
+                Role.USER
+        );
 
         // when
         when(userRepository.findById(userId))
@@ -176,13 +177,14 @@ class AdminServiceTest {
         Long userId = 1L;
         String expectedName = "관리자";
 
-        User adminUser = User.builder()
-                .id(userId)
-                .email("admin@test.com")
-                .name(expectedName)
-                .phoneNumber("010-9999-9999")
-                .role(Role.ADMIN)
-                .build();
+        // 사용자 생성
+        User adminUser = new User(
+                userId,
+                "admin@test.com",
+                expectedName,
+                "010-9999-9999",
+                Role.ADMIN
+        );
 
         // when
         when(userRepository.findById(userId))
