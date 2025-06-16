@@ -106,7 +106,7 @@ class PerformanceService (
             .forEach {obj -> obj.cancel() }
 
         // 예약 취소 이벤트 호출
-        eventPublisher.publishEvent(PerformanceCanceledEvent(performance.id))
+        eventPublisher.publishEvent(PerformanceCanceledEvent(performance.id!!))
 
         return performance.id
     }
@@ -317,7 +317,7 @@ class PerformanceService (
         endedPerformances.forEach(Consumer { performance: Performance ->
             performance.completePerformance()
             // 티켓 만료 처리
-            val tickets: List<Ticket> = ticketRepository.findAllByPerformanceId(performance.id)
+            val tickets: List<Ticket> = ticketRepository.findAllByPerformanceId(performance.id!!)
 
             tickets.forEach(Consumer { obj: Ticket -> obj.expire() })
 
@@ -325,7 +325,7 @@ class PerformanceService (
             val schedules: List<PerformanceSchedule> =
                 performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id!!)
             schedules.forEach(Consumer { schedule: PerformanceSchedule ->
-                redisSeatService.deleteSeatStock(schedule.id)
+                redisSeatService.deleteSeatStock(schedule.id!!)
             })
         })
     }
