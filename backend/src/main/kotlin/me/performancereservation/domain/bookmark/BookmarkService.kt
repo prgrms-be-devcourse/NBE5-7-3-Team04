@@ -81,7 +81,7 @@ class BookmarkService(
         // 파일 ID 추출 및 파일 URL 매핑
         val fileIds = performanceMap.values.mapNotNull { it.fileId }
         val fileUrlMap = fileRepository.findAllById(fileIds)
-            .associate { it.id to it.key }
+            .associate { it.id!! to it.key }
 
         // 북마크 순서를 유지하면서 응답 객체 생성
         return bookmarks.map { bookmark ->
