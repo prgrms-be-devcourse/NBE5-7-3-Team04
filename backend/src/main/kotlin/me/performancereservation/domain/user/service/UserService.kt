@@ -100,12 +100,12 @@ class UserService(
      */
     fun canRequestManagerRole(userId: Long): Boolean {
         // 이미 승인된 요청이 있는지 확인 (이미 매니저인 경우)
-        if (hasPendingRequest(userId)) {
+        if (hasApprovedRequest(userId)) {
             return false
         }
 
         // 대기 중인 요청이 있는지 확인
-        if (hasApprovedRequest(userId)) {
+        if (hasPendingRequest(userId)) {
             return false
         }
 
