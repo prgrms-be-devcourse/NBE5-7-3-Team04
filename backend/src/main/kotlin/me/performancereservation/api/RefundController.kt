@@ -38,7 +38,7 @@ class RefundController(
         @AuthenticationPrincipal authentication: CustomOAuth2User,
         @PageableDefault(size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<RefundDetailResponse>> {
-        val userId = authentication.user.id
+        val userId = authentication.user.id!!
 
         log.info(
             "사용자 환불 내역 조회 요청: userId={}, page={}, size={}",
@@ -59,7 +59,7 @@ class RefundController(
         @AuthenticationPrincipal authentication: CustomOAuth2User,
         @PathVariable reservationId: Long
     ): ResponseEntity<RefundResponse> {
-        val userId = authentication.user.id
+        val userId = authentication.user.id!!
 
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -78,7 +78,7 @@ class RefundController(
         @Valid @RequestBody request: UpdateBankInfoRequest
     ): ResponseEntity<Void> {
         log.info("은행 정보 호출")
-        val userId = authentication.user.id
+        val userId = authentication.user.id!!
 
         log.info("refund = {}", request.toString())
         refundService.updateBankInfo(userId, request)

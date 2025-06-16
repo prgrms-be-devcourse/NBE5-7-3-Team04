@@ -66,7 +66,7 @@ class ManagerSettlementController(
         @AuthenticationPrincipal authentication: CustomOAuth2User,
         @PageableDefault(size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<SettlementResponse>> {
-        val userId = authentication.user.id
+        val userId = authentication.user.id!!
         log.info(
             "사용자 정산 내역 조회 요청: userId={}, page={}, size={}",
             userId, pageable.pageNumber, pageable.pageSize

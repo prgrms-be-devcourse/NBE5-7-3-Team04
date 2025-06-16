@@ -28,7 +28,7 @@ class AdminRefundController(
     </RefundDetailResponse> */
     @GetMapping
     override fun getAllRefundDetailsByRefundStatus(
-        @RequestParam(required = false) status: String,
+        @RequestParam(required = false) status: String?,
         @PageableDefault(size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<RefundDetailResponse>> {
         log.info(
