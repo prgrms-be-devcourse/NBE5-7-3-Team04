@@ -11,6 +11,7 @@ import me.performancereservation.global.security.oauth.user.OAuth2UserInfo
 import me.performancereservation.global.security.oauth.user.OAuth2UserInfoFactory
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 
@@ -57,3 +58,4 @@ class CustomOAuth2UserService(
         return CustomOAuth2User(user, attributes)
     }
 }
+
