@@ -58,3 +58,4 @@ class CustomOAuth2UserService(
         return CustomOAuth2User(user, attributes)
     }
 }
+

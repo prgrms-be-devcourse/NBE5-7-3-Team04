@@ -3,7 +3,6 @@ package me.performancereservation.global.security.jwt
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
-import lombok.Getter
 import lombok.extern.slf4j.Slf4j
 import me.performancereservation.domain.user.entitiy.User
 import me.performancereservation.domain.user.service.UserService
@@ -15,7 +14,6 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import java.security.Key
 import java.util.*
-import java.util.Map
 
 @Slf4j
 @Component
