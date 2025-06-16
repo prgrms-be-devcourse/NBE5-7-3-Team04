@@ -34,7 +34,7 @@ class ReservationMapper(
         val totalPrice = reservation.calculateTotalPrice(schedulePerformanceInfo.price)
 
         // 관련 티켓들 조회
-        val tickets = ticketRepository.findAllByReservationId(reservation.id)
+        val tickets = ticketRepository.findAllByReservationId(reservation.id!!)
 
         // 티켓 id 목록 생성
         val ticketNumbers = tickets.stream()
@@ -74,7 +74,7 @@ class ReservationMapper(
         val totalPrice = reservation.calculateTotalPrice(schedulePerformanceInfo.price)
 
         // 관련 티켓들 조회
-        val tickets = ticketRepository.findAllByReservationId(reservation.id)
+        val tickets = ticketRepository.findAllByReservationId(reservation.id!!)
 
         // 티켓 id 목록 생성
         val ticketNumbers = tickets.stream()
