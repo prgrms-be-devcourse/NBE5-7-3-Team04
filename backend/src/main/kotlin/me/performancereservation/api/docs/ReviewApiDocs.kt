@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import me.performancereservation.domain.review.dto.request.ReviewCreateRequest
 import me.performancereservation.domain.review.dto.request.ReviewUpdateRequest
-import me.performancereservation.domain.review.dto.respornse.ReviewResponse
+import me.performancereservation.domain.review.dto.response.ReviewResponse
 import me.performancereservation.global.exception.ErrorResponse
 import me.performancereservation.global.security.oauth.user.CustomOAuth2User
 import org.springdoc.core.annotations.ParameterObject
