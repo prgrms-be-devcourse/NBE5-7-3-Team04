@@ -36,9 +36,9 @@ class AdminPerformanceController(
      * @param performanceId
      */
     @PostMapping("/performances/{performanceId}/confirm")
-    override fun confirmPerformance(@PathVariable("performanceId") performanceId: Long): ResponseEntity<Void?> {
+    override fun confirmPerformance(@PathVariable("performanceId") performanceId: Long): ResponseEntity<Void> {
         adminPerformanceService.confirmPerformance(performanceId)
-        return ResponseEntity.noContent().build<Void?>()
+        return ResponseEntity.noContent().build()
     }
 
     /** PENDING 상태의 공연을 거부
