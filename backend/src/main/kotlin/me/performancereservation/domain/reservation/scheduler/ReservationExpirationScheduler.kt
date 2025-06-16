@@ -1,7 +1,9 @@
-package me.performancereservation.domain.reservation
+package me.performancereservation.domain.reservation.scheduler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.transaction.Transactional
+import me.performancereservation.domain.reservation.Reservation
+import me.performancereservation.domain.reservation.ReservationRepository
 import me.performancereservation.domain.reservation.enums.ReservationStatus
 import me.performancereservation.global.storage.redis.RedisReservationService
 import me.performancereservation.global.storage.redis.RedisSeatService
