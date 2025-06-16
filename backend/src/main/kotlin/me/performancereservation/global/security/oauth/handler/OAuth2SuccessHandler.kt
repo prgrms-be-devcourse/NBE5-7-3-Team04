@@ -1,6 +1,5 @@
 package me.performancereservation.global.security.oauth.handler
 
-import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import me.performancereservation.global.security.jwt.JwtTokenProvider
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.web.util.UriComponentsBuilder
-import java.io.IOException
 
 @Configuration
 class OAuth2SuccessHandler(
