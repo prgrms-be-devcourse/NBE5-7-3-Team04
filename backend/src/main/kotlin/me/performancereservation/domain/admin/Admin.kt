@@ -13,7 +13,7 @@ class Admin(
 
     var password: String,           // 어드민 비밀번호
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     val role: Role = Role.ADMIN     // 어드민 권한 고정
 ) {
     fun changePassword(password: String) {
