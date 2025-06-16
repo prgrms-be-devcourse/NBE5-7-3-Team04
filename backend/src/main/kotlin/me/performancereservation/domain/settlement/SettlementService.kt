@@ -44,7 +44,7 @@ class SettlementService(
             }
 
         // 공연 스케줄 조회
-        var schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id)
+        var schedules = performanceScheduleRepository.findByPerformanceIdOrderByStartTimeAsc(performance.id!!)
         log.info("불러온 스케줄 리스트: {}개", schedules?.size)
 
         // schedules가 null이 아니면 실행

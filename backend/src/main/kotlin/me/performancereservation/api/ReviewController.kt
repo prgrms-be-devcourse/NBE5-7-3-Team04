@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/reviews")
-abstract class ReviewController(
+class ReviewController(
     private val reviewService: ReviewService
 ) : ReviewApiDocs {
 
