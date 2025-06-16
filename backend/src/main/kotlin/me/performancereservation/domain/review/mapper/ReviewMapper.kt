@@ -2,7 +2,7 @@ package me.performancereservation.domain.review.mapper
 
 import me.performancereservation.domain.review.Review
 import me.performancereservation.domain.review.dto.request.ReviewCreateRequest
-import me.performancereservation.domain.review.dto.respornse.ReviewResponse
+import me.performancereservation.domain.review.dto.response.ReviewResponse
 import me.performancereservation.domain.user.entitiy.User
 import org.springframework.stereotype.Component
 
