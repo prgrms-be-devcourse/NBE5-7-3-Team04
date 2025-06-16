@@ -10,7 +10,6 @@ import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.domain.reservation.mapper.ReservationMapper;
 import me.performancereservation.domain.ticket.Ticket;
 import me.performancereservation.domain.ticket.TicketRepository;
-import me.performancereservation.domain.ticket.enums.TicketStatus;
 import me.performancereservation.global.exception.AppException;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.storage.redis.RedisReservationService;
