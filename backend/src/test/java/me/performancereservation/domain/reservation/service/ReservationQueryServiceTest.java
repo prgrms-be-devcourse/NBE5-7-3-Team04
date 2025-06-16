@@ -9,7 +9,6 @@ import me.performancereservation.domain.reservation.Reservation;
 import me.performancereservation.domain.reservation.ReservationRepository;
 import me.performancereservation.domain.reservation.dto.ReservationDetailResponse;
 import me.performancereservation.domain.reservation.dto.ReservationPageResponse;
-import me.performancereservation.domain.reservation.dto.ReservationResponse;
 import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.domain.reservation.mapper.ReservationMapper;
 import me.performancereservation.global.exception.AppException;
@@ -31,7 +30,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
