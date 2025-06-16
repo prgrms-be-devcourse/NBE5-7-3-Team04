@@ -38,11 +38,13 @@ class OAuth2SuccessHandler(
         val refreshToken = jwtTokenProvider.createRefreshToken(user)
 
         //리프레쉬 토큰 레디스에 저장
-        refreshTokenService.saveRefreshToken(
-            user.id,
-            refreshToken,
-            jwtTokenProvider.refreshExpiration
-        )
+        user.id?.let {
+            refreshTokenService.saveRefreshToken(
+                it,
+                refreshToken,
+                jwtTokenProvider.refreshExpiration
+            )
+        }
 
         val isExist = oAuth2User.getAttribute<Boolean>("exist") ?: false
 
