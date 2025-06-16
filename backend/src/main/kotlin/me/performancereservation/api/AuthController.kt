@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("api/v1/auth")
-abstract class AuthController(
+class AuthController(
     private val userService: UserService,
     private val jwtTokenProvider: JwtTokenProvider,
     private val refreshTokenService: RefreshTokenService
