@@ -100,16 +100,24 @@ class UserService(
      */
     fun canRequestManagerRole(userId: Long): Boolean {
         // 이미 승인된 요청이 있는지 확인 (이미 매니저인 경우)
-        if (managerRequestRepository.hasApprovedRequest(userId)) {
+        if (hasPendingRequest(userId)) {
             return false
         }
 
         // 대기 중인 요청이 있는지 확인
-        if (managerRequestRepository.hasPendingRequest(userId)) {
+        if (hasApprovedRequest(userId)) {
             return false
         }
 
         // 승인된 요청도 없고 대기 중인 요청도 없으면 신청 가능
         return true
+    }
+
+    fun hasPendingRequest(userId: Long): Boolean {
+        return managerRequestRepository.existsByUserIdAndStatus(userId, ManagerRequestStatus.PENDING)
+    }
+
+    fun hasApprovedRequest(userId: Long): Boolean {
+        return managerRequestRepository.existsByUserIdAndStatus(userId, ManagerRequestStatus.APPROVED)
     }
 }

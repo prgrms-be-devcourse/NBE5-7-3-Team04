@@ -8,11 +8,4 @@ interface ManagerRequestRepository : JpaRepository<ManagerRequest, Long> {
 
     fun existsByUserIdAndStatus(userId: Long, status: ManagerRequestStatus): Boolean
 
-    fun hasPendingRequest(userId: Long): Boolean {
-        return existsByUserIdAndStatus(userId, ManagerRequestStatus.PENDING)
-    }
-
-    fun hasApprovedRequest(userId: Long): Boolean {
-        return existsByUserIdAndStatus(userId, ManagerRequestStatus.APPROVED)
-    }
 }
