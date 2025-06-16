@@ -1,10 +1,14 @@
 package me.performancereservation.global.storage.redis
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import lombok.RequiredArgsConstructor
 import me.performancereservation.global.exception.ErrorCode
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
+
+private val log = KotlinLogging.logger {}
+
 
 @Service
 class RedisSeatService(
@@ -51,9 +55,17 @@ class RedisSeatService(
     fun safeDecrement(scheduleId: Long, quantity: Int) {
         val redisKey = key(scheduleId)
 
+        log.info {
+            "redisKey $redisKey"
+        }
+
         // decr 연산 (atomic 함)
         val result = redisTemplate.opsForValue().decrement(redisKey, quantity.toLong())
             ?: throw ErrorCode.SEAT_STOCK_DECREMENT_FAILED.serviceException("Redis decr 연산 결과가 null임") // 없는 회차거나 공연 생성 시 초기화 오류
+
+        log.info {
+            "decr 연산 호출됨 result: $result"
+        }
 
         // 좌석이 부족한 경우 Redis 좌석 감소 처리 했던 좌석 롤백
         if (result < 0) {

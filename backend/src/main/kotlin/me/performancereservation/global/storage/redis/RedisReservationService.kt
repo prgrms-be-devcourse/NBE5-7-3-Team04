@@ -7,14 +7,13 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
-@RequiredArgsConstructor
-class RedisReservationService {
+class RedisReservationService(
+    private val redisTemplate: StringRedisTemplate,
+
     @Value("\${reservation.expired_time}")
-    private val RESERVATION_EXPIRE_MINUTES = 0 // 예약 만료 시간 TODO 개발 끝나면 제대로 설정
-
-    private val RESERVATION_EXPIRATION_KEY = "reservation:pending:expiration" // 만료 시간 값 저장을 위한 ZSet 키
-
-    private val redisTemplate: StringRedisTemplate? = null
+    private val RESERVATION_EXPIRE_MINUTES: Long
+) {
+    private val RESERVATION_EXPIRATION_KEY = "reservation:pending:expiration"
 
     /**
      * 예약 만료를 위해 Redis ZSET에 등록
@@ -28,7 +27,7 @@ class RedisReservationService {
     fun addToPendingExpirationQueue(reservationId: Long) {
         val expireAt = Instant.now().plusSeconds(RESERVATION_EXPIRE_MINUTES * 60L).epochSecond
 
-        redisTemplate!!.opsForZSet().add(RESERVATION_EXPIRATION_KEY, reservationId.toString(), expireAt.toDouble())
+        redisTemplate.opsForZSet().add(RESERVATION_EXPIRATION_KEY, reservationId.toString(), expireAt.toDouble())
     }
 
 
@@ -41,7 +40,7 @@ class RedisReservationService {
      * @param reservationId 예약 ID
      */
     fun removeFromPendingExpirationQueue(reservationId: Long) {
-        redisTemplate!!.opsForZSet().remove(RESERVATION_EXPIRATION_KEY, reservationId.toString())
+        redisTemplate.opsForZSet().remove(RESERVATION_EXPIRATION_KEY, reservationId.toString())
     }
 
 
@@ -54,8 +53,8 @@ class RedisReservationService {
         val now = Instant.now().epochSecond
 
         return redisTemplate
-            ?.opsForZSet()
-            ?.rangeByScore(RESERVATION_EXPIRATION_KEY, 0.0, now.toDouble())
+            .opsForZSet()
+            .rangeByScore(RESERVATION_EXPIRATION_KEY, 0.0, now.toDouble())
             ?: emptySet()
     }
 }
