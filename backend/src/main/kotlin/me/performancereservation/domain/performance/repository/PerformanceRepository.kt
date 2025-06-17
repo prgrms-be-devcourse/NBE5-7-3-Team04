@@ -17,8 +17,19 @@ interface PerformanceRepository : JpaRepository<Performance, Long> {
      *
      * @param pageable
      */
-    @Query("""
+    // 기존 코드
+    /*@Query("""
     SELECT DISTINCT p
+    FROM Performance p
+    JOIN PerformanceSchedule ps ON p.id = ps.performanceId
+    WHERE ps.remainingSeats > 0
+    AND p.status = 'CONFIRMED'
+    ORDER BY p.startDate DESC
+    """)*/
+
+    // 개선 코드
+    @Query("""
+    SELECT p
     FROM Performance p
     JOIN PerformanceSchedule ps ON p.id = ps.performanceId
     WHERE ps.remainingSeats > 0
@@ -37,7 +48,8 @@ interface PerformanceRepository : JpaRepository<Performance, Long> {
      * @param pageable 페이징
      * @return performance
      */
-    @Query("""
+    //기존 코드
+    /*@Query("""
     SELECT DISTINCT p
     FROM Performance p
     JOIN PerformanceSchedule ps ON p.id = ps.performanceId
@@ -48,6 +60,22 @@ interface PerformanceRepository : JpaRepository<Performance, Long> {
     AND (:venue IS NULL OR LOWER(p.venue) LIKE LOWER(CONCAT('%', :venue, '%')))
     AND (:start IS NULL OR p.endDate >= :start)
     AND (:end IS NULL OR p.startDate <= :end)
+    ORDER BY p.startDate DESC
+    """)*/
+
+    // 개선 코드
+    @Query("""
+    SELECT p FROM Performance p
+    WHERE p.status = 'CONFIRMED'
+    AND (:category IS NULL OR p.category = :category)
+    AND (:start IS NULL OR p.endDate >= :start)
+    AND (:end IS NULL OR p.startDate <= :end)
+    AND EXISTS (
+       SELECT 1 FROM PerformanceSchedule ps
+       WHERE ps.performanceId = p.id AND ps.remainingSeats > 0
+       )
+    AND (:title IS NULL OR UPPER(p.title) LIKE UPPER(CONCAT('%', :title, '%')))
+    AND (:venue IS NULL OR UPPER(p.venue) LIKE UPPER(CONCAT('%', :venue, '%')))
     ORDER BY p.startDate DESC
     """)
     fun searchAvailablePerformances(
