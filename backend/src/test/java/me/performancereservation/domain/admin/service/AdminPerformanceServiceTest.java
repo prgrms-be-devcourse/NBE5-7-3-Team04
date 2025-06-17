@@ -15,6 +15,7 @@ import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
+import me.performancereservation.domain.sms.SMSService;
 import me.performancereservation.domain.user.entitiy.ManagerRequest;
 import me.performancereservation.domain.user.entitiy.User;
 import me.performancereservation.domain.user.enums.ManagerRequestStatus;
@@ -64,6 +65,9 @@ class AdminPerformanceServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private SMSService smsService;
+
     @InjectMocks
     private AdminPerformanceService adminPerformanceService;
 
@@ -98,21 +102,21 @@ class AdminPerformanceServiceTest {
                 100,
                 false
         );
-        
+
         // 파일 생성
-        File file = File.builder()
-                .id(1L)
-                .key("test-file-url")
-                .build();
+        File file = new File(
+                1L,
+                "test-file-url"
+        );
 
         // 사용자 생성
-        User user = User.builder()
-                .id(1L)
-                .email("test@test.com")
-                .name("테스트 매니저")
-                .phoneNumber("010-1234-5678")
-                .role(Role.MANAGER)
-                .build();
+        User user = new User(
+                1L,
+                "test@test.com",
+                "테스트 매니저",
+                "010-1234-5678",
+                Role.MANAGER
+        );
 
         // 응답 DTO 생성
         PendingPerformanceScheduleResponse scheduleResponse = new PendingPerformanceScheduleResponse(
@@ -274,57 +278,40 @@ class AdminPerformanceServiceTest {
         // given
         Pageable pageable = PageRequest.of(0, 10);
 
-        // 매니저 요청 엔티티 생성
-        ManagerRequest managerRequest = ManagerRequest.builder()
-                .id(1L)
-                .userId(1L)
-                .status(ManagerRequestStatus.PENDING)
-                .approvedAt(null)
-                .build();
+        ManagerRequest managerRequest = new ManagerRequest(
+                1L, 1L, "신청사유", "공연 경험", "단체명", "단체연락처", null, ManagerRequestStatus.PENDING
+        );
 
-        // 사용자 생성
-        User user = User.builder()
-                .id(1L)
-                .email("test@test.com")
-                .name("테스트 사용자")
-                .phoneNumber("010-1234-5678")
-                .role(Role.USER)
-                .build();
-
-        // 응답 DTO 생성
-        PendingManagerRequestPageResponse expectedResponse = new PendingManagerRequestPageResponse(
-                1L,
-                1L,
-                "테스트 사용자",
-                "010-1234-5678",
-                "테스트 단체",
-                "010-1234-1234",
-                "공연경험 없음",
-                "공연 관리자 신청 사유"
+        User user = new User(
+                1L, "test@test.com", "테스트 사용자", "010-1234-5678", Role.USER
         );
 
         // when
-        when(adminManagerRequestRepository.findAllByStatusOrderByCreatedAt(eq(ManagerRequestStatus.PENDING), eq(pageable)))
+        when(adminManagerRequestRepository.findAllByStatusOrderByCreatedAt(
+                eq(ManagerRequestStatus.PENDING), eq(pageable)))
                 .thenReturn(new PageImpl<>(List.of(managerRequest)));
         when(adminUserRepository.findAllById(anyList()))
                 .thenReturn(List.of(user));
 
-        // static 메서드 모킹
-        try (MockedStatic<AdminManagerRequestMapper> mockedMapper = Mockito.mockStatic(AdminManagerRequestMapper.class)) {
-            mockedMapper.when(() -> AdminManagerRequestMapper.toPendingResponse(
-                            any(ManagerRequest.class),
-                            any(User.class)))
-                    .thenReturn(expectedResponse);
+        // Static 모킹 없이 실제 Mapper 사용
+        Page<PendingManagerRequestPageResponse> result = adminPerformanceService.getPendingManagerRequestList(pageable);
 
-            Page<PendingManagerRequestPageResponse> result = adminPerformanceService.getPendingManagerRequestList(pageable);
+        // then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
 
-            // then
-            assertNotNull(result);
-            assertEquals(1, result.getTotalElements());
-            assertEquals(expectedResponse, result.getContent().get(0));
-        }
+        PendingManagerRequestPageResponse response = result.getContent().get(0);
+        assertEquals(1L, response.getId());
+        assertEquals(1L, response.getUserId());
+        assertEquals("테스트 사용자", response.getUserName());
+        assertEquals("010-1234-5678", response.getPhoneNumber());
+        assertEquals("단체명", response.getOrganizationName());
+        assertEquals("단체연락처", response.getOrganizationContact());
+        assertEquals("공연 경험", response.getExperience());
+        assertEquals("신청사유", response.getReason());
 
-        verify(adminManagerRequestRepository).findAllByStatusOrderByCreatedAt(eq(ManagerRequestStatus.PENDING), eq(pageable));
+        verify(adminManagerRequestRepository).findAllByStatusOrderByCreatedAt(
+                eq(ManagerRequestStatus.PENDING), eq(pageable));
         verify(adminUserRepository).findAllById(anyList());
     }
 
